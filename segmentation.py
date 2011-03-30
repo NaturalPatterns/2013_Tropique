@@ -15,7 +15,7 @@ record, record_list = 'segmentation.mpg', []
 import numpy as np
 
 depth_shape=(640,480)
-depth_min, depth_max= .3, 3.5
+depth_min, depth_max= 0., 3.5
 N_hist = 2**8 
 max_depth = 3.5 # in meters
 matname = 'depth_map.npy'
@@ -51,7 +51,7 @@ def display_depth(dev, data, timestamp, display=True):
 #    print timestamp
     data = 1.0 / (data * -0.0030711016 + 3.3309495161)
     shadows = data > depth_max # irrelevant calculations
-    shadows *= data < depth_min # irrelevant calculations
+    shadows += data < depth_min # irrelevant calculations
     data = data * (1-shadows) + depth_max * shadows
     
     if learn :
@@ -88,17 +88,17 @@ def display_depth(dev, data, timestamp, display=True):
 #        proba = gaussian(data, depth_hist[:, :, 0], depth_hist[:, :, 1])
 ##        smoothed = ndimage.gaussian(np.log(proba), 5.)
 #        print np.log(proba).min(), np.log(proba).max()
-        score = (depth_hist[:, :, 0] - data) / (np.sqrt(depth_hist[:, :, 1]) + 1e-5) # * (depth_hist[:, :, 1] < 1e-3)
+        score = (depth_hist[:, :, 0] - data) / (np.sqrt(depth_hist[:, :, 1]) + .5*np.sqrt(depth_hist[:, :, 1]).mean()) # * (depth_hist[:, :, 1] < 1e-3)
 #        smoothed = ndimage.gaussian(np.log(proba), 5.)
         print score.min(), score.max()
-
+        score = 1. / (1 + np.exp(-(score-.4)/1.))
         if display:
 #            mp.gray()
             fig = mp.figure(1)
             if image_depth:
                 image_depth.set_data(score)
             else:
-                image_depth = mp.imshow(score, interpolation='nearest', animated=True, vmin=-10, vmax=10)
+                image_depth = mp.imshow(score, interpolation='nearest', animated=True, vmin=0, vmax=1.)
                 mp.axis('off')
                 mp.colorbar()        
             mp.draw()
