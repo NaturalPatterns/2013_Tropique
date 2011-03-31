@@ -5,7 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 #import pylab
 import signal
 #import frame_convert
-from calibkinect import depth2xyzuv
+from calibkinect import depth2xyzuv, xyz_matrix
 import os
 
 plt.ion()
@@ -37,7 +37,7 @@ def display_depth(dev, data, timestamp, display=True):
     timestamp: int representing the time
 
     """
-    global image_depth, i_frame, depth_hist, learn, record_list
+    global image_depth, i_frame, depth_hist, record_list
     # low-level segmentation
     # from http://nicolas.burrus.name/index.php/Research/KinectCalibration
     Z = 1.0 / (data * -0.0030711016 + 3.3309495161)
@@ -45,15 +45,16 @@ def display_depth(dev, data, timestamp, display=True):
     shadows += Z < depth_min # irrelevant calculations
     Z = Z * (1-shadows) + depth_max * shadows
     score = (depth_hist[:, :, 0] - Z) / (np.sqrt(depth_hist[:, :, 1]) + .5*np.sqrt(depth_hist[:, :, 1]).mean()) 
-    attention = np.argwhere(score.ravel() > .4)
-    print score.min(), score.max(), score.mean(), attention
+    attention = np.argwhere(score.ravel() > .6)
+    print score.min(), score.max(), score.mean()
     # computing positions
     U, V = np.mgrid[:480,:640]
-    U, V = U.ravel(), V.ravel()
+    U_, V_ = U.ravel(), V.ravel()
     data_ = data.ravel()
-    print  V[attention] # data_[attention], U[attention],
-    xyz, uv = depth2xyzuv(data[attention], u=U[attention], v=V[attention])
-    
+#    print V_.shape
+#    print  data_[attention], U_[attention],
+    xyz, uv = depth2xyzuv(data_[attention], u=U_[attention], v=V_[attention])
+
     if display:
 #            plt.gray()
         fig = plt.figure(1)
@@ -61,15 +62,17 @@ def display_depth(dev, data, timestamp, display=True):
 #        if image_depth:
 #            image_depth.set_data(attention)
 #        else:
-        sc = ax.scatter(xyz[:,0], xyz[:,1], xyz[:,2], c='r')
+        sc = ax.scatter(xyz[:,2], xyz[:,0], xyz[:,1], marker = '.', c='r')
         plt.axis('off')
-        cbar = fig.colorbar(sc,shrink=0.9,extend='both')
-        plt.draw()
+#        cbar = fig.colorbar(sc,shrink=0.9,extend='both')
+#        plt.draw()
 
-    if not(record == None):
-        figname = '_frame%03d.png' % i_frame
-        plt.savefig(figname, dpi = 72)
-        record_list.append(figname)
+        if not(record == None):
+            figname = '_frame%03d.png' % i_frame
+            print figname
+            fig.savefig(figname, dpi = 72)
+            record_list.append(figname)
+
     i_frame += 1
     
 def handler(signum, frame):
