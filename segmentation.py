@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 import freenect
-import matplotlib.pyplot as mp
+import matplotlib.pyplot as plt
 #import pylab
 import signal
 #import frame_convert
 from calibkinect import depth2xyzuv
 import os
 
-mp.ion()
+plt.ion()
 image_depth = None
 keep_running = True
 record, record_list = 'segmentation.mpg', []
@@ -49,6 +49,7 @@ def display_depth(dev, data, timestamp, display=True):
     """
     global image_depth, i_frame, depth_hist, learn, record_list
 #    print timestamp
+    # from http://nicolas.burrus.name/index.php/Research/KinectCalibration
     data = 1.0 / (data * -0.0030711016 + 3.3309495161)
     shadows = data > depth_max # irrelevant calculations
     shadows += data < depth_min # irrelevant calculations
@@ -57,7 +58,6 @@ def display_depth(dev, data, timestamp, display=True):
     if learn :
 #        data = pretty_depth(data) # on 8-bits
 #        data = data / 255. #data.max()
-        # from http://nicolas.burrus.name/index.php/Research/KinectCalibration
         
 #        xyz, uv = depth2xyzuv(data)
 ##        print xyz.shape, uv.shape
@@ -73,16 +73,16 @@ def display_depth(dev, data, timestamp, display=True):
         
 #        print np.log(depth_hist[:, :, 1]).min(), np.log(depth_hist[:, :, 1]).max()
         if display:
-#            mp.gray()
-            mp.figure(1)
+#            plt.gray()
+            plt.figure(1)
             if image_depth:
                 image_depth.set_data(depth_hist[:, :, 0])
 #                image_depth.set_alpha(depth_hist[:, :, 1]/depth_hist[:, :, 1].max())
             else:
-                image_depth = mp.imshow(depth_hist[:, :, 0], interpolation='nearest', animated=True, vmin=0, vmax=depth_max)
-                mp.axis('off')
-                mp.colorbar() 
-            mp.draw()        
+                image_depth = plt.imshow(depth_hist[:, :, 0], interpolation='nearest', animated=True, vmin=0, vmax=depth_max)
+                plt.axis('off')
+                plt.colorbar() 
+            plt.draw()        
     else:
 #        data = pretty_depth(data)
 #        proba = gaussian(data, depth_hist[:, :, 0], depth_hist[:, :, 1])
@@ -93,19 +93,19 @@ def display_depth(dev, data, timestamp, display=True):
         print score.min(), score.max()
         score = 1. / (1 + np.exp(-(score-.4)/1.))
         if display:
-#            mp.gray()
-            fig = mp.figure(1)
+#            plt.gray()
+            fig = plt.figure(1)
             if image_depth:
                 image_depth.set_data(score)
             else:
-                image_depth = mp.imshow(score, interpolation='nearest', animated=True, vmin=0, vmax=1.)
-                mp.axis('off')
-                mp.colorbar()        
-            mp.draw()
+                image_depth = plt.imshow(score, interpolation='nearest', animated=True, vmin=0, vmax=1.)
+                plt.axis('off')
+                plt.colorbar()        
+            plt.draw()
 
     if not(record == None):
         figname = '_frame%03d.png' % i_frame
-        mp.savefig(figname, dpi = 72)
+        plt.savefig(figname, dpi = 72)
         record_list.append(figname)
     i_frame += 1
     
