@@ -41,12 +41,14 @@ def display_depth(dev, data, timestamp, display=False):
     Z = Z * (1-shadows) + depth_max * shadows
     score = (depth_hist[:, :, 0] - Z) / (np.sqrt(depth_hist[:, :, 1]) + .5*np.sqrt(depth_hist[:, :, 1]).mean()) 
     score = score * (1-shadows)  - 10. * shadows
-    ROI = score > 4.
-    print Z.mean()
+    ROI = score > 0.
+    #print Z.mean()
     if np.sum(ROI) > 0:
         Z_mean = np.sum(Z*ROI) / np.sum(ROI)    
         print Z_mean
-	s.sendto(Z_mean, addr)
+	s.sendto(str(Z_mean),addr)
+	s.sendto(str(Z_mean),addr2)
+	print ("datasend = ", Z_mean, addr)
         
 def handler(signum, frame):
     global keep_running
@@ -69,10 +71,12 @@ def main():
 
 #description res
 host = '192.168.1.4'
+host2 = '192.168.1.3'
 port = 3002
 s= socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 addr =(host,port)
-print addr
+addr2 = (host2,port)
+print addr; addr2
 
 if __name__ == "__main__":
     main()
