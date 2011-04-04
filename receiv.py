@@ -18,5 +18,3 @@ while 1:
 		print ("nodata")
 	else :
 		print float(dat[0])
-
-

@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 
-# rapidly swipe an image on the screen, unseen in normal viewing conditions except when doing a proper saccade
-
-from psychopy import visual, event, core, log
+from psychopy import visual, event, core#, log
 import numpy as np
 import Image
 globalClock = core.Clock()
 win = visual.Window([1900,1200], fullscr=True, units='pix')
-win.setRecordFrameIntervals(True)
-win._refreshThreshold=1/50.0+0.004 #i've got 50Hz monitor and want to allow 4ms tolerance
+#win.setRecordFrameIntervals(True)
+#win._refreshThreshold=1/50.0+0.004 #i've got 50Hz monitor and want to allow 4ms tolerance
 #set the log module to report warnings to the std output window (default is errors only)
 log.console.setLevel(log.WARNING)
 

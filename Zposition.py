@@ -3,6 +3,7 @@ import freenect
 import signal
 from calibkinect import depth2xyzuv, xyz_matrix
 import os
+
 import socket
 
 image_depth = None
@@ -32,7 +33,7 @@ def display_depth(dev, data, timestamp, display=False):
     timestamp: int representing the time
 
     """
-    global image_depth, i_frame, depth_hist
+    global image_depth, i_frame, depth_hist, addrs, s
     # low-level segmentation
     # from http://nicolas.burrus.name/index.php/Research/KinectCalibration
     Z = 1.0 / (data * -0.0030711016 + 3.3309495161)
@@ -46,9 +47,9 @@ def display_depth(dev, data, timestamp, display=False):
     if np.sum(ROI) > 0:
         Z_mean = np.sum(Z*ROI) / np.sum(ROI)    
         print Z_mean
-	s.sendto(str(Z_mean),addr)
-	s.sendto(str(Z_mean),addr2)
-	print ("datasend = ", Z_mean, addr)
+        for addr in adrrs:
+            s.sendto(str(Z_mean),addr)
+            print ("datasend = ", Z_mean, addr)
         
 def handler(signum, frame):
     global keep_running
@@ -59,7 +60,15 @@ def body(*args):
         raise freenect.Kill    
     
 def main():
-    global depth_hist, record_list, record
+    global depth_hist, record_list, record, addrs, s
+    #description res
+    host = ['192.168.1.4', '192.168.1.3']
+    port = 3002
+    s= socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+    addrs = [(host,port) for host in hosts]
+    print addrs
+    
+    
     print('Press Ctrl-C in terminal to stop')
     signal.signal(signal.SIGINT, handler)
     freenect.runloop(depth=display_depth,
@@ -69,14 +78,7 @@ def main():
         os.system('ffmpeg -v 0 -y  -f image2  -sameq -i _frame%03d.png  ' + record + ' 2>/dev/null')
         for fname in record_list: os.remove(fname)
 
-#description res
-host = '192.168.1.4'
-host2 = '192.168.1.3'
-port = 3002
-s= socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-addr =(host,port)
-addr2 = (host2,port)
-print addr; addr2
+
 
 if __name__ == "__main__":
     main()
