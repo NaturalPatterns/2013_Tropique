@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import freenect
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 #import pylab
 import signal
 #import frame_convert
@@ -34,7 +34,7 @@ i_frame = 0
 def gaussian(x, m, var):
     return 1./np.sqrt(2.*np.pi)/np.sqrt(var)*np.exp(-.5*(x-m)**2/var)
 
-def display_depth(dev, data, timestamp, display=True):
+def display_depth(dev, data, timestamp, display=False):
     """
     
     Args:
@@ -91,14 +91,14 @@ def display_depth(dev, data, timestamp, display=True):
         score = (depth_hist[:, :, 0] - data) / (np.sqrt(depth_hist[:, :, 1]) + .5*np.sqrt(depth_hist[:, :, 1]).mean()) # * (depth_hist[:, :, 1] < 1e-3)
 #        smoothed = ndimage.gaussian(np.log(proba), 5.)
         print score.min(), score.max()
-        score = 1. / (1 + np.exp(-(score-.4)/1.))
+#        score = 1. / (1 + np.exp(-(score-.4)/1.))
         if display:
 #            plt.gray()
             fig = plt.figure(1)
             if image_depth:
                 image_depth.set_data(score)
             else:
-                image_depth = plt.imshow(score, interpolation='nearest', animated=True, vmin=0, vmax=1.)
+                image_depth = plt.imshow(score, interpolation='nearest', animated=True, vmin=0, vmax=3.)
                 plt.axis('off')
                 plt.colorbar()        
             plt.draw()
@@ -108,6 +108,7 @@ def display_depth(dev, data, timestamp, display=True):
         plt.savefig(figname, dpi = 72)
         record_list.append(figname)
     i_frame += 1
+    if i_frame > 500: keep_running = False
     
 def handler(signum, frame):
     global keep_running

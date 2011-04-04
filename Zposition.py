@@ -1,17 +1,12 @@
 #!/usr/bin/env python
 import freenect
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-#import pylab
 import signal
-#import frame_convert
 from calibkinect import depth2xyzuv, xyz_matrix
 import os
+import socket
 
-plt.ion()
 image_depth = None
 keep_running = True
-record, record_list = 'position.mpg', []
 
 import numpy as np
 
@@ -37,7 +32,7 @@ def display_depth(dev, data, timestamp, display=False):
     timestamp: int representing the time
 
     """
-    global image_depth, i_frame, depth_hist, record_list
+    global image_depth, i_frame, depth_hist
     # low-level segmentation
     # from http://nicolas.burrus.name/index.php/Research/KinectCalibration
     Z = 1.0 / (data * -0.0030711016 + 3.3309495161)
@@ -46,45 +41,13 @@ def display_depth(dev, data, timestamp, display=False):
     Z = Z * (1-shadows) + depth_max * shadows
     score = (depth_hist[:, :, 0] - Z) / (np.sqrt(depth_hist[:, :, 1]) + .5*np.sqrt(depth_hist[:, :, 1]).mean()) 
     score = score * (1-shadows)  - 10. * shadows
-    attention = np.argwhere(score.ravel() > 4.)
-    print score.min(), score.max(), score.mean()
-    # computing positions
-    U, V = np.mgrid[:480,:640]
-    U_, V_ = U.ravel(), V.ravel()
-    data_ = data.ravel()
-#    print V_.shape
-#    print  data_[attention], U_[attention],
-    xyz, uv = depth2xyzuv(data_[attention], u=U_[attention], v=V_[attention])
-
-    if display:
-#            plt.gray()
-        fig = plt.figure(1)
-        ax = fig.add_subplot(111, projection='3d' , animated=True)#
+    ROI = score > 4.
+    print Z.mean()
+    if np.sum(ROI) > 0:
+        Z_mean = np.sum(Z*ROI) / np.sum(ROI)    
+        print Z_mean
+	s.sendto(Z_mean, addr)
         
-#        if image_depth:
-#            image_depth.set_data(attention)
-#        else:
-        sc = ax.plot(-xyz[:,2], -xyz[:,0], -xyz[:,1], 'r.')
-#        plt.axis('off')
-#        cbar = fig.colorbar(sc,shrink=0.9,extend='both')
-        ax.set_xlabel('X')
-        ax.set_xlim3d(0, 3.2)
-        ax.set_ylabel('Y')
-        ax.set_ylim3d(-2, 2)
-        ax.set_zlabel('Z')
-        ax.set_zlim3d(-1, 1)
-        plt.draw()
-
-        if not(record == None):
-            figname = '_frame%03d.png' % i_frame
-            print figname
-            fig.savefig(figname, dpi = 72)
-            record_list.append(figname)
-        plt.close()
-    i_frame += 1
-    
-    
-    
 def handler(signum, frame):
     global keep_running
     keep_running = False
@@ -103,6 +66,13 @@ def main():
     if record:
         os.system('ffmpeg -v 0 -y  -f image2  -sameq -i _frame%03d.png  ' + record + ' 2>/dev/null')
         for fname in record_list: os.remove(fname)
+
+#description res
+host = '192.168.1.4'
+port = 3002
+s= socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+addr =(host,port)
+print addr
 
 if __name__ == "__main__":
     main()
