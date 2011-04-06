@@ -80,7 +80,6 @@ while True:
             signalTexture = texture(width, decalage, n_line)
             stimulus.setTex(signalTexture.ravel()[signal_index_array].reshape(signalTexture.shape))
 
-    print width, decalage, n_line, signalTexture.mean()
     stimulus.setPos((X, Y), operation = '')
     stimulus.setOri(t*rotspeed*360.0)
     stimulus.draw()
