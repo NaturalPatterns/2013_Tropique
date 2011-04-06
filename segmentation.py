@@ -9,12 +9,12 @@ display=True
 record  = None #'position.mpg'
 depth_min, depth_max= 0., 4.5
 N_frame = 500 # time to learn the depth map
-#max_depth = 3.5 # in meters
+tilt = 0 # vertical tilt of the kinect
 N_hist = 2**8 
-threshold = 1.5
+threshold = 3.
 downscale = 4
 smoothing = 1.5
-noise_level = .5
+noise_level = .8
 # paramètres fixes #
 depth_shape=(640,480)
 matname = 'depth_map.npy'
@@ -35,6 +35,7 @@ if display:
     from mpl_toolkits.mplot3d import Axes3D
     #import pylab
     plt.ion()
+import scipy.ndimage as nd
 #################################################
 try :
     depth_hist = np.load(matname)    
@@ -68,7 +69,6 @@ def display_depth(dev, data, timestamp, display=display):
     shadows = Z > depth_max # irrelevant calculations
     shadows += Z < depth_min # irrelevant calculations
     Z = Z * (1-shadows) + depth_max * shadows
-    import scipy.ndimage as nd
     Z = nd.gaussian_filter(Z, smoothing)
     
     if learn :
@@ -104,16 +104,16 @@ def display_depth(dev, data, timestamp, display=display):
 #        proba = gaussian(data, depth_hist[:, :, 0], depth_hist[:, :, 1])
 ##        smoothed = ndimage.gaussian(np.log(proba), 5.)
 #        print np.log(proba).min(), np.log(proba).max()
-        score = (depth_hist[:, :, 0] - Z)  / ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean()) # * (depth_hist[:, :, 1] < 1e-3)
+        score = (depth_hist[:, :, 0] - Z)  / ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
         print i_frame, score.min(), score.max()
-#        score = 1. / (1 + np.exp(-(score-.4)/1.))
+        score = 1. / (1 + np.exp(-(score-threshold)/1.))
         if display:
 #            plt.gray()
             fig = plt.figure(1, figsize=(18,14))
             if image_depth:
                 image_depth.set_data(score)
             else:
-                image_depth = plt.imshow(score, interpolation='nearest', animated=True, vmin=0, vmax=3.)
+                image_depth = plt.imshow(score, interpolation='nearest', animated=True, vmin=0, vmax=1.)
                 plt.axis('off')
                 plt.colorbar()        
             plt.draw()
@@ -135,11 +135,10 @@ def handler(signum, frame):
 #        keep_running = False
 
 def body(dev, ctx):#*args):
-    global keep_running
-#    global image_depth
+    global keep_running, tilt
     
     freenect.set_led(dev, 0)
-    freenect.set_tilt_degs(dev, 0)
+    freenect.set_tilt_degs(dev, tilt)
 
     if i_frame > N_frame: keep_running = False
 

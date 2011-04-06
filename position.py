@@ -5,16 +5,17 @@
     
 """
 # paramètres variables #
-display=True
-record  = None #'position.mpg'
+display=False
+record  = 'position.mpg' #None # 
+if not(display): record = None
 depth_min, depth_max= 0., 4.5
-N_frame = 500 # time to learn the depth map
-#max_depth = 3.5 # in meters
+N_frame = 100 # time to learn the depth map
+tilt = 0 # vertical tilt of the kinect
 N_hist = 2**8 
-threshold = 1.5
+threshold = 5.
 downscale = 4
 smoothing = 1.5
-noise_level = .5
+noise_level = .8
 # paramètres fixes #
 depth_shape=(640,480)
 matname = 'depth_map.npy'
@@ -36,8 +37,9 @@ if display:
     from mpl_toolkits.mplot3d import Axes3D
     #import pylab
     plt.ion()
+import scipy.ndimage as nd
 #################################################
-def display_depth(dev, data, timestamp, threshold, display=display):
+def display_depth(dev, data, timestamp, display=display):
     """
     
     Args:
@@ -50,43 +52,46 @@ def display_depth(dev, data, timestamp, threshold, display=display):
     timestamp: int representing the time
 
     """
-    global image_depth, i_frame, depth_hist, record_list
-    # low-level segmentation
-    # from http://nicolas.burrus.name/index.php/Research/KinectCalibration
-    Z = 1.0 / (data * -0.0030711016 + 3.3309495161)
+    global image_depth, i_frame, depth_hist, record_list, ax
+    Z = 1.0 / (data[::downscale,::downscale] * -0.0030711016 + 3.3309495161)
     shadows = Z > depth_max # irrelevant calculations
     shadows += Z < depth_min # irrelevant calculations
     Z = Z * (1-shadows) + depth_max * shadows
-    score = (depth_hist[:, :, 0] - Z) / (np.sqrt(depth_hist[:, :, 1]) + .5*np.sqrt(depth_hist[:, :, 1]).mean()) 
-    score = score * (1-shadows)  - 10. * shadows
+    Z = nd.gaussian_filter(Z, smoothing)
+    score = (depth_hist[:, :, 0] - Z)  / ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
     attention = np.argwhere(score.ravel() > threshold)
-    print score.min(), score.max(), score.mean()
-    # computing positions
-    U, V = np.mgrid[:480,:640]
-    U_, V_ = U.ravel(), V.ravel()
-    data_ = data.ravel()
-#    print V_.shape
-#    print  data_[attention], U_[attention],
-    xyz, uv = depth2xyzuv(data_[attention], u=U_[attention], v=V_[attention])
+    detect =  (attention.shape[0] > 0)
+    if detect:
+        # computing positions
+        U, V = np.mgrid[:480:downscale,:640:downscale]
+        U_, V_ = U.ravel(), V.ravel()
+        data_ = data[::downscale,::downscale].ravel()
+        xyz, uv = depth2xyzuv(data_[attention], u=U_[attention], v=V_[attention])
+    
+        prof, az, el = -xyz[:,2], -xyz[:,0], -xyz[:,1]
+        prof_m, az_m, el_m = prof.mean(), az.mean(), el.mean()
 
     if display:
+        fig = plt.figure(1, figsize=(18,14))
 #            plt.gray()
-        fig = plt.figure(1)
-        ax = fig.add_subplot(111, projection='3d' , animated=True)#
-        
-#        if image_depth:
-#            image_depth.set_data(attention)
+        if True: # image_depth:
+            ax = fig.add_subplot(111, projection='3d' , animated=True)#
+            if detect: 
+                image_depth = ax.plot(-xyz[:,2], -xyz[:,0], -xyz[:,1], 'r.')
+                ax.plot([prof_m], [az_m], [el_m], 'go')
+            plt.axis('off')
+#            cbar = fig.colorbar(image_depth,shrink=0.9,extend='both')
+            ax.set_xlabel('X')
+            ax.set_xlim3d(0, 3.2)
+            ax.set_ylabel('Y')
+            ax.set_ylim3d(-2, 2)
+            ax.set_zlabel('Z')
+            ax.set_zlim3d(-1, 1)
+            plt.draw()
 #        else:
-        sc = ax.plot(-xyz[:,2], -xyz[:,0], -xyz[:,1], 'r.')
-#        plt.axis('off')
-#        cbar = fig.colorbar(sc,shrink=0.9,extend='both')
-        ax.set_xlabel('X')
-        ax.set_xlim3d(0, 3.2)
-        ax.set_ylabel('Y')
-        ax.set_ylim3d(-2, 2)
-        ax.set_zlabel('Z')
-        ax.set_zlim3d(-1, 1)
-        plt.draw()
+##            image_depth.set_data(attention)
+#            image_depth = ax.plot(-xyz[:,2], -xyz[:,0], -xyz[:,1], 'r.')
+#            plt.draw()
 
         if not(record == None):
             figname = '_frame%03d.png' % i_frame
@@ -94,25 +99,34 @@ def display_depth(dev, data, timestamp, threshold, display=display):
             fig.savefig(figname, dpi = 72)
             record_list.append(figname)
         plt.close()
+
+    print i_frame
     i_frame += 1
     
-    
-    
+
 def handler(signum, frame):
     global keep_running
     keep_running = False
 
-def body(*args):
-    if not keep_running:
-        raise freenect.Kill    
+def body(dev, ctx):#*args):
+    global keep_running
+#    global image_depth
     
+    freenect.set_led(dev, 0)
+    freenect.set_tilt_degs(dev, tilt)
+
+    if i_frame > N_frame: keep_running = False
+
+    if not keep_running:
+        freenect.set_led(dev, 5)
+        raise freenect.Kill
+
 def main():
     global depth_hist, record_list, record
     print('Press Ctrl-C in terminal to stop')
     signal.signal(signal.SIGINT, handler)
     freenect.runloop(depth=display_depth,
-                     body=body)
-    
+                     body=body)    
     if record:
         os.system('ffmpeg -v 0 -y  -f image2  -sameq -i _frame%03d.png  ' + record + ' 2>/dev/null')
         for fname in record_list: os.remove(fname)

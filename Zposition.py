@@ -1,24 +1,44 @@
 #!/usr/bin/env python
-import freenect
-import signal
-from calibkinect import depth2xyzuv, xyz_matrix
-import os
-
-import socket
-
+# -*- coding: utf8 -*-
+"""
+    Script de test de la Kinect pour extraire la position 3D
+    
+"""
+# paramètres variables #
+display=True
+record  = 'position.mpg' # None #
+depth_min, depth_max= 0., 4.5
+N_frame = 100 # time to learn the depth map
+tilt = 0 # vertical tilt of the kinect
+N_hist = 2**8 
+threshold = 5.
+downscale = 4
+smoothing = 1.5
+noise_level = .8
+# paramètres fixes #
+depth_shape=(640,480)
+matname = 'depth_map.npy'
+i_frame = 0
+record_list = []
 image_depth = None
 keep_running = True
-
+start = True
+#################################################
+import freenect
+import signal
+#import frame_convert
+from calibkinect import depth2xyzuv, xyz_matrix
+import os
 import numpy as np
-
-depth_shape=(640,480)
-depth_min, depth_max= 0., 3.5
-N_hist = 2**8 
-max_depth = 3.5 # in meters
-matname = 'depth_map.npy'
 depth_hist = np.load(matname)    
-
-i_frame = 0
+if display:
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    #import pylab
+    plt.ion()
+import scipy.ndimage as nd
+import socket
+#################################################
 
 def display_depth(dev, data, timestamp, display=False):
     """
