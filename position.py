@@ -1,30 +1,43 @@
 #!/usr/bin/env python
+# -*- coding: utf8 -*-
+"""
+    Script de test de la Kinect pour extraire la position 3D
+    
+"""
+# paramètres variables #
+display=True
+record  = None #'position.mpg'
+depth_min, depth_max= 0., 4.5
+N_frame = 500 # time to learn the depth map
+#max_depth = 3.5 # in meters
+N_hist = 2**8 
+threshold = 1.5
+downscale = 4
+smoothing = 1.5
+noise_level = .5
+# paramètres fixes #
+depth_shape=(640,480)
+matname = 'depth_map.npy'
+i_frame = 0
+record_list = []
+image_depth = None
+keep_running = True
+start = True
+#################################################
 import freenect
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-#import pylab
 import signal
 #import frame_convert
 from calibkinect import depth2xyzuv, xyz_matrix
 import os
-
-plt.ion()
-image_depth = None
-keep_running = True
-record, record_list = 'position.mpg', []
-
 import numpy as np
-
-depth_shape=(640,480)
-depth_min, depth_max= 0., 3.5
-N_hist = 2**8 
-max_depth = 3.5 # in meters
-matname = 'depth_map.npy'
 depth_hist = np.load(matname)    
-
-i_frame = 0
-
-def display_depth(dev, data, timestamp, display=False):
+if display:
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    #import pylab
+    plt.ion()
+#################################################
+def display_depth(dev, data, timestamp, threshold, display=display):
     """
     
     Args:
@@ -46,7 +59,7 @@ def display_depth(dev, data, timestamp, display=False):
     Z = Z * (1-shadows) + depth_max * shadows
     score = (depth_hist[:, :, 0] - Z) / (np.sqrt(depth_hist[:, :, 1]) + .5*np.sqrt(depth_hist[:, :, 1]).mean()) 
     score = score * (1-shadows)  - 10. * shadows
-    attention = np.argwhere(score.ravel() > 4.)
+    attention = np.argwhere(score.ravel() > threshold)
     print score.min(), score.max(), score.mean()
     # computing positions
     U, V = np.mgrid[:480,:640]

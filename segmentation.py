@@ -1,40 +1,54 @@
 #!/usr/bin/env python
-import freenect
-#import matplotlib.pyplot as plt
-#import pylab
-import signal
-#import frame_convert
-from calibkinect import depth2xyzuv
-import os
-
-plt.ion()
+# -*- coding: utf8 -*-
+"""
+    Script de test de la Kinect pour extraire la position 3D
+    
+"""
+# paramètres variables #
+display=True
+record  = None #'position.mpg'
+depth_min, depth_max= 0., 4.5
+N_frame = 500 # time to learn the depth map
+#max_depth = 3.5 # in meters
+N_hist = 2**8 
+threshold = 1.5
+downscale = 4
+smoothing = 1.5
+noise_level = .5
+# paramètres fixes #
+depth_shape=(640,480)
+matname = 'depth_map.npy'
+i_frame = 0
+record_list = []
 image_depth = None
 keep_running = True
-record, record_list = 'segmentation.mpg', []
-
+start = True
+#################################################
+import freenect
+import signal
+#import frame_convert
+from calibkinect import depth2xyzuv, xyz_matrix
+import os
 import numpy as np
-
-depth_shape=(640,480)
-depth_min, depth_max= 0., 3.5
-N_hist = 2**8 
-max_depth = 3.5 # in meters
-matname = 'depth_map.npy'
+if display:
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    #import pylab
+    plt.ion()
+#################################################
 try :
     depth_hist = np.load(matname)    
     learn = False
 except:
     learn = True
 #    depth_hist = np.zeros((depth_shape[0], depth_shape[1], N_hist))
-    depth_hist = np.zeros((depth_shape[1], depth_shape[0], 2))
+    depth_hist = np.zeros((depth_shape[1]/downscale, depth_shape[0]/downscale, 2))
 #depth_hist = np.zeros((depth_shape[1], depth_shape[0], 2)) + 1e-10
 
-mean_depth = 0
-i_frame = 0
+#def gaussian(x, m, var):
+#    return 1./np.sqrt(2.*np.pi)/np.sqrt(var)*np.exp(-.5*(x-m)**2/var)
 
-def gaussian(x, m, var):
-    return 1./np.sqrt(2.*np.pi)/np.sqrt(var)*np.exp(-.5*(x-m)**2/var)
-
-def display_depth(dev, data, timestamp, display=False):
+def display_depth(dev, data, timestamp, display=display):
     """
     
     Args:
@@ -50,10 +64,12 @@ def display_depth(dev, data, timestamp, display=False):
     global image_depth, i_frame, depth_hist, learn, record_list
 #    print timestamp
     # from http://nicolas.burrus.name/index.php/Research/KinectCalibration
-    data = 1.0 / (data * -0.0030711016 + 3.3309495161)
-    shadows = data > depth_max # irrelevant calculations
-    shadows += data < depth_min # irrelevant calculations
-    data = data * (1-shadows) + depth_max * shadows
+    Z = 1.0 / (data[::downscale,::downscale] * -0.0030711016 + 3.3309495161)
+    shadows = Z > depth_max # irrelevant calculations
+    shadows += Z < depth_min # irrelevant calculations
+    Z = Z * (1-shadows) + depth_max * shadows
+    import scipy.ndimage as nd
+    Z = nd.gaussian_filter(Z, smoothing)
     
     if learn :
 #        data = pretty_depth(data) # on 8-bits
@@ -63,18 +79,18 @@ def display_depth(dev, data, timestamp, display=False):
 ##        print xyz.shape, uv.shape
 #        data = xyz[:,2].reshape((480,640))
 #        data = data * (data >0)
-        print i_frame, data.shape, data.min(), data.max()
-#        print timestamp, i_frame, data.shape, depth_hist.shape
+        print i_frame, Z.shape, Z.min(), Z.max()
+#        print timestamp, i_frame, Z.shape, depth_hist.shape
+
         
-        
-        depth_hist[:, :, 0] = (1-1./(i_frame+1))* depth_hist[:, :, 0] + 1./(i_frame+1) * data
+        depth_hist[:, :, 0] = (1-1./(i_frame+1))* depth_hist[:, :, 0] + 1./(i_frame+1) * Z
         if i_frame>0:
-            depth_hist[:, :, 1] = (1-1./(i_frame+1))* depth_hist[:, :, 1] + 1./i_frame * (data-depth_hist[:, :, 0])**2
+            depth_hist[:, :, 1] = (1-1./(i_frame))* depth_hist[:, :, 1] + 1./i_frame * (Z-depth_hist[:, :, 0])**2
         
 #        print np.log(depth_hist[:, :, 1]).min(), np.log(depth_hist[:, :, 1]).max()
         if display:
 #            plt.gray()
-            plt.figure(1)
+            plt.figure(1, figsize=(18,14))
             if image_depth:
                 image_depth.set_data(depth_hist[:, :, 0])
 #                image_depth.set_alpha(depth_hist[:, :, 1]/depth_hist[:, :, 1].max())
@@ -88,13 +104,12 @@ def display_depth(dev, data, timestamp, display=False):
 #        proba = gaussian(data, depth_hist[:, :, 0], depth_hist[:, :, 1])
 ##        smoothed = ndimage.gaussian(np.log(proba), 5.)
 #        print np.log(proba).min(), np.log(proba).max()
-        score = (depth_hist[:, :, 0] - data) / (np.sqrt(depth_hist[:, :, 1]) + .5*np.sqrt(depth_hist[:, :, 1]).mean()) # * (depth_hist[:, :, 1] < 1e-3)
-#        smoothed = ndimage.gaussian(np.log(proba), 5.)
-        print score.min(), score.max()
+        score = (depth_hist[:, :, 0] - Z)  / ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean()) # * (depth_hist[:, :, 1] < 1e-3)
+        print i_frame, score.min(), score.max()
 #        score = 1. / (1 + np.exp(-(score-.4)/1.))
         if display:
 #            plt.gray()
-            fig = plt.figure(1)
+            fig = plt.figure(1, figsize=(18,14))
             if image_depth:
                 image_depth.set_data(score)
             else:
@@ -108,7 +123,6 @@ def display_depth(dev, data, timestamp, display=False):
         plt.savefig(figname, dpi = 72)
         record_list.append(figname)
     i_frame += 1
-    if i_frame > 500: keep_running = False
     
 def handler(signum, frame):
     global keep_running
@@ -120,10 +134,17 @@ def handler(signum, frame):
 #    if cv.WaitKey(10) == 27:
 #        keep_running = False
 
-def body(*args):
+def body(dev, ctx):#*args):
+    global keep_running
 #    global image_depth
+    
+    freenect.set_led(dev, 0)
+    freenect.set_tilt_degs(dev, 0)
+
+    if i_frame > N_frame: keep_running = False
 
     if not keep_running:
+        freenect.set_led(dev, 5)
         raise freenect.Kill    
     
 def main():
@@ -133,6 +154,17 @@ def main():
     freenect.runloop(depth=display_depth,
                      body=body)
     
+
+    if learn == True:
+        np.save(matname, depth_hist) 
+        
+    if record:
+        os.system('ffmpeg -v 0 -y  -f image2  -sameq -i _frame%03d.png  ' + record + ' 2>/dev/null')
+        for fname in record_list: os.remove(fname)
+
+if __name__ == "__main__":
+    main()
+
 #    see https://gist.github.com/717060
 #    freenect.runloop(lambda *x: depth_callback(*freenect.depth_cb_np(*x)))
 #    
@@ -148,13 +180,3 @@ def main():
 #
 #        lock.release()
 #
-    if learn == True:
-        np.save(matname, depth_hist) 
-        
-    if record:
-        os.system('ffmpeg -v 0 -y  -f image2  -sameq -i _frame%03d.png  ' + record + ' 2>/dev/null')
-        for fname in record_list: os.remove(fname)
-
-if __name__ == "__main__":
-    main()
-
