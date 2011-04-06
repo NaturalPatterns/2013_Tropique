@@ -5,8 +5,7 @@
     
 """
 # paramètres variables #
-display=True
-record  = 'position.mpg' # None #
+verbose=True
 depth_min, depth_max= 0., 4.5
 N_frame = 100 # time to learn the depth map
 tilt = 0 # vertical tilt of the kinect
@@ -23,6 +22,7 @@ record_list = []
 image_depth = None
 keep_running = True
 start = True
+prof_m, az_m, el_m = depth_max, 0. , 0.
 #################################################
 import freenect
 import signal
@@ -31,16 +31,10 @@ from calibkinect import depth2xyzuv, xyz_matrix
 import os
 import numpy as np
 depth_hist = np.load(matname)    
-if display:
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import Axes3D
-    #import pylab
-    plt.ion()
 import scipy.ndimage as nd
 import socket
 #################################################
-
-def display_depth(dev, data, timestamp, display=False):
+def display_depth(dev, data, timestamp, verbose=verbose):
     """
     
     Args:
@@ -53,53 +47,62 @@ def display_depth(dev, data, timestamp, display=False):
     timestamp: int representing the time
 
     """
-    global image_depth, i_frame, depth_hist, addrs, s
-    # low-level segmentation
-    # from http://nicolas.burrus.name/index.php/Research/KinectCalibration
-    Z = 1.0 / (data * -0.0030711016 + 3.3309495161)
+    global depth_hist, addrs, prof_m
+    Z = 1.0 / (data[::downscale,::downscale] * -0.0030711016 + 3.3309495161)
     shadows = Z > depth_max # irrelevant calculations
     shadows += Z < depth_min # irrelevant calculations
     Z = Z * (1-shadows) + depth_max * shadows
-    score = (depth_hist[:, :, 0] - Z) / (np.sqrt(depth_hist[:, :, 1]) + .5*np.sqrt(depth_hist[:, :, 1]).mean()) 
-    score = score * (1-shadows)  - 10. * shadows
-    ROI = score > 0.
-    #print Z.mean()
-    if np.sum(ROI) > 0:
-        Z_mean = np.sum(Z*ROI) / np.sum(ROI)    
-        print Z_mean
-        for addr in adrrs:
-            s.sendto(str(Z_mean),addr)
-            print ("datasend = ", Z_mean, addr)
-        
+    Z = nd.gaussian_filter(Z, smoothing)
+    score = (depth_hist[:, :, 0] - Z)  / ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
+    attention = np.argwhere(score.ravel() > threshold)
+    detect =  (attention.shape[0] > 0)
+    if detect:
+        # computing positions
+        U, V = np.mgrid[:480:downscale,:640:downscale]
+        U_, V_ = U.ravel(), V.ravel()
+        data_ = data[::downscale,::downscale].ravel()
+        xyz, uv = depth2xyzuv(data_[attention], u=U_[attention], v=V_[attention])
+    
+        prof, az, el = -xyz[:,2], -xyz[:,0], -xyz[:,1]
+        prof_m, az_m, el_m = prof.mean(), az.mean(), el.mean()
+
+        for addr in addrs:
+            s.sendto(str(prof_m),addr)
+            if verbose: print ("datasend = ", prof_m, addr)
+ 
+
 def handler(signum, frame):
     global keep_running
     keep_running = False
 
-def body(*args):
-    if not keep_running:
-        raise freenect.Kill    
+def body(dev, ctx):#*args):
+    global keep_running
+#    global image_depth
     
+    freenect.set_led(dev, 0)
+    freenect.set_tilt_degs(dev, tilt)
+
+
+    if not keep_running:
+        freenect.set_led(dev, 5)
+        raise freenect.Kill
+
 def main():
     global depth_hist, record_list, record, addrs, s
     #description res
-    host = ['192.168.1.4', '192.168.1.3']
+    hosts = ['127.0.0.1'] #['192.168.1.4', '192.168.1.3']
     port = 3002
     s= socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     addrs = [(host,port) for host in hosts]
     print addrs
     
-    
     print('Press Ctrl-C in terminal to stop')
     signal.signal(signal.SIGINT, handler)
     freenect.runloop(depth=display_depth,
                      body=body)
-    
-    if record:
-        os.system('ffmpeg -v 0 -y  -f image2  -sameq -i _frame%03d.png  ' + record + ' 2>/dev/null')
-        for fname in record_list: os.remove(fname)
-
-
+    s.close()
 
 if __name__ == "__main__":
     main()
+
 
