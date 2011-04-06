@@ -1,13 +1,23 @@
 #!/usr/bin/env python
+# -*- coding: utf8 -*-
+"""
+    Script de test de la Kinect pour extraire la position 3D
+    
+"""
+import socket
+import signal, sys
+#print socket.__version__
+#description res
+host = '127.0.0.1'#192.168.1.4'
+port = 3002
+buf = 1024
 
-##########################################
-downscale=0 # 
-rotspeed, rotspeed_Increment = .001, 0.002 # en Hz?
-width, width_increment = .1,  .01 # largeur de la ligne en pixels
-n_line = 36
-size_h, size_h_increment = 1., .02
-radius, radius_increment  = .5, .02
-length, length_increment  = .01, .02
+s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+addr =(host,port)
+print addr
+s.bind(addr)
+s.settimeout(5)
+az_m, az_r, el_m,  el_r = 1., 1., 1., 1.
 ##########################################
 from psychopy import visual, event, core#, log
 import numpy as np
@@ -17,7 +27,7 @@ win = visual.Window(fullscr=True, color=[-1,-1,-1] , units='norm')
 win.setRecordFrameIntervals(True)
 win._refreshThreshold=1/20.0+0.004 #i've got 50Hz monitor and want to allow 4ms tolerance
 X, Y = 0., 0.
-def update_caroussel(X, Y, n_line, angle = 0.):
+def update_caroussel(X, Y, n_line, radius, angle):
 #    XY = np.zeros((2,0))
 #    radius_ = np.logspace(-1,0, N, endpoint=False) * radius
 #    for i_line in range(n_line):
@@ -26,73 +36,99 @@ def update_caroussel(X, Y, n_line, angle = 0.):
 #    XY = np.hstack((XYs, XY))
     return XY.T, phase
 
-def caroussel(n_line, width, length, angle = 0.):
-    XY, phase = update_caroussel(X, Y, n_line, angle)
+def caroussel(n_line, width, length, radius, angle):
+    XY, phase = update_caroussel(X, Y, n_line, radius, angle)
     global_lines = visual.ElementArrayStim(win, nElements=XY.shape[0], sizes=(width, length), elementTex='sqr', # sfs=3,
                                                     rgbs= np.array([1,1,1]), xys = XY, oris = phase  * 360 / 2. / np.pi  , units='height')
     return global_lines
 
-global_lines = caroussel(n_line, width, length, angle = 0.)
+#################################################
+def handler(signum, frame):
+    s.close()
+    win.close()
+    sys.exit()
 
+def main():
+    ##########################################
+    rotspeed, rotspeed_Increment = .001, 0.002 # en Hz?
+    width, width_increment = .1,  .01 # largeur de la ligne en pixels
+    n_line = 36
+    size_h, size_h_increment = 1., .02
+    radius, radius_increment  = .5, .02
+    length, length_increment  = .01, .02
+    dX = 0
+    ##########################################
+    print('Press Ctrl-C in terminal to stop')
+    signal.signal(signal.SIGINT, handler)
+    global_lines = caroussel(n_line, width, length, radius, 0.)
+    showText = True
+    myMouse = event.Mouse(win=win)
+    myMouse.setVisible(False)
+    message = visual.TextStim(win, pos=(-.9,-.9), alignHoriz='left', height=.05, autoLog=False, color = (0,0,1))
+    t=lastFPSupdate=0
 
-showText = True
-myMouse = event.Mouse(win=win)
-myMouse.setVisible(False)
-message = visual.TextStim(win, pos=(-.9,-.9), alignHoriz='left', height=.05, autoLog=False, color = (0,0,1))
+    while True:
+        try :
+            dat = s.recvfrom(1024)
+        except:
+            print ("nodata")
+        else :
+            dX_ = float(dat[0])
+            print dX_
+            dX, dY = (1- 1./10) * dX + 1./10 * dX_ / az_r, 0. / el_r
 
+        t=globalClock.getTime()
+    #    print  win.fps(), str(win.fps())
+        #update fps every second
+        if t-lastFPSupdate>1.0:
+            lastFPSupdate=t
+            if showText:
+                message.setText(str(int(win.fps()))+  " fps / " +  str(width) + " /" +  str(length) + " / " +  str(rotspeed) + " / s - d - f - w -x - c - v" )
+            else:
+                message.setText('' )
+            
+        for key in event.getKeys():
+            if key in ['s']:
+                showText = not(showText)
+            elif key in ['d']:
+                width += -width_increment
+                global_lines = caroussel(n_line, width, length, radius, angle = 0.)
+            elif key in ['f']:
+                width += width_increment
+                global_lines = caroussel(n_line, width, length, radius, angle = 0.)
+            elif key in ['w']:
+                length += -length_increment
+                global_lines = caroussel(n_line, width, length, radius, angle = 0.)
+            elif key in ['x']:
+                length += length_increment
+                global_lines = caroussel(n_line, width, length, radius, angle = 0.)
+            elif key in ['-','[','c']:
+                n_line -=1
+                if n_line==0: n_line=1
+                global_lines = caroussel(n_line, width, length, radius, angle = 0.)
+            elif key in ['+',']','v']:
+                n_line+=1
+                global_lines = caroussel(n_line, width, length, radius, angle = 0.)
+            elif key in ['escape','q']:
+                core.quit()
 
-t=lastFPSupdate=0
-while True:
-    t=globalClock.getTime()
-#    print  win.fps(), str(win.fps())
-    #update fps every second
-    if t-lastFPSupdate>1.0:
-        lastFPSupdate=t
-        if showText:
-            message.setText(str(int(win.fps()))+  " fps / " +  str(width) + " /" +  str(length) + " / " +  str(rotspeed) + " / s - d - f - w -x - c - v" )
-        else:
-            message.setText('' )
+        X, Y = myMouse.getPos()
+        wheel_dX, wheel_dY = myMouse.getWheelRel()
+        rotspeed += wheel_dY*rotspeed_Increment
+        radius += wheel_dX*radius_increment 
+        event.clearEvents() # get rid of other, unprocessed events
+
+        angle = t*rotspeed*2*np.pi
+        newXY, phase = update_caroussel(X + dX, Y+dY, n_line, radius, angle)
+    #    print phased
+        global_lines.setXYs( newXY )
+        global_lines.setOris( phase * 360 / 2. / np.pi )
+        global_lines.draw()
         
-    for key in event.getKeys():
-        if key in ['s']:
-            showText = not(showText)
-        elif key in ['d']:
-            width += -width_increment
-            global_lines = caroussel(n_line, width, length, angle = 0.)
-        elif key in ['f']:
-            width += width_increment
-            global_lines = caroussel(n_line, width, length, angle = 0.)
-        elif key in ['w']:
-            length += -length_increment
-            global_lines = caroussel(n_line, width, length, angle = 0.)
-        elif key in ['x']:
-            length += length_increment
-            global_lines = caroussel(n_line, width, length, angle = 0.)
-        elif key in ['-','[','c']:
-            n_line -=1
-            if n_line==0: n_line=1
-            global_lines = caroussel(n_line, width, length, angle = 0.)
-        elif key in ['+',']','v']:
-            n_line+=1
-            global_lines = caroussel(n_line, width, length, angle = 0.)
-        elif key in ['escape','q']:
-            core.quit()
+        message.draw()
+        win.flip()
+        
+if __name__ == "__main__":
+    main()
 
-    X, Y = myMouse.getPos()
-    wheel_dX, wheel_dY = myMouse.getWheelRel()
-    rotspeed += wheel_dY*rotspeed_Increment
-    radius += wheel_dX*radius_increment 
-    event.clearEvents() # get rid of other, unprocessed events
-
-    angle = t*rotspeed*2*np.pi
-    newXY, phase = update_caroussel(X, Y, n_line, angle)
-#    print phased
-    global_lines.setXYs( newXY )
-    global_lines.setOris( phase * 360 / 2. / np.pi )
-    global_lines.draw()
-    
-    message.draw()
-    win.flip()
-
-win.close()
 

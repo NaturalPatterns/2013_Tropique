@@ -24,6 +24,7 @@ record_list = []
 image_depth = None
 keep_running = True
 start = True
+prof_m, az_m, el_m = depth_max, 0. , 0.
 #################################################
 import freenect
 import signal
