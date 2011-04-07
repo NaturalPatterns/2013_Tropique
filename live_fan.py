@@ -16,8 +16,7 @@ s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 addr =(host,port)
 print addr
 s.bind(addr)
-s.settimeout(5)
-az_m, az_r, el_m,  el_r = 1., 1., 1., 1.
+s.settimeout(.05)
 ##########################################
 from psychopy import visual, event, core#, log
 import numpy as np
@@ -51,12 +50,14 @@ def handler(signum, frame):
 def main():
     ##########################################
     rotspeed, rotspeed_Increment = .001, 0.002 # en Hz?
-    width, width_increment = .1,  .01 # largeur de la ligne en pixels
+    width, width_increment = .5,  .01 # largeur de la ligne en pixels
     n_line = 36
     size_h, size_h_increment = 1., .02
     radius, radius_increment  = .5, .02
     length, length_increment  = .01, .02
-    dX = 0
+    dX, dY = 0. , 0.
+    az_m, az_r, el_m,  el_r = 0., -2., 0., 1.
+
     ##########################################
     print('Press Ctrl-C in terminal to stop')
     signal.signal(signal.SIGINT, handler)
@@ -73,9 +74,9 @@ def main():
         except:
             print ("nodata")
         else :
-            dX_ = float(dat[0])
-            print dX_
-            dX, dY = (1- 1./10) * dX + 1./10 * dX_ / az_r, 0. / el_r
+            dX_ , dY_ = float(dat[0]), 0.
+#            print dX_
+            dX, dY = (1- 1./10) * dX + 1./10 * dX_ / az_r, (1- 1./10) * dY + 1./10 * dY_ / el_r
 
         t=globalClock.getTime()
     #    print  win.fps(), str(win.fps())

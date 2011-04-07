@@ -1,13 +1,12 @@
 #!/usr/bin/env python
-
 ##########################################
 downscale=0 # 
 rotspeed, rotspeed_Increment = .001, 0.002 # en Hz?
-width, width_increment = .1,  .01 # largeur de la ligne en pixels
 n_line = 36
 size_h, size_h_increment = 1., .02
-radius, radius_increment  = .5, .02
-length, length_increment  = .01, .02
+radius, radius_increment  = .4, .02
+width, width_increment = .01,  .001 # largeur de la ligne en pixels
+length, length_increment  = .5, .01
 ##########################################
 from psychopy import visual, event, core#, log
 import numpy as np
@@ -17,18 +16,20 @@ win = visual.Window(fullscr=True, color=[-1,-1,-1] , units='norm')
 win.setRecordFrameIntervals(True)
 win._refreshThreshold=1/20.0+0.004 #i've got 50Hz monitor and want to allow 4ms tolerance
 X, Y = 0., 0.
+phase = np.linspace(0,2*np.pi, n_line, endpoint=False)
 def update_caroussel(X, Y, n_line, angle = 0.):
+    global phase
 #    XY = np.zeros((2,0))
 #    radius_ = np.logspace(-1,0, N, endpoint=False) * radius
 #    for i_line in range(n_line):
-    phase = np.linspace(0,2*np.pi, n_line, endpoint=False) + angle
-    XY = np.array([X + radius*np.cos(phase), Y + radius*np.sin(phase)])
+    phase += 0.001* np.random.randn(n_line)
+    XY = np.array([X + radius*np.cos(phase + angle), Y + radius*np.sin(phase + angle)])
 #    XY = np.hstack((XYs, XY))
     return XY.T, phase
 
 def caroussel(n_line, width, length, angle = 0.):
     XY, phase = update_caroussel(X, Y, n_line, angle)
-    global_lines = visual.ElementArrayStim(win, nElements=XY.shape[0], sizes=(width, length), elementTex='sqr', # sfs=3,
+    global_lines = visual.ElementArrayStim(win, nElements=XY.shape[0], sizes=(length, width), elementTex='sqr', # sfs=3,
                                                     rgbs= np.array([1,1,1]), xys = XY, oris = phase  * 360 / 2. / np.pi  , units='height')
     return global_lines
 
@@ -84,11 +85,11 @@ while True:
     radius += wheel_dX*radius_increment 
     event.clearEvents() # get rid of other, unprocessed events
 
-    angle = t*rotspeed*2*np.pi
+    angle = t*rotspeed *2*np.pi
     newXY, phase = update_caroussel(X, Y, n_line, angle)
 #    print phased
     global_lines.setXYs( newXY )
-    global_lines.setOris( phase * 360 / 2. / np.pi )
+    global_lines.setOris( (phase + angle) * 360 / 2. / np.pi)
     global_lines.draw()
     
     message.draw()
