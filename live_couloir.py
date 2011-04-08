@@ -10,13 +10,14 @@ import signal, sys
 #description res
 host = '127.0.0.1'#192.168.1.4'
 port = 3002
-buf = 1024
+buf = 4096
 
 s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 addr =(host,port)
 print addr
 s.bind(addr)
-s.settimeout(.05)
+s.setblocking(0)
+s.settimeout(0)
 ##########################################
 from psychopy import visual, event, core#, log
 import numpy as np
@@ -77,12 +78,20 @@ def main():
     walk = np.zeros((n_line, 3))
 
     while True:
+        t=globalClock.getTime()
         try :
-            dat = s.recvfrom(1024)
+            dat = s.recvfrom(buf)
         except:
             print ("nodata")
         else :
-            dX_ , dY_ = float(dat[0]), 0.
+            dat_brut=str(dat[0])
+            datasplit1 = dat_brut.split(",")
+            prof_m =  float(datasplit1[0])
+            datasplit2 = datasplit1[1].split(",")
+            az_m =  float (datasplit2[0])
+            el_m = float(datasplit1[2])
+            print (t, "receiv = ", prof_m, az_m , el_m)
+            dX_ , dY_ = prof_m, el_m
             if dX_ >   .99*4.5: 
 #                print('confused!')
                 confused = (1. - 0.01) * (confused) +  0.01 *1
@@ -93,7 +102,6 @@ def main():
                 confused = (1. - 0.01) * (confused)
                 dX, dY = (1- 1./10) * dX + 1./10 * (dX_ - 4.5/2.)/ az_r, (1- 1./10) * dY + 1./10 * dY_ / el_r
 
-        t=globalClock.getTime()
     #    print  win.fps(), str(win.fps())
         #update fps every second
         if t-lastFPSupdate>1.0:
