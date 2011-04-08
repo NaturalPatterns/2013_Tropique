@@ -5,7 +5,7 @@
     
 """
 # paramètres variables #
-verbose=True
+verbose = True #False # 
 depth_min, depth_max= 0., 4.5
 N_frame = 100 # time to learn the depth map
 tilt = 0 # vertical tilt of the kinect
@@ -67,9 +67,11 @@ def display_depth(dev, data, timestamp, verbose=verbose):
         prof_m, az_m, el_m = depth_max, depth_max, depth_max
 
     for addr in addrs:
-        s.sendto(str(prof_m),addr)
-        if verbose: print ("datasend = ", prof_m, addr)
- 
+#        s.sendto(str(prof_m),addr)
+#        if verbose: print ("datasend = ", prof_m, addr)
+        my_array = str(prof_m) + "," + str( az_m) +"," + str( el_m) + '\n \r'
+        s.sendto((my_array),addr)
+        if verbose: print ("datasend = ", my_array , addr)
 
 def handler(signum, frame):
     global keep_running
@@ -91,8 +93,8 @@ def main():
     global depth_hist, record_list, record, addrs, s
     #description res
     hosts = ['127.0.0.1'] #['192.168.1.4', '192.168.1.3']
-    port = 3002
-    s= socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+    port = 30002
+    s= socket.socket(socket.AF_INET, socket.SOCK_DGRAM) #socket.SOCK_DGRAM)
     addrs = [(host,port) for host in hosts]
     print addrs
     
