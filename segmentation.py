@@ -10,12 +10,13 @@ depth_min, depth_max= 0., 4.5
 N_frame = 500 # time to learn the depth map
 tilt = 0 # vertical tilt of the kinect
 N_hist = 2**8 
-threshold = 3.5
+threshold = .05 #3.5
 downscale = 4
 smoothing = 1.5
 noise_level = .8
 figsize=(10,7)
-record  = None #'position.mpg'
+record  = None #'segmentation.mpg' # 
+if not(display): record = None
 # paramètres fixes #
 depth_shape=(640,480)
 matname = 'depth_map.npy'
@@ -49,7 +50,7 @@ except:
 
 #def gaussian(x, m, var):
 #    return 1./np.sqrt(2.*np.pi)/np.sqrt(var)*np.exp(-.5*(x-m)**2/var)
-
+from position import depth
 def display_depth(dev, data, timestamp, display=display):
     """
     
@@ -66,12 +67,8 @@ def display_depth(dev, data, timestamp, display=display):
     global image_depth, i_frame, depth_hist, learn, record_list
 #    print timestamp
     # from http://nicolas.burrus.name/index.php/Research/KinectCalibration
-    Z = 1.0 / (data[::downscale,::downscale] * -0.0030711016 + 3.3309495161)
-    shadows = Z > depth_max # irrelevant calculations
-    shadows += Z < depth_min # irrelevant calculations
-    Z = Z * (1-shadows) + depth_max * shadows
-    Z = nd.gaussian_filter(Z, smoothing)
-    
+    Z = depth(data)
+
     if learn :
 #        data = pretty_depth(data) # on 8-bits
 #        data = data / 255. #data.max()
@@ -85,8 +82,8 @@ def display_depth(dev, data, timestamp, display=display):
 
         
         depth_hist[:, :, 0] = (1-1./(i_frame+1))* depth_hist[:, :, 0] + 1./(i_frame+1) * Z
-        if i_frame>0:
-            depth_hist[:, :, 1] = (1-1./(i_frame))* depth_hist[:, :, 1] + 1./i_frame * (Z-depth_hist[:, :, 0])**2
+#        if i_frame>0:
+#            depth_hist[:, :, 1] = (1-1./(i_frame))* depth_hist[:, :, 1] + 1./i_frame * (Z-depth_hist[:, :, 0])**2
         
 #        print np.log(depth_hist[:, :, 1]).min(), np.log(depth_hist[:, :, 1]).max()
         if display:
@@ -105,9 +102,11 @@ def display_depth(dev, data, timestamp, display=display):
 #        proba = gaussian(data, depth_hist[:, :, 0], depth_hist[:, :, 1])
 ##        smoothed = ndimage.gaussian(np.log(proba), 5.)
 #        print np.log(proba).min(), np.log(proba).max()
-        score = (depth_hist[:, :, 0] - Z)  / ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
+#        score = (depth_hist[:, :, 0] - Z)  / depth_hist[:, :, 0]# ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
+        score = 1. - Z  / depth_hist[:, :, 0]# ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
+        
         print i_frame, score.min(), score.max()
-        score = 1. / (1 + np.exp(-(score-threshold)/1.))
+#        score = 1. / (1 + np.exp(-(score-threshold)/1.))
         if display:
 #            plt.gray()
             fig = plt.figure(1, figsize=figsize)

@@ -28,20 +28,19 @@ win._refreshThreshold=1/20.0+0.004 #i've got 50Hz monitor and want to allow 4ms 
 X, Y = 0., 0.
 n_line = 36
 phase = np.linspace(0,2*np.pi, n_line, endpoint=False)
-phase = np.linspace(0,2*np.pi, n_line, endpoint=False)
 def update_caroussel(X, Y, n_line, radius, angle):
     global phase
 #    XY = np.zeros((2,0))
 #    radius_ = np.logspace(-1,0, N, endpoint=False) * radius
 #    for i_line in range(n_line):
-    phase += 0.001* np.random.randn(n_line)
-    XY = np.array([X + radius*np.cos(phase + angle), Y + radius*np.sin(phase + angle)])
+    XY = np.array([X + radius*np.cos(phase), Y + radius*np.sin(phase)])
 #    phase = np.linspace(0,2*np.pi, n_line, endpoint=False) + angle
 #    XY = np.array([X + radius*np.cos(phase), Y + radius*np.sin(phase)])
 #    XY = np.hstack((XYs, XY))
     return XY.T, phase
 
 def caroussel(n_line, width, length, radius, angle):
+    global phase
     XY, phase = update_caroussel(X, Y, n_line, radius, angle)
     global_lines = visual.ElementArrayStim(win, nElements=XY.shape[0], sizes=(width, length), elementTex='sqr', # sfs=3,
                                                     rgbs= np.array([1,1,1]), xys = XY, oris = phase  * 360 / 2. / np.pi  , units='height')
@@ -75,22 +74,24 @@ def main():
     message = visual.TextStim(win, pos=(-.9,-.9), alignHoriz='left', height=.05, autoLog=False, color = (0,0,1))
     t=lastFPSupdate=0
     confused = 1.
-    
+    walk = np.zeros((n_line, 3))
+
     while True:
         try :
             dat = s.recvfrom(1024)
         except:
             print ("nodata")
         else :
-            dX_ , dY_ = float(dat[0]) - 4.5/2., 0.
-            if dX_ >   .99*max_depth: 
-                confused = (1. - 0.01) * confused +  0.01
+            dX_ , dY_ = float(dat[0]), 0.
+            if dX_ >   .99*4.5: 
+#                print('confused!')
+                confused = (1. - 0.01) * (confused) +  0.01 *1
                 #noData=True
-            else 
+            else:
                 #noData = False
                 #print dX_
-                confused = (1. - 0.01) * confused
-                dX, dY = (1- 1./10) * dX + 1./10 * dX_ / az_r, (1- 1./10) * dY + 1./10 * dY_ / el_r
+                confused = (1. - 0.01) * (confused)
+                dX, dY = (1- 1./10) * dX + 1./10 * (dX_ - 4.5/2.)/ az_r, (1- 1./10) * dY + 1./10 * dY_ / el_r
 
         t=globalClock.getTime()
     #    print  win.fps(), str(win.fps())
@@ -98,7 +99,7 @@ def main():
         if t-lastFPSupdate>1.0:
             lastFPSupdate=t
             if showText:
-                message.setText(str(int(win.fps()))+  " fps / " +  str(width) + " /" +  str(length) + " / " +  str(rotspeed) + " / s - d - f - w -x - c - v" )
+                message.setText(str(int(win.fps()))+  " fps / " +  str(width) + " /" +  str(length) + " / " +  str(rotspeed) + " / " +  str(confused) + " / s - d - f - w -x - c - v" )
             else:
                 message.setText('' )
             
@@ -135,9 +136,12 @@ def main():
 
         angle = t*rotspeed*2*np.pi
         newXY, phase = update_caroussel(2.*X + dX, 2.*Y+dY, n_line, radius, angle)
-    #    print phased
-        global_lines.setXYs( newXY )
-        global_lines.setOris( (phase + angle) * 360 / 2. / np.pi)
+
+        walk += 0.01* np.random.randn(n_line,3)
+        walk *= 1 + confused - .5
+        
+        global_lines.setXYs( newXY + walk[:,0:2] )
+        global_lines.setOris( (phase +  angle + .0 * walk[:,2] ) * 360 / 2. / np.pi)
         global_lines.draw()
         
 

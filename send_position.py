@@ -10,7 +10,7 @@ depth_min, depth_max= 0., 4.5
 N_frame = 100 # time to learn the depth map
 tilt = 0 # vertical tilt of the kinect
 N_hist = 2**8 
-threshold = 3.5
+threshold = .08 #3.5
 downscale = 4
 smoothing = 1.5
 noise_level = .8
@@ -34,6 +34,7 @@ depth_hist = np.load(matname)
 import scipy.ndimage as nd
 import socket
 #################################################
+from position import depth
 def display_depth(dev, data, timestamp, verbose=verbose):
     """
     
@@ -48,12 +49,9 @@ def display_depth(dev, data, timestamp, verbose=verbose):
 
     """
     global depth_hist, addrs, prof_m
-    Z = 1.0 / (data[::downscale,::downscale] * -0.0030711016 + 3.3309495161)
-    shadows = Z > depth_max # irrelevant calculations
-    shadows += Z < depth_min # irrelevant calculations
-    Z = Z * (1-shadows) + depth_max * shadows
-    Z = nd.gaussian_filter(Z, smoothing)
-    score = (depth_hist[:, :, 0] - Z)  / ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
+    Z = depth(data)
+#    score = (depth_hist[:, :, 0] - Z)  / ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
+    score = 1. - Z  / depth_hist[:, :, 0]# ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
     attention = np.argwhere(score.ravel() > threshold)
     detect =  (attention.shape[0] > 0)
     if detect:
