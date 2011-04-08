@@ -5,17 +5,17 @@
     
 """
 # paramètres variables #
-display=False
+display=True
 depth_min, depth_max= 0., 4.5
 N_frame = 100 # time to learn the depth map
 tilt = 0 # vertical tilt of the kinect
 N_hist = 2**8 
-threshold = 3.5
+threshold = .05 #3.5
 downscale = 4
 smoothing = 1.5
 noise_level = .8
 figsize=(10,7)
-record  = 'position.mpg' #None # 
+record  = None #'position.mpg' #None # 
 if not(display): record = None
 # paramètres fixes #
 depth_shape=(640,480)
@@ -33,7 +33,6 @@ import signal
 from calibkinect import depth2xyzuv, xyz_matrix
 import os
 import numpy as np
-depth_hist = np.load(matname)    
 if display:
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
@@ -41,6 +40,19 @@ if display:
     plt.ion()
 import scipy.ndimage as nd
 #################################################
+def depth(data):
+    """
+
+    """
+#    print timestamp
+    # from http://nicolas.burrus.name/index.php/Research/KinectCalibration
+    Z = 1.0 / (data[::downscale,::downscale] * -0.0030711016 + 3.3309495161)
+    shadows = Z > depth_max # irrelevant calculations
+    shadows += Z < depth_min # irrelevant calculations
+    Z = Z * (1-shadows) + depth_max * shadows
+    Z = nd.gaussian_filter(Z, smoothing)
+    return Z
+    
 def display_depth(dev, data, timestamp, display=display):
     """
     
@@ -55,12 +67,9 @@ def display_depth(dev, data, timestamp, display=display):
 
     """
     global image_depth, i_frame, depth_hist, record_list, ax
-    Z = 1.0 / (data[::downscale,::downscale] * -0.0030711016 + 3.3309495161)
-    shadows = Z > depth_max # irrelevant calculations
-    shadows += Z < depth_min # irrelevant calculations
-    Z = Z * (1-shadows) + depth_max * shadows
-    Z = nd.gaussian_filter(Z, smoothing)
-    score = (depth_hist[:, :, 0] - Z)  / ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
+    Z = depth(data)
+#    score = (depth_hist[:, :, 0] - Z)  / ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
+    score = 1. - Z  / depth_hist[:, :, 0]# ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
     attention = np.argwhere(score.ravel() > threshold)
     detect =  (attention.shape[0] > 0)
     if detect:
@@ -125,6 +134,8 @@ def body(dev, ctx):#*args):
 
 def main():
     global depth_hist, record_list, record
+    depth_hist = np.load(matname)    
+
     print('Press Ctrl-C in terminal to stop')
     signal.signal(signal.SIGINT, handler)
     freenect.runloop(depth=display_depth,
