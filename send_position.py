@@ -5,12 +5,12 @@
     
 """
 # paramètres variables #
-verbose = True #False # 
+verbose = True # False #
 depth_min, depth_max= 0., 4.5
 N_frame = 100 # time to learn the depth map
 tilt = 0 # vertical tilt of the kinect
 N_hist = 2**8 
-threshold = .08 #3.5
+threshold = .19 #3.5
 downscale = 4
 smoothing = 1.5
 noise_level = .8
@@ -25,6 +25,7 @@ start = True
 prof_m, az_m, el_m = depth_max, 0. , 0.
 #################################################
 import freenect
+import time
 import signal
 #import frame_convert
 from calibkinect import depth2xyzuv, xyz_matrix
@@ -48,7 +49,7 @@ def display_depth(dev, data, timestamp, verbose=verbose):
     timestamp: int representing the time
 
     """
-    global depth_hist, addrs, prof_m
+    global depth_hist, addrs, prof_m, s
     Z = depth(data)
 #    score = (depth_hist[:, :, 0] - Z)  / ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
     score = 1. - Z  / depth_hist[:, :, 0]# ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
@@ -71,7 +72,9 @@ def display_depth(dev, data, timestamp, verbose=verbose):
 #        if verbose: print ("datasend = ", prof_m, addr)
         my_array = str(prof_m) + "," + str( az_m) +"," + str( el_m) + '\n \r'
         s.sendto((my_array),addr)
+#        s.send((my_array),addr)
         if verbose: print ("datasend = ", my_array , addr)
+    time.sleep(0.1)
 
 def handler(signum, frame):
     global keep_running

@@ -16,7 +16,6 @@ def handler(signum, frame):
     s.close()
     sys.exit()
 
-
 def main():
     print('Press Ctrl-C in terminal to stop')
     signal.signal(signal.SIGINT, handler)
@@ -27,14 +26,14 @@ def main():
              print ("nodata")
         else :
              dat_brut=str(dat[0])
-             print dat
+#             print dat
              datasplit1 = dat_brut.split(",")
              prof_m =  float(datasplit1[0])
              datasplit2 = datasplit1[1].split(",")
              az_m =  float (datasplit2[0])
              el_m = float(datasplit1[2])
              print ("receiv = ", prof_m, az_m , el_m)
-    time.sleep(1.)
+        time.sleep(.001)
     
 if __name__ == "__main__":
     main()
