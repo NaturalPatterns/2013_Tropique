@@ -4,26 +4,28 @@
     Script de test de la Kinect pour extraire la position 3D
     
 """
+fullscreen = False # True
 import socket
 import signal, sys
 #print socket.__version__
 #description res
 host = '127.0.0.1'#192.168.1.4'
-port = 3002
-buf = 4096
+port = 30002
+buf = 1024 # 4096
 
 s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 addr =(host,port)
 print addr
 s.bind(addr)
-s.setblocking(0)
+#s.setblocking(0)
+#s.settimeout(0)
 s.settimeout(0)
 ##########################################
 from psychopy import visual, event, core#, log
 import numpy as np
 import Image
 globalClock = core.Clock()
-win = visual.Window(fullscr=True, color=[-1,-1,-1] , units='norm')
+win = visual.Window(fullscr=fullscreen, color=[-1,-1,-1] , units='norm')
 win.setRecordFrameIntervals(True)
 win._refreshThreshold=1/20.0+0.004 #i've got 50Hz monitor and want to allow 4ms tolerance
 X, Y = 0., 0.
@@ -59,9 +61,9 @@ def main():
     rotspeed, rotspeed_Increment = .001, 0.002 # en Hz?
     width, width_increment = .5,  .01 # largeur de la ligne en pixels
     n_line = 36
-    size_h, size_h_increment = 1., .02
-    radius, radius_increment  = .5, .02
-    length, length_increment  = .01, .001
+#    size_h, size_h_increment = 1., .02
+    radius, radius_increment  = .35, .02
+    length, length_increment  = .005, .001
     dX, dY = 0. , 0.
     az_m, az_r, el_m,  el_r = 0., -1.1, 0., 1.
 
@@ -79,6 +81,7 @@ def main():
 
     while True:
         t=globalClock.getTime()
+        print ('before', t)
         try :
             dat = s.recvfrom(buf)
         except:
@@ -101,6 +104,8 @@ def main():
                 #print dX_
                 confused = (1. - 0.01) * (confused)
                 dX, dY = (1- 1./10) * dX + 1./10 * (dX_ - 4.5/2.)/ az_r, (1- 1./10) * dY + 1./10 * dY_ / el_r
+
+        print ('after', t)
 
     #    print  win.fps(), str(win.fps())
         #update fps every second
