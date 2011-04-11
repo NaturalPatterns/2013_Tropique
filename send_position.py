@@ -6,6 +6,7 @@
 """
 # paramètres variables #
 verbose = True # False #
+emulate = True # False #
 depth_min, depth_max= 0., 4.5
 N_frame = 100 # time to learn the depth map
 tilt = 0 # vertical tilt of the kinect
@@ -14,6 +15,9 @@ threshold = .19 #3.5
 downscale = 4
 smoothing = 1.5
 noise_level = .8
+host = 'localhost' #['192.168.1.4', '192.168.1.3']
+port = 30002
+buf = 1024
 # paramètres fixes #
 depth_shape=(640,480)
 matname = 'depth_map.npy'
@@ -24,33 +28,35 @@ keep_running = True
 start = True
 prof_m, az_m, el_m = depth_max, 0. , 0.
 #################################################
-import freenect
+import numpy as np
+from calibkinect import depth2xyzuv#, xyz_matrix
+if not(emulate): 
+    import freenect
+    from position import depth
+    depth_hist = np.load(matname)    
+else:
+    depth_hist = np.ones((depth_shape[0]/downscale,depth_shape[1]/downscale,2)) * depth_max
+    def depth(data):
+        return data[::downscale,::downscale]
 import time
 import signal
 #import frame_convert
-from calibkinect import depth2xyzuv, xyz_matrix
-import os
-import numpy as np
-depth_hist = np.load(matname)    
-import scipy.ndimage as nd
+#import os
+#import scipy.ndimage as nd
 import socket
 #################################################
-from position import depth
-def display_depth(dev, data, timestamp, verbose=verbose):
+def display_depth(dev, data, timestamp, host, port, s, verbose=verbose):
     """
     
     Args:
-    index: Kinect device index (default: 0)
-    format: Depth format (default: DEPTH_11BIT)
+
     
     Returns:
-    (depth, timestamp) or None on error
-    depth: A numpy array, shape:(640,480) dtype:np.uint16
-    timestamp: int representing the time
 
     """
-    global depth_hist, addrs, prof_m, s
+    global depth_hist
     Z = depth(data)
+#    print data.shape, Z.shape, depth_hist.shape
 #    score = (depth_hist[:, :, 0] - Z)  / ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
     score = 1. - Z  / depth_hist[:, :, 0]# ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
     attention = np.argwhere(score.ravel() > threshold)
@@ -67,14 +73,18 @@ def display_depth(dev, data, timestamp, verbose=verbose):
     else:
         prof_m, az_m, el_m = depth_max, depth_max, depth_max
 
-    for addr in addrs:
-#        s.sendto(str(prof_m),addr)
+#    for addr in addrs:
+    dat = s.recvfrom(buf)
+    if dat == 'ask':
+        #        s.sendto(str(prof_m),addr)
 #        if verbose: print ("datasend = ", prof_m, addr)
         my_array = str(prof_m) + "," + str( az_m) +"," + str( el_m) + '\n \r'
-        s.sendto((my_array),addr)
+        s.sendto((my_array),(host, port))
 #        s.send((my_array),addr)
-        if verbose: print ("datasend = ", my_array , addr)
-    time.sleep(0.1)
+        if verbose: print ("datasend = ", my_array , (host, port))
+#    time.sleep(0.1)
+    else:
+        print('nobidy asks for something...')
 
 def handler(signum, frame):
     global keep_running
@@ -93,21 +103,28 @@ def body(dev, ctx):#*args):
         raise freenect.Kill
 
 def main():
-    global depth_hist, record_list, record, addrs, s
+    global depth_hist, host, port, s
     #description res
-    hosts = ['127.0.0.1'] #['192.168.1.4', '192.168.1.3']
-    port = 30002
+
+
     s= socket.socket(socket.AF_INET, socket.SOCK_DGRAM) #socket.SOCK_DGRAM)
-    addrs = [(host,port) for host in hosts]
-    print addrs
+#    addrs = [(host, port) for host in hosts]
+#    print addrs
     
     print('Press Ctrl-C in terminal to stop')
     signal.signal(signal.SIGINT, handler)
-    freenect.runloop(depth=display_depth,
+    if not(emulate):
+        freenect.runloop(depth=display_depth,
                      body=body)
+    else:
+        dev, timestamp = None, None
+        pos = np.ones(depth_shape) * depth_max
+        pos[pos.shape[0]/2, pos.shape[1]/2] = depth_max/2.
+        while True:
+            #    time.sleep(0.1)
+            display_depth(dev, pos, timestamp, host, port, s, verbose=verbose)
+
     s.close()
 
 if __name__ == "__main__":
     main()
-
-
