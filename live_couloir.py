@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 """
-    Script de test de la Kinect pour extraire la position 3D
+    Couloir de lignes paralleles dont le centre change avec la position de la kinect
     
 """
 fullscreen = False # True
@@ -19,11 +19,11 @@ print addr
 s.bind(addr)
 #s.setblocking(0)
 #s.settimeout(0)
-s.settimeout(0)
+s.settimeout(5)
 ##########################################
 from psychopy import visual, event, core#, log
 import numpy as np
-import Image
+#import Image
 globalClock = core.Clock()
 win = visual.Window(fullscr=fullscreen, color=[-1,-1,-1] , units='norm')
 win.setRecordFrameIntervals(True)
@@ -81,7 +81,12 @@ def main():
 
     while True:
         t=globalClock.getTime()
-        print ('before', t)
+        
+        # asking the kinect to send the data
+        s.sendto('ask',(host, port))
+            
+#        print ('before', t)
+        # retrieve the data
         try :
             dat = s.recvfrom(buf)
         except:
