@@ -4,22 +4,23 @@
     Couloir de lignes paralleles dont le centre change avec la position de la kinect
     
 """
-fullscreen = False # True
+fullscreen = True #False # 
 import socket
 import signal, sys
 #print socket.__version__
 #description res
-host = '127.0.0.1'#192.168.1.4'
-port = 30002
+host = '' # '127.0.0.1'#192.168.1.4'
+port = 50042
 buf = 1024 # 4096
-
-s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-addr =(host,port)
-print addr
-s.bind(addr)
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)# socket.SOCK_DGRAM) # 
+#addr =(host,port)
+#print addr
+#s.bind(addr)
 #s.setblocking(0)
 #s.settimeout(0)
-s.settimeout(5)
+#s.settimeout(5)
+s.setblocking(1)
+s.connect((host, port))
 ##########################################
 from psychopy import visual, event, core#, log
 import numpy as np
@@ -81,19 +82,21 @@ def main():
 
     while True:
         t=globalClock.getTime()
-        
+
         # asking the kinect to send the data
-        s.sendto('ask',(host, port))
-            
+#   TODO : envoyer un status (ready, quitting...)
+        s.send('ready')
 #        print ('before', t)
         # retrieve the data
         try :
-            dat = s.recvfrom(buf)
+#            dat = s.recvfrom(buf)
+            dat  = s.recv(buf)
         except:
             print ("nodata")
         else :
-            dat_brut=str(dat[0])
-            datasplit1 = dat_brut.split(",")
+#            dat_brut=str(dat[0])
+            
+            datasplit1 = dat.split(",")
             prof_m =  float(datasplit1[0])
             datasplit2 = datasplit1[1].split(",")
             az_m =  float (datasplit2[0])
@@ -110,7 +113,7 @@ def main():
                 confused = (1. - 0.01) * (confused)
                 dX, dY = (1- 1./10) * dX + 1./10 * (dX_ - 4.5/2.)/ az_r, (1- 1./10) * dY + 1./10 * dY_ / el_r
 
-        print ('after', t)
+#        print ('after', t)
 
     #    print  win.fps(), str(win.fps())
         #update fps every second
@@ -165,7 +168,11 @@ def main():
 
         message.draw()
         win.flip()
-        
+
+    s.send('done')
+    s.close()
+    win.close()
+
 if __name__ == "__main__":
     main()
 

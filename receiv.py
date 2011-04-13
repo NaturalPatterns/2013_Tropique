@@ -2,15 +2,15 @@ import socket
 import signal, sys, time
 #print socket.__version__
 #description res
-host = '127.0.0.1' # 192.168.1.4'
+host = '' # 192.168.1.4'127.0.0.1
 port = 30002
 buf = 1024
 
 s = socket.socket(socket.AF_INET,  socket.SOCK_DGRAM) # socket.SOCK_STREAM) # 
-addr =(host,port)
-print addr
-s.bind(addr)
-s.settimeout(5)
+#addr = (host,port)
+#print addr
+#s.bind(addr)
+#s.settimeout(5)
 
 def handler(signum, frame):
     s.close()
@@ -21,7 +21,8 @@ def main():
     signal.signal(signal.SIGINT, handler)
     while True:
         try :
-             dat = s.recvfrom(buf)
+#             dat = s.recvfrom(buf)
+             dat = s.recv(buf)
         except:
              print ("nodata")
         else :

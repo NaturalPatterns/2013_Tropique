@@ -14,19 +14,18 @@
     Pour tester la valeur de score, relancer le programme sur une scene avec une personne:
 ./fake.sh /Users/lup/Desktop/Tropique/dumps/lolo-brume ./segmentation.py 
 
-    
 """
 # paramètres variables #
 display=True
 depth_min, depth_max= 0., 6.
-N_frame = 500 # time to learn the depth map
 tilt = 0 # vertical tilt of the kinect
 N_hist = 2**8 
-threshold = .15 #3.5
+threshold = .1 #3.5
 downscale = 4
 smoothing = 1.5
 noise_level = .8
 figsize=(10,7)
+N_frame = 1000 # maximum time to learn the depth map
 record  = '11-04-13_testing-segmentation.mpg' # None #
 if not(display): record = None
 # paramètres fixes #
@@ -123,15 +122,15 @@ def display_depth(dev, data, timestamp, display=display):
 #            plt.gray()
             fig = plt.figure(1, figsize=figsize)
             if image_depth:
-                image_depth.set_data(score)
+                image_depth.set_data(score * (score<threshold) + (score>threshold))
             else:
-                image_depth = plt.imshow(score, interpolation='nearest', animated=True, vmin=0, vmax=1.)
+                image_depth = plt.imshow(score * (score<threshold) + (score>threshold), interpolation='nearest', animated=True, vmin=0, vmax=1.)
                 plt.axis('off')
                 plt.colorbar()        
             plt.draw()
 
     if not(record == None):
-        figname = '_frame%03d.png' % i_frame
+        figname = record + '_frame%03d.png' % i_frame
         plt.savefig(figname, dpi = 72)
         record_list.append(figname)
     i_frame += 1
@@ -170,7 +169,7 @@ def main():
         np.save(matname, depth_hist) 
         
     if record:
-        os.system('ffmpeg -v 0 -y  -f image2  -sameq -i _frame%03d.png  ' + record + ' 2>/dev/null')
+        os.system('ffmpeg -v 0 -y  -f image2  -sameq -i  ' + record + '_frame%03d.png  ' + record + ' 2>/dev/null')
         for fname in record_list: os.remove(fname)
 
 if __name__ == "__main__":

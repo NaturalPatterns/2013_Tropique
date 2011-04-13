@@ -6,22 +6,27 @@
     Avec le script position.py, on a extrait le centre de gravité. 
     On envoie maintenant cette position au réseau pour reception dans les scripts live_*.py
 
+    Ce script définit la kinect comme serveur
+
 ./fake.sh /Users/lup/Desktop/Tropique/dumps/lolo-brume ./send_position.py
     
+
+
+
+
 """
 # paramètres variables #
 verbose = True # False #
-emulate = False # True # 
-depth_min, depth_max= 0., 4.5
-N_frame = 100 # time to learn the depth map
+depth_min, depth_max= 0., 6.
 tilt = 0 # vertical tilt of the kinect
 N_hist = 2**8 
-threshold = .19 #3.5
+threshold = .1 #
 downscale = 4
 smoothing = 1.5
 noise_level = .8
-host = 'localhost' #['192.168.1.4', '192.168.1.3']
-port = 30002
+emulate = False # True # 
+host = 'localhost' # '127.0.0.1' #localhost['192.168.1.4', '192.168.1.3']
+port = 50042
 buf = 1024
 # paramètres fixes #
 depth_shape=(640,480)
@@ -49,8 +54,19 @@ import signal
 #import os
 #import scipy.ndimage as nd
 import socket
+# we define the server
+s= socket.socket(socket.AF_INET, socket.SOCK_STREAM) # socket.SOCK_DGRAM) #
+#    addrs = [(host, port) for host in hosts]
+#    print addrs
+addr = (host,port)
+s.bind(addr)
+#s.settimeout(500) # time-out for establishing the connection
+s.listen(1) # how many clients can connect to this server
+print 'Waiting for a connection from a client on ', addr
+conn, addr_ = s.accept() # waits until a clients connects
+print 'Connected by', addr_
 #################################################
-def display_depth(dev, data, timestamp, host, port, s, verbose=verbose):
+def display_depth(dev, data, timestamp, verbose=verbose):
     """
     
     Args:
@@ -59,7 +75,7 @@ def display_depth(dev, data, timestamp, host, port, s, verbose=verbose):
     Returns:
 
     """
-    global depth_hist
+    global depth_hist, s, conn
     Z = depth(data)
 #    print data.shape, Z.shape, depth_hist.shape
 #    score = (depth_hist[:, :, 0] - Z)  / ((1.-noise_level)*np.sqrt(depth_hist[:, :, 1]) + noise_level*np.sqrt(depth_hist[:, :, 1]).mean())
@@ -78,18 +94,24 @@ def display_depth(dev, data, timestamp, host, port, s, verbose=verbose):
     else:
         prof_m, az_m, el_m = depth_max, depth_max, depth_max
 
+    data = conn.recv(buf)
+    if data == 'ready': 
+        print('data received is ', data)
 #    for addr in addrs:
-    dat = s.recvfrom(buf)
-    if dat == 'ask':
+    #dat = s.recvfrom(buf)
+#    if True:#dat == 'ask':
         #        s.sendto(str(prof_m),addr)
 #        if verbose: print ("datasend = ", prof_m, addr)
         my_array = str(prof_m) + "," + str( az_m) +"," + str( el_m) + '\n \r'
-        s.sendto((my_array),(host, port))
-#        s.send((my_array),addr)
+#        s.sendto((my_array),(host, port))
+        conn.send(my_array)
         if verbose: print ("datasend = ", my_array , (host, port))
 #    time.sleep(0.1)
+    elif data == 'done':
+        keep_running = False
+        pass
     else:
-        print('nobody asks for something...')
+        print('nobody asks for something... is the client dead?')
 
 def handler(signum, frame):
     global keep_running
@@ -108,13 +130,9 @@ def body(dev, ctx):#*args):
         raise freenect.Kill
 
 def main():
-    global depth_hist, host, port, s
+    global depth_hist, s, conn
     #description res
 
-
-    s= socket.socket(socket.AF_INET, socket.SOCK_DGRAM) #socket.SOCK_DGRAM)
-#    addrs = [(host, port) for host in hosts]
-#    print addrs
     
     print('Press Ctrl-C in terminal to stop')
     signal.signal(signal.SIGINT, handler)
@@ -127,8 +145,9 @@ def main():
         pos[pos.shape[0]/2, pos.shape[1]/2] = depth_max/2.
         while True:
             #    time.sleep(0.1)
-            display_depth(dev, pos, timestamp, host, port, s, verbose=verbose)
+            display_depth(dev, pos, timestamp, verbose=verbose)
 
+    conn.close()
     s.close()
 
 if __name__ == "__main__":
