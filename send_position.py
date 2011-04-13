@@ -2,11 +2,16 @@
 # -*- coding: utf8 -*-
 """
     Script de test de la Kinect pour extraire la position 3D
+
+    Avec le script position.py, on a extrait le centre de gravité. 
+    On envoie maintenant cette position au réseau pour reception dans les scripts live_*.py
+
+./fake.sh /Users/lup/Desktop/Tropique/dumps/lolo-brume ./send_position.py
     
 """
 # paramètres variables #
 verbose = True # False #
-emulate = True # False #
+emulate = False # True # 
 depth_min, depth_max= 0., 4.5
 N_frame = 100 # time to learn the depth map
 tilt = 0 # vertical tilt of the kinect
@@ -84,7 +89,7 @@ def display_depth(dev, data, timestamp, host, port, s, verbose=verbose):
         if verbose: print ("datasend = ", my_array , (host, port))
 #    time.sleep(0.1)
     else:
-        print('nobidy asks for something...')
+        print('nobody asks for something...')
 
 def handler(signum, frame):
     global keep_running

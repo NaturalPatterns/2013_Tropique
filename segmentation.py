@@ -3,10 +3,22 @@
 """
     Script de test de la Kinect pour extraire la position 3D
     
+    Segmentation basé sur une captation sans personne
+
+./fake.sh /Users/lup/Desktop/Tropique/dumps/rien ./segmentation.py 
+
+    Il faut recommencer la segmentation dès qu'on change le point de vue de la Kinect.
+    Pour recommencer une segmentation supprimemer le fichier matname:
+        rm depth_map.npy
+
+    Pour tester la valeur de score, relancer le programme sur une scene avec une personne:
+./fake.sh /Users/lup/Desktop/Tropique/dumps/lolo-brume ./segmentation.py 
+
+    
 """
 # paramètres variables #
 display=True
-depth_min, depth_max= 0., 4.5
+depth_min, depth_max= 0., 6.
 N_frame = 500 # time to learn the depth map
 tilt = 0 # vertical tilt of the kinect
 N_hist = 2**8 
@@ -15,7 +27,7 @@ downscale = 4
 smoothing = 1.5
 noise_level = .8
 figsize=(10,7)
-record  = None #'segmentation.mpg' # 
+record  = '11-04-13_testing-segmentation.mpg' # None #
 if not(display): record = None
 # paramètres fixes #
 depth_shape=(640,480)

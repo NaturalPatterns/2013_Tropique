@@ -1,4 +1,6 @@
 # Usage : ./fake.sh /Users/lup/Desktop/Tropique/fakenect/smoke_tunnel4 ./segmentation.py
+# 
+# on a créé des dumps en utilisant ./libfreenect/utils/record nom_du_dump
 #
 # See documentation on http://brandynwhite.com/fakenect-openkinect-driver-simulator-experime
 # Sensor Dumps

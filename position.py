@@ -3,10 +3,16 @@
 """
     Script de test de la Kinect pour extraire la position 3D
     
+    À partir de la segmentation (cf segmentation.py), on extrait la position 
+    (x, y, z) (en fait profondeur, azimuth, élévation) comme le centre de 
+    gravité du nuage de points segmentés.    
+    
+./fake.sh /Users/lup/Desktop/Tropique/dumps/lolo-brume ./position.py
+
 """
 # paramètres variables #
 display=True
-depth_min, depth_max= 0., 4.5
+depth_min, depth_max= 0., 6.
 N_frame = 100 # time to learn the depth map
 tilt = 0 # vertical tilt of the kinect
 N_hist = 2**8 
@@ -15,7 +21,7 @@ downscale = 4
 smoothing = 1.5
 noise_level = .8
 figsize=(10,7)
-record  = None #'position.mpg' #None # 
+record  = '11-04-13_testing-position.mpg' # None #
 if not(display): record = None
 # paramètres fixes #
 depth_shape=(640,480)
@@ -93,7 +99,7 @@ def display_depth(dev, data, timestamp, display=display):
             plt.axis('off')
 #            cbar = fig.colorbar(image_depth,shrink=0.9,extend='both')
             ax.set_xlabel('X')
-            ax.set_xlim3d(0, 3.2)
+            ax.set_xlim3d(0, depth_max)
             ax.set_ylabel('Y')
             ax.set_ylim3d(-2, 2)
             ax.set_zlabel('Z')
