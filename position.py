@@ -9,14 +9,18 @@
     
 ./fake.sh /Users/lup/Desktop/Tropique/dumps/lolo-brume ./position.py
 
+
+
+
+
+
 """
 # paramètres variables #
 display=True
 depth_min, depth_max= 0., 6.
-N_frame = 100 # time to learn the depth map
 tilt = 0 # vertical tilt of the kinect
 N_hist = 2**8 
-threshold = .15 #3.5
+threshold = .1 #3.5
 downscale = 4
 smoothing = 1.5
 noise_level = .8
@@ -40,6 +44,8 @@ from calibkinect import depth2xyzuv, xyz_matrix
 import os
 import numpy as np
 if display:
+    import pylab
+    pylab.rcParams.update({'backend': 'Agg'})
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
     #import pylab
@@ -85,7 +91,7 @@ def display_depth(dev, data, timestamp, display=display):
         data_ = data[::downscale,::downscale].ravel()
         xyz, uv = depth2xyzuv(data_[attention], u=U_[attention], v=V_[attention])
     
-        prof, az, el = -xyz[:,2], -xyz[:,0], -xyz[:,1]
+        prof, az, el = -xyz[:,2], -xyz[:,1], -xyz[:,0]
         prof_m, az_m, el_m = prof.mean(), az.mean(), el.mean()
 
     if display:
@@ -94,15 +100,15 @@ def display_depth(dev, data, timestamp, display=display):
         if True: # image_depth:
             ax = fig.add_subplot(111, projection='3d' , animated=True)#
             if detect: 
-                image_depth = ax.plot(-xyz[:,2], -xyz[:,0], -xyz[:,1], 'r.')
+                image_depth = ax.plot(prof, az, el, 'r.')
                 ax.plot([prof_m], [az_m], [el_m], 'go')
             plt.axis('off')
 #            cbar = fig.colorbar(image_depth,shrink=0.9,extend='both')
-            ax.set_xlabel('X')
+            ax.set_xlabel('prof')
             ax.set_xlim3d(0, depth_max)
-            ax.set_ylabel('Y')
+            ax.set_ylabel('az')
             ax.set_ylim3d(-2, 2)
-            ax.set_zlabel('Z')
+            ax.set_zlabel('el')
             ax.set_zlim3d(-1, 1)
             plt.draw()
 #        else:
@@ -111,13 +117,12 @@ def display_depth(dev, data, timestamp, display=display):
 #            plt.draw()
 
         if not(record == None):
-            figname = '_frame%03d.png' % i_frame
+            figname = record + '_frame%03d.png' % i_frame
             print figname
             fig.savefig(figname, dpi = 72)
             record_list.append(figname)
         plt.close()
 
-    print i_frame
     i_frame += 1
     
 
@@ -132,7 +137,7 @@ def body(dev, ctx):#*args):
     freenect.set_led(dev, 0)
     freenect.set_tilt_degs(dev, tilt)
 
-    if i_frame > N_frame: keep_running = False
+#    if i_frame > N_frame: keep_running = False
 
     if not keep_running:
         freenect.set_led(dev, 5)
@@ -147,7 +152,7 @@ def main():
     freenect.runloop(depth=display_depth,
                      body=body)    
     if record:
-        os.system('ffmpeg -v 0 -y  -f image2  -sameq -i _frame%03d.png  ' + record + ' 2>/dev/null')
+        os.system('ffmpeg -v 0 -y  -f image2  -sameq -i ' + record + '_frame%03d.png  ' + record + ' 2>/dev/null')
         for fname in record_list: os.remove(fname)
 
 if __name__ == "__main__":
