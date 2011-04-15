@@ -13,7 +13,7 @@
 
     Pour tester la valeur de score, relancer le programme sur une scene avec une personne:
 ./fake.sh /Users/lup/Desktop/Tropique/dumps/lolo-brume ./segmentation.py 
-
+HOHOHO
 """
 # paramètres variables #
 display=True
