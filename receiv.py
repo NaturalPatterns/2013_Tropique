@@ -12,6 +12,9 @@ s = socket.socket(socket.AF_INET,  socket.SOCK_DGRAM) # socket.SOCK_STREAM) #
 #s.bind(addr)
 #s.settimeout(5)
 
+global prof_m , az_m , el_m
+
+
 def handler(signum, frame):
     s.close()
     sys.exit()
