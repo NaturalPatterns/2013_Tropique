@@ -10,7 +10,7 @@ depth_min, depth_max= 0., 4.5
 N_frame = 100 # time to learn the depth map
 tilt = 0 # vertical tilt of the kinect
 N_hist = 2**8 
-threshold = 1.5
+threshold = 3.5
 downscale = 4
 smoothing = 1.5
 noise_level = .8
@@ -65,10 +65,12 @@ def display_depth(dev, data, timestamp, verbose=verbose):
     
         prof, az, el = -xyz[:,2], -xyz[:,0], -xyz[:,1]
         prof_m, az_m, el_m = prof.mean(), az.mean(), el.mean()
+    else:
+        prof_m, az_m, el_m = depth_max, depth_max, depth_max
 
-        for addr in addrs:
-            s.sendto(str(prof_m),addr)
-            if verbose: print ("datasend = ", prof_m, addr)
+    for addr in addrs:
+        s.sendto(str(prof_m),addr)
+        if verbose: print ("datasend = ", prof_m, addr)
  
 
 def handler(signum, frame):
