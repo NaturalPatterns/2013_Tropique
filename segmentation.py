@@ -5,16 +5,17 @@
     
 """
 # paramètres variables #
-display=True
-record  = None #'position.mpg'
+display=False
 depth_min, depth_max= 0., 4.5
 N_frame = 500 # time to learn the depth map
 tilt = 0 # vertical tilt of the kinect
 N_hist = 2**8 
-threshold = 1.5
+threshold = 3.5
 downscale = 4
 smoothing = 1.5
 noise_level = .8
+figsize=(10,7)
+record  = None #'position.mpg'
 # paramètres fixes #
 depth_shape=(640,480)
 matname = 'depth_map.npy'
@@ -90,7 +91,7 @@ def display_depth(dev, data, timestamp, display=display):
 #        print np.log(depth_hist[:, :, 1]).min(), np.log(depth_hist[:, :, 1]).max()
         if display:
 #            plt.gray()
-            plt.figure(1, figsize=(18,14))
+            plt.figure(1, figsize=figsize)
             if image_depth:
                 image_depth.set_data(depth_hist[:, :, 0])
 #                image_depth.set_alpha(depth_hist[:, :, 1]/depth_hist[:, :, 1].max())
@@ -109,7 +110,7 @@ def display_depth(dev, data, timestamp, display=display):
         score = 1. / (1 + np.exp(-(score-threshold)/1.))
         if display:
 #            plt.gray()
-            fig = plt.figure(1, figsize=(18,14))
+            fig = plt.figure(1, figsize=figsize)
             if image_depth:
                 image_depth.set_data(score)
             else:

@@ -12,6 +12,9 @@ print addr
 s.bind(addr)
 s.settimeout(5)
 
+global prof_m , az_m , el_m
+
+
 def handler(signum, frame):
     s.close()
     sys.exit()
@@ -25,7 +28,14 @@ def main():
 	except:
 		print ("nodata")
 	else :
-		print float(dat[0])
+		dat_brut=str(dat[0])
+		datasplit1 = dat_brut.split(",")
+		prof_m =  float(datasplit1[0])
+		datasplit2 = datasplit1[1].split(",")
+		az_m =  float (datasplit2[0])
+		el_m = float(datasplit1[2])
+		print ("receiv = ", prof_m, az_m , el_m)			
+
 
     
 if __name__ == "__main__":

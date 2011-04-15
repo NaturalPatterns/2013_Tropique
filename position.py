@@ -6,16 +6,17 @@
 """
 # paramètres variables #
 display=False
-record  = 'position.mpg' #None # 
-if not(display): record = None
 depth_min, depth_max= 0., 4.5
 N_frame = 100 # time to learn the depth map
 tilt = 0 # vertical tilt of the kinect
 N_hist = 2**8 
-threshold = 5.
+threshold = 3.5
 downscale = 4
 smoothing = 1.5
 noise_level = .8
+figsize=(10,7)
+record  = 'position.mpg' #None # 
+if not(display): record = None
 # paramètres fixes #
 depth_shape=(640,480)
 matname = 'depth_map.npy'
@@ -73,7 +74,7 @@ def display_depth(dev, data, timestamp, display=display):
         prof_m, az_m, el_m = prof.mean(), az.mean(), el.mean()
 
     if display:
-        fig = plt.figure(1, figsize=(18,14))
+        fig = plt.figure(1, figsize=figsize)
 #            plt.gray()
         if True: # image_depth:
             ax = fig.add_subplot(111, projection='3d' , animated=True)#
