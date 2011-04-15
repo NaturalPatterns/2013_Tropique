@@ -10,7 +10,7 @@
 
 ./fake.sh /Users/lup/Desktop/Tropique/dumps/lolo-brume ./send_position.py
     
-
+Mercurial is really a cool stuff
 
 
 
