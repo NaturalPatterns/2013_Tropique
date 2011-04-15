@@ -33,7 +33,10 @@ import signal
 from calibkinect import depth2xyzuv, xyz_matrix
 import os
 import numpy as np
-depth_hist = np.load(matname)    
+try:
+    depth_hist = np.load(matname)
+except:
+    pass
 if display:
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
