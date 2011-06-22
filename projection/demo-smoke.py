@@ -37,8 +37,7 @@ cmap = glumpy.colormap.Colormap("BlueGrey",
 I = glumpy.Image(Z, interpolation='bicubic', cmap=cmap, vmin=0, vmax=5)
 t, t0, frames = 0,0,0
 
-window = glumpy.Window(800,800)
-window._fullscreen = True
+window = glumpy.Window(800,800, fullscreen = False)
 window.last_drag = None
 
 @window.event
