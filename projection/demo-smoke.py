@@ -22,8 +22,10 @@ size = N+2
 dt = 0.1
 diff = 0.0
 visc = 0.0
-force = 1
+force = 4
 source = 25.0
+downscale = 4
+
 u     = numpy.zeros((size,size), dtype=numpy.float32)
 u_    = numpy.zeros((size,size), dtype=numpy.float32)
 v     = numpy.zeros((size,size), dtype=numpy.float32)
@@ -37,7 +39,7 @@ cmap = glumpy.colormap.Colormap("BlueGrey",
 I = glumpy.Image(Z, interpolation='bicubic', cmap=cmap, vmin=0, vmax=5)
 t, t0, frames = 0,0,0
 
-window = glumpy.Window(800,800, fullscreen = False)
+window = glumpy.Window(1600/downscale,900/downscale, fullscreen = True)
 window.last_drag = None
 
 @window.event

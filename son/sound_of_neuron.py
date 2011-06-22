@@ -48,8 +48,8 @@ DeltaT = 2 * mV
 Vcut = VT + 5 * DeltaT
 
 # Pick an electrophysiological behaviour
-tauw, a, b, Vr = 144 * ms, 4 * nS, 0.0805 * nA, -70.6 * mV # Regular spiking (as in the paper)
-#tauw,a,b,Vr=20*ms,4*nS,0.5*nA,VT+5*mV # Bursting
+#tauw, a, b, Vr = 144 * ms, 4 * nS, 0.0805 * nA, -70.6 * mV # Regular spiking (as in the paper)
+tauw,a,b,Vr=20*ms,4*nS,0.5*nA,VT+5*mV # Bursting
 #tauw,a,b,Vr=144*ms,2*C/(144*ms),0*nA,-70.6*mV # Fast spiking
 
 eqs = """
@@ -62,12 +62,19 @@ neuron = NeuronGroup(1, model=eqs, threshold=Vcut, reset="vm=Vr;w+=b", freeze=Tr
 neuron.vm = EL
 trace = StateMonitor(neuron, 'vm', record=0, clock=record_clock)
 
-for i in range(1000):
-    neuron.I = np.random.rand() * nA
+modul = .5
+for i in range(2000):
+    modul = .5 + .5 * modul +  np.random.randn()
+#    modul_ = .4 * np.tanh(modul/5.) + .5 + .2
+    neuron.I = modul * (np.random.rand()**8)*1.1 * nA
     run(10 * ms)   
 
-plot(trace.times / ms, trace[0] / mV)
-show()
+print trace[0].min(), trace[0].mean(), trace[0].max(),  np.sum(trace[0] > -.05) 
+
+#plot(trace.times / ms, trace[0] / mV)
+record = .5 * np.tanh((trace[0] + .05)/.02) +.5
+#record = 1./(1 + np.exp(-(trace[0]  + .06 )/.1))
+print record.min(), record.mean(), record.max()
 
 
 import pyaudio
@@ -94,8 +101,13 @@ wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
 wf.setnchannels(CHANNELS)
 wf.setsampwidth(p.get_sample_size(FORMAT))
 wf.setframerate(RATE)
-wf.writeframes(trace[0])
+wf.writeframes( record )
 wf.close()
+
+import pylab
+pylab.plot(trace.times , record )
+
+show()
 
 ####### Real time plotting stuff ######
 #
