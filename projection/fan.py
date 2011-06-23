@@ -1,4 +1,4 @@
-#c#!/usr/bin/env python
+#!/usr/bin/env python
 ##########################################
 downscale=0 # 
 rotspeed, rotspeed_Increment = .001, 0.002 # en Hz?

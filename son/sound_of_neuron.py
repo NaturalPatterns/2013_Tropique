@@ -64,9 +64,9 @@ trace = StateMonitor(neuron, 'vm', record=0, clock=record_clock)
 
 modul = .5
 for i in range(2000):
-    modul = .5 + .5 * modul +  np.random.randn()
+    modul = .3 + .5 * modul +  np.random.randn() # AR(1) process
 #    modul_ = .4 * np.tanh(modul/5.) + .5 + .2
-    neuron.I = modul * (np.random.rand()**8)*1.1 * nA
+    neuron.I = modul * (np.random.rand()**8)*0.35 * nA
     run(10 * ms)   
 
 print trace[0].min(), trace[0].mean(), trace[0].max(),  np.sum(trace[0] > -.05) 
@@ -77,37 +77,42 @@ record = .5 * np.tanh((trace[0] + .05)/.02) +.5
 print record.min(), record.mean(), record.max()
 
 
-import pyaudio
-import wave
-import sys
-
-chunk = 1024
-FORMAT = pyaudio.paInt16
+#import pyaudio
+#import sys
+#
+#chunk = 1024
+#FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
-RECORD_SECONDS = 5
-WAVE_OUTPUT_FILENAME = "output.wav"
+#RECORD_SECONDS = 5
 
-p = pyaudio.PyAudio()
+#p = pyaudio.PyAudio()
+#
+#stream = p.open(format = FORMAT,
+#                channels = CHANNELS,
+#                rate = RATE,
+#                input = True,
+#                frames_per_buffer = chunk)
+#
+#
+#print  p.get_sample_size(FORMAT)
 
-stream = p.open(format = FORMAT,
-                channels = CHANNELS,
-                rate = RATE,
-                input = True,
-                frames_per_buffer = chunk)
-
+import wave
+WAVE_OUTPUT_FILENAME = "trace.wav"
 
 wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
 wf.setnchannels(CHANNELS)
-wf.setsampwidth(p.get_sample_size(FORMAT))
+#wf.setsampwidth(p.get_sample_size(FORMAT))
+wf.setsampwidth(2)
 wf.setframerate(RATE)
 wf.writeframes( record )
 wf.close()
 
 import pylab
-pylab.plot(trace.times , record )
+pylab.plot(trace.times , record)
+pylab.savefig('trace.pdf')
 
-show()
+#show()
 
 ####### Real time plotting stuff ######
 #

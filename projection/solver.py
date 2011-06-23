@@ -16,26 +16,27 @@ def set_bnd(N, b, x):
     density and other fields considered in the code we simply assume
     continuity. The following code implements these conditions.
     """
+    relax = .0
     if b == 1:
-        x[0,:] = -x[1,:]
-        x[N+1,:] = -x[N,:]
+        x[0,:] = -relax *x[1,:]
+        x[N+1,:] = -relax *x[N,:]
     else:
-        x[0,:] = x[1,:]
-        x[N+1,:] = x[N,:]
+        x[0,:] = relax * x[1,:]
+        x[N+1,:] = relax * x[N,:]
     if b == 2:
-        x[:,0] = -x[:,1]
-        x[:,N+1] = -x[:,N]
+        x[:,0] = -relax *x[:,1]
+        x[:,N+1] = -relax *x[:,N]
     else:
-        x[:,0] = x[:,1]
-        x[:,N+1] = x[:,N]
-    x[0,0] = 0.5*(x[1,0]+x[0,1])
-    x[0,N+1] = 0.5*(x[1,N+1]+x[0,N])
-    x[N+1,0] = 0.5*(x[N,0]+x[N+1,1])
-    x[N+1,N+1] = 0.5*(x[N,N+1]+x[N+1,N])
+        x[:,0] = relax * x[:,1]
+        x[:,N+1] = relax * x[:,N]
+    x[0,0] = relax * 0.5*(x[1,0]+x[0,1])
+    x[0,N+1] = relax * 0.5*(x[1,N+1]+x[0,N])
+    x[N+1,0] = relax * 0.5*(x[N,0]+x[N+1,1])
+    x[N+1,N+1] = relax * 0.5*(x[N,N+1]+x[N+1,N])
 
 
-def lin_solve(N, b, x, x0, a, c):
-    for k in range(0, 20):
+def lin_solve(N, b, x, x0, a, c, steps=20):
+    for k in range(0, steps):
         x[1:N+1,1:N+1] = (x0[1:N+1,1:N+1]
                           +a*(x[0:N,1:N+1]  +
                               x[2:N+2,1:N+1]+
@@ -58,7 +59,18 @@ def diffuse (N, b, x, x0, diff, dt):
     relaxation.
     """
     a = dt*diff*N*N
-    lin_solve(N, b, x, x0, a, 1+4*a)
+    lin_solve(N, b, x, x0, a, 1+4*abs(a))
+
+def reaction (N, b, x, x0, diff, dt):
+    """
+    The basic idea behind our method is to find the densities which when
+    diffused backward in time yield the densities we started with.  The
+    simplest iterative solver which works well in practice is Gauss-Seidel
+    relaxation.
+    """
+    a = -dt*diff*N*N
+    lin_solve(N, b, x, x0, a, 1+4*abs(a), steps=2)
+
 
 
 # Advection: the density follows the velocity field
@@ -122,7 +134,7 @@ def project(N, u, v, p, div):
                                -u[0:N,1:N+1]
                                +v[1:N+1,2:N+2]
                                -v[1:N+1,0:N])
-    p[1:N+1,1:N+1] = 0
+    p[1:N+1,1:N+1] = 0.
     set_bnd (N, 0, div)
     set_bnd (N, 0, p)
     lin_solve (N, 0, p, div, 1, 4)
@@ -138,6 +150,8 @@ def dens_step (N, x, x0, u, v, diff, dt):
     add_source(N, x, x0, dt)
     x0, x = x, x0 # swap
     diffuse(N, 0, x, x0, diff, dt)
+    x0, x = x, x0 # swap
+    reaction(N, 0, x, x0, diff, dt)
     x0, x = x, x0 # swap
     advect(N, 0, x, x0, u, v, dt)
 
