@@ -1,9 +1,7 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Jun 22 14:34:49 2011
-
-@author: -
-"""
+#-----------------------------------------------------------------------------
+# Copyright (C) 2011 _ Laurent Perrinet
 
 try:
     import pyaudio
@@ -48,8 +46,8 @@ DeltaT = 2 * mV
 Vcut = VT + 5 * DeltaT
 
 # Pick an electrophysiological behaviour
-#tauw, a, b, Vr = 144 * ms, 4 * nS, 0.0805 * nA, -70.6 * mV # Regular spiking (as in the paper)
-tauw,a,b,Vr=20*ms,4*nS,0.5*nA,VT+5*mV # Bursting
+tauw, a, b, Vr = 144 * ms, 4 * nS, 0.0805 * nA, -70.6 * mV # Regular spiking (as in the paper)
+#tauw,a,b,Vr=20*ms,4*nS,0.5*nA,VT+5*mV # Bursting
 #tauw,a,b,Vr=144*ms,2*C/(144*ms),0*nA,-70.6*mV # Fast spiking
 
 eqs = """
@@ -63,54 +61,59 @@ neuron.vm = EL
 trace = StateMonitor(neuron, 'vm', record=0, clock=record_clock)
 
 modul = .5
-for i in range(2000):
-    modul = .3 + .5 * modul +  np.random.randn() # AR(1) process
-#    modul_ = .4 * np.tanh(modul/5.) + .5 + .2
-    neuron.I = modul * (np.random.rand()**8)*0.35 * nA
+for i in range(6000):
+    modul = (1. - .03) * modul +   1.* np.random.randn() # AR(1) process
+    modul_ = .5 * np.tanh((modul)/.05) + .5
+#    print modul, modul_
+    neuron.I = modul * (np.random.rand()**1)*2. * nA
     run(10 * ms)   
 
-print trace[0].min(), trace[0].mean(), trace[0].max(),  np.sum(trace[0] > -.05) 
+print trace[0].min(), trace[0].mean(), trace[0].max(),  np.sum(trace[0] > -.05)/ trace.times.max(), trace.times.max()
 
 #plot(trace.times / ms, trace[0] / mV)
-record = .5 * np.tanh((trace[0] + .05)/.02) +.5
+#record = .5 * np.tanh((trace[0] + .05)/.02) +.5
 #record = 1./(1 + np.exp(-(trace[0]  + .06 )/.1))
+record = 1.* (trace[0] > -.05 )#
 print record.min(), record.mean(), record.max()
 
 
-#import pyaudio
-#import sys
-#
-#chunk = 1024
-#FORMAT = pyaudio.paInt16
-CHANNELS = 1
-RATE = 44100
-#RECORD_SECONDS = 5
-
-#p = pyaudio.PyAudio()
-#
-#stream = p.open(format = FORMAT,
-#                channels = CHANNELS,
-#                rate = RATE,
-#                input = True,
-#                frames_per_buffer = chunk)
-#
-#
-#print  p.get_sample_size(FORMAT)
-
 import wave
 WAVE_OUTPUT_FILENAME = "trace.wav"
+CHANNELS = 1
+RATE = 44100
 
 wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
 wf.setnchannels(CHANNELS)
 #wf.setsampwidth(p.get_sample_size(FORMAT))
-wf.setsampwidth(2)
+wf.setsampwidth(1)
 wf.setframerate(RATE)
 wf.writeframes( record )
 wf.close()
 
 import pylab
-pylab.plot(trace.times , record)
+pylab.plot(trace.times , record, lw=.01)
 pylab.savefig('trace.pdf')
+
+
+#import sys
+#
+import pyaudio
+#chunk = 1024
+FORMAT = pyaudio.paInt16
+
+p = pyaudio.PyAudio()
+#print  p.get_sample_size(FORMAT)
+
+# open stream
+stream = p.open(format = FORMAT,
+                channels = CHANNELS,
+                rate = RATE,
+                output = True)
+
+# read data
+stream.close()
+p.terminate()
+
 
 #show()
 
