@@ -3,7 +3,19 @@
 #-----------------------------------------------------------------------------
 # Copyright (C) 2011 _ Laurent Perrinet
 """
-Gierer, A. and H. Meinhardt (1972), A theory of biological pattern formation. Kybernetik 12, 30-39.
+
+Turing 52 implementation + guests
+
+
+@article{Turing52,
+	Author = {Turing, A.},
+	Comment = {A. M. Turing (1952). The Chemical Basis of Morphogenesis. Philosophical Transactions of the Royal Society of London, volume B 237, pages 37--72. [turing:1952] A. M. Turing (1992). The morphogen theory of phyllotaxis. In Saunders (1992). [turing:1992] A. N. Kolmogorov and I. G. Petrovsky and N. S. Piskunov (1937). Etude de l'{\'e}quation de la diffusion avec croissance de la quantit{\'e} de mati{\'e}re et son application {\`a} un probl{\'e}me biologique. Bulletin Universit{\'e} d'Etat {\`a} Moscou (Bjul. Moskowskogo Gos. Univ.), S{\'e}rie Internationale, volume Section A 1, pages 1-26. [kpp:1937] [Actually, I've never checked this reference or looked at it. Presumably it introduces the KPP equation I learnt about as a graduate student, in which case I'm not sure it was quite as long unknown as my quote from Jean implies]. (in http://www.swintons.net/deodands/references.html )},
+	Journal = {Philosophical {T}ransactions of the {R}oyal {S}ociety of {L}ondon},
+	Title = {The chemical basis of morphogenesis},
+	Volume = {B},
+	Year = {1952},
+}
+
 
 """
 # Adapted from demo_smoke.py @ glumpy http://code.google.com/p/glumpy/source/browse/demos/demo-smoke.py?name=default
@@ -21,76 +33,54 @@ Gierer, A. and H. Meinhardt (1972), A theory of biological pattern formation. Ky
 # -----------------------------------------------------------------------------
 import sys
 import numpy, glumpy
+from scipy.ndimage.filters import laplace
 ############################################################################
 N = 128 # size of the simulation grid
-size = N+2
-dt = 0.02
-downscale = 2
-diff, diff_inh = 2.e-2, 1.e-2 #0., 0. #
-rho_a, mu_a =  .0, 1.
-rho_h, mu_h = .0, 1.
+reaction_type = 'Turing' # 'GrayScott' # 
 
-dens_noise, inh_noise = .1,  .1
+if reaction_type == 'Turing':
+    dt = 0.02
+    # http://www.cs.utah.edu/~gk/papers/tvcg00/node7.html 
+    #/ http://www-inrev.univ-paris8.fr/extras/Michel-Bret/cours/bret/cours/math/st.htm
+    diff, diff_inh = .25, .0625 #0., 0. #
+    rho_a, mu_a =  .03125, 16.
+    rho_h, mu_h = .03125, 12.
+    init = 4.
+    source = init
+elif reaction_type == 'GrayScott':
+    dt = 1e-0
+    diff, diff_inh = 2e-5, 1e-5 #0., 0. #
+#    F, k = 0.098, 0.057 # (persistent stripes that form a linked network of polygonal cells, with gradual evolution into fewer and larger cells reminiscent of soap bubbles)
+#    F, k = 0.014, 0.057 # showed briefly while looking for a better example)
+    F, k = 0.014, 0.055 #(low-U high-V spots that move a bit, then "split" into two spots which then move and split again, etc.)
+    # skate    
+    F, k = 0.0620, 0.0609
+#    F, k = 0.06, 0.0620 # F=0.0260, k=0.0530.
+    init = 0.
+    source =.5
 
-steps=20
+
+dens_noise, inh_noise = .05,  .05
+
 # visualization parameters
+downscale = 2
 fullscreen = False # True #
 interpolation= 'bicubic' # 'nearest' #
+# TODO : show both populations
 cmap = glumpy.colormap.Colormap("BlueGrey",
                                 (0., (0.,0.,0.)), (1., (0.75,0.75,1.00)))
 ############################################################################
-def set_bnd(N, b, x):
-    """
-    We assume that the fluid is contained in a box with solid walls: no flow
-    should exit the walls. This simply means that the horizontal component of
-    the velocity should be zero on the vertical walls, while the vertical
-    component of the velocity should be zero on the horizontal walls. For the
-    density and other fields considered in the code we simply assume
-    continuity. The following code implements these conditions.
-    """
-    relax = 1.0
-    if b == 1:
-        x[0,:] = -relax *x[1,:]
-        x[N+1,:] = -relax *x[N,:]
-    else:
-        x[0,:] = relax * x[1,:]
-        x[N+1,:] = relax * x[N,:]
-    if b == 2:
-        x[:,0] = -relax *x[:,1]
-        x[:,N+1] = -relax *x[:,N]
-    else:
-        x[:,0] = relax * x[:,1]
-        x[:,N+1] = relax * x[:,N]
-    x[0,0] = relax * 0.5*(x[1,0]+x[0,1])
-    x[0,N+1] = relax * 0.5*(x[1,N+1]+x[0,N])
-    x[N+1,0] = relax * 0.5*(x[N,0]+x[N+1,1])
-    x[N+1,N+1] = relax * 0.5*(x[N,N+1]+x[N+1,N])
-
-
 
 ############################################################################
 # initialization
-u     = numpy.zeros((size,size), dtype=numpy.float32) # y velocity
-u_    = numpy.zeros((size,size), dtype=numpy.float32)
-v     = numpy.zeros((size,size), dtype=numpy.float32) # x velocity
-v_    = numpy.zeros((size,size), dtype=numpy.float32)
-dens  = numpy.zeros((size,size), dtype=numpy.float32) # density of activator
-dens_ = numpy.zeros((size,size), dtype=numpy.float32)
-inh  = numpy.zeros((size,size), dtype=numpy.float32) # density of inhibitor
-inh_ = numpy.zeros((size,size), dtype=numpy.float32)
+dens  = init * numpy.ones((N,N), dtype=numpy.float32) # density of activator
+inh  = init * numpy.ones((N,N), dtype=numpy.float32) # density of inhibitor
+dens += dens_noise * numpy.random.randn(N,N)**2     
+inh += inh_noise * numpy.random.randn(N,N)**2  
+
 Z = numpy.zeros((N,N),dtype=numpy.float32)
-
-x, y = numpy.mgrid[0:size,0:size]
-x, y = x*1./(N+2), y*1./(N+2)
-#f = size / 10.
-#peigne = numpy.sin(y / f) ** 4
-
-dens += dens_noise * numpy.random.randn(size,size)**2     
-inh += inh_noise * numpy.random.randn(size,size)**2  
-
 I = glumpy.Image(Z, interpolation=interpolation, cmap=cmap, vmin=0, vmax=1.)
 t, t0, frames = 0,0,0
-
 window = glumpy.Window(1600/downscale,900/downscale, fullscreen = fullscreen)
 window.last_drag = None
 
@@ -105,105 +95,84 @@ def on_mouse_motion(x, y, dx, dy):
 
 @window.event
 def on_key_press(key, modifiers):
-    global dens, dens_, inh, inh_, u, u_, v, v_, diff, diff_inh, rho_a, mu_a, rho_h, mu_h
+    global dens, inh, dens_noise, inh_noise, dt, diff, diff_inh, rho_a, mu_a, rho_h, mu_h
     if key == glumpy.key.ESCAPE:
         sys.exit()
     elif key == glumpy.key.SPACE:
-        dens[...] = dens_[...]= inh[...] = inh_[...]  = 0.0
-        u[...] = u_[...] = 0.0
-        v[...] = v_[...] = 0.0
-    elif key == glumpy.key.T:
-        diff *= 1.05
-    elif key == glumpy.key.G:
-        diff *= .95
-    elif key == glumpy.key.Y:
-        diff_inh *= 1.05
-    elif key == glumpy.key.H:
-        diff_inh *= .95
-    elif key == glumpy.key.U:
-        rho_a *= 1.05
-    elif key == glumpy.key.J:
-        rho_a *= .95
-    elif key == glumpy.key.I:
-        rho_h *= 1.05
-    elif key == glumpy.key.K:
-        rho_h *= .95
-    elif key == glumpy.key.O:
-        mu_a *= 1.05
-    elif key == glumpy.key.L:
-        mu_a *= .95
-    elif key == glumpy.key.P:
-        mu_h *= 1.05
-    elif key == glumpy.key.M:
-        mu_h *= .95
-    print ' diff, diff_inh, rho_a, mu_a, rho_h, mu_h = ', diff, diff_inh, rho_a, mu_a, rho_h, mu_h
+#        dens[...] = inh[...]  = 0.0
+        dens = dens_noise * numpy.random.randn(N,N)**2     
+        inh = inh_noise * numpy.random.randn(N,N)**2  
 
-
-def lin_solve(N, b, x, x0, a, c, steps=20):
-    for k in range(0, steps):
-        x[1:N+1,1:N+1] = (x0[1:N+1,1:N+1]
-                          +a*(x[0:N,1:N+1]  +
-                              x[2:N+2,1:N+1]+
-                              x[1:N+1,0:N]  +
-                              x[1:N+1,2:N+2]))/c
-        set_bnd(N, b, x)
-
-def laplacian(N, b, x, x0):
-    x[1:N+1,1:N+1] = -4 * x0[1:N+1,1:N+1] +(x0[0:N,1:N+1]   +
-                                            x0[2:N+2,1:N+1] +
-                                            x0[1:N+1,0:N]   +
-                                            x0[1:N+1,2:N+2])
-    set_bnd(N, b, x)
-
-def diffuse(N, b, x, x0):
-    x[1:N+1,1:N+1] = .5 * x0[1:N+1,1:N+1] + .125*(x0[0:N,1:N+1]   +
-                                                x0[2:N+2,1:N+1] +
-                                                x0[1:N+1,0:N]   +
-                                                x0[1:N+1,2:N+2])
-    set_bnd(N, b, x)
+#    elif key == glumpy.key.R:
+#        dt *= 1.0125
+#    elif key == glumpy.key.D:
+#        dt *= .9875
+#    elif key == glumpy.key.T:
+#        diff *= 1.0125
+#    elif key == glumpy.key.F:
+#        diff *= .9875
+#    elif key == glumpy.key.Y:
+#        diff_inh *= 1.0125
+#    elif key == glumpy.key.G:
+#        diff_inh *= .9875
+#    elif key == glumpy.key.U:
+#        rho_a *= 1.0125
+#    elif key == glumpy.key.H:
+#        rho_a *= .9875
+#    elif key == glumpy.key.I:
+#        rho_h *= 1.0125
+#    elif key == glumpy.key.J:
+#        rho_h *= .9875
+#    elif key == glumpy.key.O:
+#        mu_a *= 1.0125
+#    elif key == glumpy.key.K:
+#        mu_a *= .9875
+#    elif key == glumpy.key.P:
+#        mu_h *= 1.0125
+#    elif key == glumpy.key.L:
+#        mu_h *= .9875
+#    print ' dt, diff, diff_inh, rho_a, rho_h, mu_a, mu_h = ', dt, diff, diff_inh, rho_a, rho_h, mu_a, mu_h
+#
 
 # main loop
 @window.event
 def on_idle(*args):
-    global x, y, dens, dens_, inh, inh_, N, dt, diff, diff_inh, rho_a, mu_a, rho_h, mu_h
+    global dens, inh, dens_noise, inh_noise, dt, diff, diff_inh, rho_a, mu_a, rho_h, mu_h
     window.clear()
-    dens_[...] = inh_[...] = 0.0
+    if window.last_drag:
+        x,y,dx,dy,button = window.last_drag
+        j = min(max(int(N*x/float(window.width)),0),N-1)
+        i = min(max(int(N*(window.height-y)/float(window.height)),0),N-1)
+        if  button:#False:#not button:
+#            u_[i,j] = -force * dy
+#            v_[i,j] = force * dx
+#        else:
+#            print i,j
+            dens[i,j] = inh[i,j] = source
+#            dens_[:,j] = source # creating a vertical line
+    
+    window.last_drag = None
+    
+    # Heat equation
+#    dens +=  diff * laplace(dens, mode='wrap')
+    if reaction_type == 'Turing':
 
-#    print 'o' , dens.min(),  dens.max(), inh.min(),  inh.max()
-#    lin_solve(N, 0, dens, dens_, diff, 1+4*diff)
-##    print '>' , dens_.min(),  dens_.max(), inh.min(),  inh.max()
-#    lin_solve(N, 0, inh, inh_, diff_inh, 1+4*diff_inh)
-#    
-#    # Heat equation
-#    diffuse(N, 0, dens_, dens)
-#    diffuse(N, 0, inh_, inh)
-#    dens = (1-dt)*dens + dt * dens_
-#    inh = (1-dt)*inh + dt *inh_ 
+        # Turing    
+        dens += (rho_a * (mu_a - dens * inh) + diff * laplace(dens, mode='wrap'))*dt
+        inh += (rho_h * (dens * inh - inh - mu_h + inh_noise * numpy.random.randn(N,N) ) + diff_inh * laplace(inh, mode='wrap'))*dt
+
+    elif reaction_type == 'GrayScott':
+        #  Gray-Scott model : http://mrob.com/pub/comp/xmorphia/
+        dens += (- dens * inh**2 + F * (1. - dens) + diff * laplace(dens, mode='wrap'))*dt
+        inh += ( dens * inh**2 - (F + k) * inh  + diff_inh * laplace(inh, mode='wrap'))*dt    
+
+    # Fitzhugh-Nagumo
+#    dens += (rho_a * (mu_a - dens * inh) + diff * laplace(dens, mode='wrap'))*dt
+#    inh += (rho_h * (dens * inh - inh - mu_h + inh_noise * numpy.random.randn(N,N) ) + diff_inh * laplace(inh, mode='wrap'))*dt
+    
 
 
-#    # Turing
-    laplacian(N, 0, dens_, dens)
-    laplacian(N, 0, inh_, inh)
-    dens += rho_a* (16 - dens * inh) + diff * dens_ 
-    inh += rho_h* (dens * inh - inh -12 - mu_h * y ) + diff_inh * inh_ 
-#    modulation = .5 + .5 * tanh( inh)
-
-#    dens = (1-dt)*dens + dt*( rho_a * (dens -  dens**3 + mu_a * x  - mu_h * inh) + diff * dens_ )
-#    inh = (1-dt)*inh + dt*( rho_h * (dens  - inh) + diff_inh * inh_ )
-#    
-#    dens += dt*dens_noise *  numpy.random.randn(size,size)**2     
-#    inh += dt*inh_noise * numpy.random.randn(size,size)**2  
-#      
-
-    print  dens.min(),  dens.max(), inh.min(),  inh.max()
-
-#    dens = dens * (dens>0)
-#    inh = inh * (inh>0)
-
-#    Z[...] = dens_[0:-2,0:-2]
-#    Z[...] = inh[0:-2,0:-2]
-    Z[...] = .5 + .5 *numpy.tanh((dens[0:-2,0:-2]-dens.mean())/(dens.max()-dens.min()))
-#    Z[...] = .5 + .5 *numpy.tanh(inh[0:-2,0:-2])
+    Z[...] = (dens-dens.min())/(dens.max()-dens.min())
     I.update()
     I.blit(0,0,window.width,window.height)
     window.draw()
@@ -212,6 +181,7 @@ def on_idle(*args):
     t += args[0]
     frames = frames + 1
     if t-t0 > 5.0:
+        print 'min-max of densities: ',  dens.min(),  dens.max(), inh.min(),  inh.max()
         fps = float(frames)/(t-t0)
         print 'FPS: %.2f (%d frames in %.2f seconds)' % (fps, frames, t-t0)
         frames,t0 = 0, t

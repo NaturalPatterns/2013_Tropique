@@ -17,12 +17,12 @@ import sys
 import numpy, glumpy
 from solver import vel_step, dens_step
 
-N = 128 # size of the simulation grid
+N = 64 # size of the simulation grid
 size = N+2
 dt = 0.1
-diff = 8.e-6
-visc = 4.e-6
-force = 0.5
+diff = 0. #8.e-6
+visc = 0. #4.e-6
+force = 1.0
 source = 25.0
 downscale = 4
 
@@ -59,15 +59,11 @@ def on_mouse_motion(x, y, dx, dy):
 def on_key_press(key, modifiers):
     global dens, dens_, u, u_, v, v_
     if key == glumpy.key.ESCAPE:
-        sys.exit()
+        window.exit()
     elif key == glumpy.key.SPACE:
         dens[...] = dens_[...] = 0.0
         u[...] = u_[...] = 0.0
         v[...] = v_[...] = 0.0
-
-x, y = numpy.mgrid[0:size,0:size]
-f = size / 10.
-peigne = numpy.sin(y / f) ** 4
 
 # main loop
 @window.event

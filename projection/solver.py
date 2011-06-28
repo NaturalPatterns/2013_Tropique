@@ -150,8 +150,8 @@ def dens_step (N, x, x0, u, v, diff, dt):
     add_source(N, x, x0, dt)
     x0, x = x, x0 # swap
     diffuse(N, 0, x, x0, diff, dt)
-    x0, x = x, x0 # swap
-    reaction(N, 0, x, x0, diff, dt)
+#    x0, x = x, x0 # swap
+#    reaction(N, 0, x, x0, diff, dt)
     x0, x = x, x0 # swap
     advect(N, 0, x, x0, u, v, dt)
 
