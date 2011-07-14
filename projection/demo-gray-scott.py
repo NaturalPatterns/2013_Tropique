@@ -41,9 +41,7 @@ John E. Pearson, Science 261, 5118, 189-192, 1993.
 
 
 '''
-#from dana import *
-import dana
-import numpy as np
+from dana import *
 import glumpy
 import sys
 
@@ -56,7 +54,7 @@ t  = 50000#*second
 # -----------------------------------------------------
 # Du, Dv, F, k = # 
 zoo = {'Pulses': [0.16, 0.08, 0.02, 0.055],
-       'Worms 1': [0.16, 0.08, 0.050, 0.065], 
+       'Worms 1': [0.16, 0.08, 0.052, 0.065], 
        'Worms 2':[0.16, 0.08, 0.054, 0.063],
        'Zebrafish':[0.16, 0.08, 0.035, 0.060],
        'Bacteria 2': [0.14, 0.06, 0.035, 0.065 ],
@@ -70,8 +68,8 @@ zoo = {'Pulses': [0.16, 0.08, 0.02, 0.055],
 }
 
 
-def init(Du, Dv, F, k, n):
-    Z = dana.Group((n,n), '''du/dt = Du*Lu - Z + F*(1-U) : float32
+def init(Du, Dv, F, k):
+    Z = Group((n,n), '''du/dt = Du*Lu - Z + F*(1-U) : float32
                         dv/dt = Dv*Lv + Z - (F+k)*V : float32
                         U = maximum(u,0) : float32
                         V = maximum(v,0) : float32
@@ -80,8 +78,8 @@ def init(Du, Dv, F, k, n):
     K = np.array([[np.NaN,  1., np.NaN], 
                   [  1.,   -4.,   1.  ],
                   [np.NaN,  1., np.NaN]])
-    dana.SparseConnection(Z('U'),Z('Lu'), K, toric=True)
-    dana.SparseConnection(Z('V'),Z('Lv'), K, toric=True)
+    SparseConnection(Z('U'),Z('Lu'), K, toric=True)
+    SparseConnection(Z('V'),Z('Lv'), K, toric=True)
     Z['u'] = 1.0
     Z['v'] = 0.0
     Z['u'][n/4:3*n/4,n/4:3*n/4] = 0.50
@@ -90,13 +88,13 @@ def init(Du, Dv, F, k, n):
     Z['v'] += 0.01*np.random.random((n,n))
     Z['U'] = Z['u']
     Z['V'] = Z['v']
-    return Z 
+    return Z, n 
 
 Du, Dv, F, k = zoo['Coral']
-Z = init(Du, Dv, F, k, n)
+Z, n = init(Du, Dv, F, k)
 
 Zu = glumpy.Image(Z['u'], interpolation='bicubic',
-                  cmap=glumpy.colormap.Hot, vmin=0, vmax=1.0)
+                  cmap=glumpy.colormap.Hot, vmin=0.0, vmax=1.0)
 window = glumpy.Window(800,800)
 
 @window.event
@@ -122,7 +120,11 @@ def on_key_press(key, modifiers):
         i = np.random.randint(0, len(zoo.keys()))
         Du, Dv, F, k = zoo.values()[i]
         print zoo.keys()[i]
-        Z = init(Du, Dv, F, k, n)
+        #Z, n = init(Du, Dv, F, k)
+        Z._namespace['Du'] = Du
+        Z._namespace['Dv'] = Dv
+        Z._namespace['F'] = F
+        Z._namespace['k'] = k
         
 @window.event
 def on_draw():
