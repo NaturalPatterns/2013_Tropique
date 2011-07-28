@@ -29,6 +29,7 @@ def stream_acqui():
 
 	teston =0
 	while (teston < 1) :
+		String =""
 		for kin in kinects :
 			#print kin['address'], kin['port']
 			HOST = kin['address']
@@ -51,7 +52,9 @@ def stream_acqui():
 					var= int (received)
 				except :
 					print "from ",HOST," Received: ", received
-					sock_pd.sendto((received + " ; \n" ), (host_pd, port_pd))
+					String = String + " " +HOST+ "o" +received
+		print "send  =", String
+		sock_pd.sendto((String ), (host_pd, port_pd))
 
 def segment():
 	os.system('clear')
@@ -90,7 +93,7 @@ if __name__ == "__main__":
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	sock_pd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	host_pd = 'localhost'
-	port_pd = 3002
+	port_pd = 3001
 
 	while 1 :
 		print "\n \t \t client.py = CLIENT KINECTS  in TROPIC \n"

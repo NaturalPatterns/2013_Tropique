@@ -165,7 +165,7 @@ def show_depth():
 			for contour in blob.internalContours: 
 				cvb.cvRenderContourChainCode(contour, imgOut)
 
-			String= ((str(player)+ " " + str(centr[0]) + " " + str(centr[1]) +" "+ str(dist) + " ; \n"))	
+			String= ((str(int(player))+ " " + str(int(centr[0])) + " " + str(int(centr[1])) +" "+ str(int(dist)) + " ; \n"))	
 	try :	
 		Donnee, Client = PySocket.recvfrom (1024)
 		print Donnee
@@ -186,6 +186,9 @@ def show_depth():
 				segm()
 			except :
 				print "segmentation fault :)"
+				String ="fault"
+				PySocket.sendto (String,Client)
+				print "segmentation fault" 
 			else :
 				String ="ok"
 				PySocket.sendto (String,Client)
