@@ -46,52 +46,79 @@ import glumpy
 import sys
 
 n  = 128
-dt = 1#*second
-t  = 50000#*second
+dt = 1*second
+t  = 10000*second
 
 
 # Parameters from http://www.aliensaint.com/uo/java/rd/
 # -----------------------------------------------------
 # Du, Dv, F, k = # 
-zoo = {'Pulses': [0.16, 0.08, 0.02, 0.055],
-       'Worms 1': [0.16, 0.08, 0.052, 0.065], 
-       'Worms 2':[0.16, 0.08, 0.054, 0.063],
-       'Zebrafish':[0.16, 0.08, 0.035, 0.060],
-       'Bacteria 2': [0.14, 0.06, 0.035, 0.065 ],
-       'Coral': [0.16, 0.08, 0.060, 0.062],
-       'Fingerprint': [0.19, 0.05, 0.060, 0.062],
-       'Spirals': [0.10, 0.10, 0.018, 0.050],
-       'Spirals Dense': [0.12, 0.08, 0.020, 0.050],
-       'Spirals Fast': [0.10, 0.16, 0.020, 0.050],
-       'Unstable': [0.16, 0.08, 0.020, 0.055],
-       'Bacteria 1': [0.16, 0.08, 0.035, 0.065],
-}
+#zoo = {'Pulses': [0.16, 0.08, 0.02, 0.055],
+#       'Worms 1': [0.16, 0.08, 0.052, 0.065], 
+#       'Worms 2':[0.16, 0.08, 0.054, 0.063],
+#       'Zebrafish':[0.16, 0.08, 0.035, 0.060],
+#       'Bacteria 2': [0.14, 0.06, 0.035, 0.065 ],
+#       'Coral': [0.16, 0.08, 0.060, 0.062],
+#       'Fingerprint': [0.19, 0.05, 0.060, 0.062],
+#       'Spirals': [0.10, 0.10, 0.018, 0.050],
+#       'Spirals Dense': [0.12, 0.08, 0.020, 0.050],
+#       'Spirals Fast': [0.10, 0.16, 0.020, 0.050],
+#       'Unstable': [0.16, 0.08, 0.020, 0.055],
+#       'Bacteria 1': [0.16, 0.08, 0.035, 0.065],
+#}
+#
+#def init(Du, Dv, F, k):
+#    global Z, n
+#    Z = Group((n,n), '''du/dt = Du*Lu - Z + F*(1-U) : float32
+#                        dv/dt = Dv*Lv + Z - (F+k)*V : float32
+#                        U = maximum(u,0) : float32
+#                        V = maximum(v,0) : float32
+#                        Z = U*V*V : float32
+#                        Lu; Lv; ''')
+#    K = np.array([[np.NaN,  1., np.NaN], 
+#                  [  1.,   -4.,   1.  ],
+#                  [np.NaN,  1., np.NaN]])
+#    SparseConnection(Z('U'),Z('Lu'), K, toric=True)
+#    SparseConnection(Z('V'),Z('Lv'), K, toric=True)
+#    Z['u'] = 1.0
+#    Z['v'] = 0.0
+#    r = 20
+#    Z['u'][n/2-r:n/2+r,n/2-r:n/2+r] = 0.50
+#    Z['v'][n/2-r:n/2+r,n/2-r:n/2+r] = 0.25 
+#    Z['u'] += 0.05*np.random.random((n,n))
+#    Z['v'] += 0.05*np.random.random((n,n))
+#    Z['U'] = Z['u']
+#    Z['V'] = Z['v']
+##    return Z, n 
+#
+#
+#Du, Dv, F, k = zoo['Coral']
+##Z, n = 
+#init(Du, Dv, F, k)
+Du, Dv, F, k = 0.16, 0.08, 0.035, 0.065 # Bacteria 1
 
+Z = Group((n,n), '''du/dt = Du*Lu - Z + F*(1-U) : float32
+                    dv/dt = Dv*Lv + Z - (F+k)*V : float32
+                    U = maximum(u,0) : float32
+                    V = maximum(v,0) : float32
+                    Z = U*V*V : float32
+                    Lu; Lv; ''')
+K = np.array([[np.NaN,  1., np.NaN], 
+              [  1.,   -4.,   1.  ],
+              [np.NaN,  1., np.NaN]])
+SparseConnection(Z('U'),Z('Lu'), K, toric=True)
+SparseConnection(Z('V'),Z('Lv'), K, toric=True)
 
-def init(Du, Dv, F, k):
-    Z = Group((n,n), '''du/dt = Du*Lu - Z + F*(1-U) : float32
-                        dv/dt = Dv*Lv + Z - (F+k)*V : float32
-                        U = maximum(u,0) : float32
-                        V = maximum(v,0) : float32
-                        Z = U*V*V : float32
-                        Lu; Lv; ''')
-    K = np.array([[np.NaN,  1., np.NaN], 
-                  [  1.,   -4.,   1.  ],
-                  [np.NaN,  1., np.NaN]])
-    SparseConnection(Z('U'),Z('Lu'), K, toric=True)
-    SparseConnection(Z('V'),Z('Lv'), K, toric=True)
-    Z['u'] = 1.0
-    Z['v'] = 0.0
-    Z['u'][n/4:3*n/4,n/4:3*n/4] = 0.50
-    Z['v'][n/4:3*n/4,n/4:3*n/4] = 0.25    
-    Z['u'] += 0.01*np.random.random((n,n))
-    Z['v'] += 0.01*np.random.random((n,n))
-    Z['U'] = Z['u']
-    Z['V'] = Z['v']
-    return Z, n 
+Z['u'] = 1.0
+Z['v'] = 0.0
+r = 20
+Z['u'][n/2-r:n/2+r,n/2-r:n/2+r] = 0.50
+Z['v'][n/2-r:n/2+r,n/2-r:n/2+r] = 0.25
+Z['u'] += 0.05*np.random.random((n,n))
+Z['v'] += 0.05*np.random.random((n,n))
+Z['U'] = Z['u']
+Z['V'] = Z['v']
 
-Du, Dv, F, k = zoo['Coral']
-Z, n = init(Du, Dv, F, k)
 
 Zu = glumpy.Image(Z['u'], interpolation='bicubic',
                   cmap=glumpy.colormap.Hot, vmin=0.0, vmax=1.0)
@@ -140,4 +167,3 @@ def on_idle(*args):
     Zu.update()
     window.draw()
 window.mainloop()
-

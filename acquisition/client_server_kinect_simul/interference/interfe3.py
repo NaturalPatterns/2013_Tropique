@@ -12,8 +12,9 @@ import sys
 from architecture import kinects
 from architecture import vps
 
-
 import OSC
+
+#define Display True
 
 global my_var
 global sens
@@ -40,7 +41,9 @@ nbr_group =0
 global deja_fait
 deja_fait=[0 for i in range(10) ]
 
-
+def change_threshold(value):
+    global seuil_detect
+    seuil_detect = value
 
 def show_depth():
 	global my_group
@@ -88,14 +91,14 @@ def show_depth():
 		for nbr_ami in range (10):
 			for nbr_donne in range (4,15):
 				my_mat[nbr_ami][nbr_donne] =0
-
+		#my_mat = array for saving data [angle, x,y , life, nbr_friend, group, life_grp] about player
 
 		nbr_player=0
 		#print"data =" ,Donnee 
+		#Donnee = ((angle + x + y + "o")*nbr_player)+";"
 		datasplit = Donnee.split(";")
 		datasplit1 = datasplit[0].split(" o ")
 		#print (datasplit1[0])
-		#my_mat=[ [ 0 for i in range(20) ] for j in range(10) ]
 
 		for nbr in datasplit1:
 			#print "nbr =" ,nbr
@@ -110,10 +113,12 @@ def show_depth():
 
 			#print "angle =", angle,"x et y =", x, y, "durée de vie", my_mat[nbr_player][3]
 			nbr_player +=1
-		for del_vie in range (nbr_player, 8):
+
+
+		for del_vie in range (nbr_player, 10):#efface les "life" disparues 
 			my_mat[del_vie][3] =0
 
-		my_relation = [ [ 0 for i in range(2) ] for j in range(20) ]
+		my_relation = [ [ 0 for i in range(2) ] for j in range(20) ]#stock et dessine les relations inter-player
 		nbr_relation =0
 		for test_val1 in range(nbr_player - 1):
 			for test_val2 in range (test_val1+1, nbr_player) :
@@ -129,7 +134,7 @@ def show_depth():
 						nbr_relation+=1
 
 		nbr_in_group=0
-		my_group = [ [ 0 for i in range(20) ] for j in range(20) ]
+		my_group = [ [ 0 for i in range(20) ] for j in range(20) ]#array of player with friend /first data = nbr of friend
 		deja_fait = [0,0,0,0,0,0,0,0]
 		
 		if nbr_relation != 0 :
@@ -138,20 +143,10 @@ def show_depth():
 			for nbr_ami in range (nbr_relation):
 				my_mat[(my_relation[nbr_ami][0])][4] +=1#nbre d'ami
 				my_mat[(my_relation[nbr_ami][1])][4] +=1
-				my_group[(my_relation[nbr_ami][0])][0] +=1#nbre d'ami
-		"""
-		for nbr_pla in range (nbr_player):
-			nbr_in_group = 1
-			for nbr_ami in range (nbr_relation):
-				if my_relation[nbr_ami][0]== nbr_pla:
-					my_group[nbr_pla][nbr_in_group]= my_relation[nbr_ami][1]
-		
-		"""	
-				
-			
-			
+				my_group[(my_relation[nbr_ami][0])][0] +=1#first data = nbr of friend
+	
 
-		total_relation = nbr_relation
+
 
 
 
@@ -160,7 +155,7 @@ def show_depth():
 			nbr_in_group=0
 			#if (my_mat[affi][4])!=0:
 				#print "for player n", affi, ":"
-			for nbr in range (total_relation) :
+			for nbr in range (nbr_relation) :
 				#print "nbr of relation",my_mat[affi][4], "trying =",nbr
 				if my_relation[nbr][0] == affi :
 					
@@ -189,9 +184,10 @@ def show_depth():
 				
 					print my_group[nbr]
 					print "la je suis au ",nbr2, "qui contien", my_group[nbr][nbr2]
+					
 					for nbr3 in range(1, my_group[my_group[nbr][nbr2]][0] + 1):
 						print "la je range le numro ", nbr3 ," du groupr ",my_group[nbr][nbr2], "=",my_group[my_group[nbr][nbr2]][nbr3] ,"dans le ", (my_group[nbr][0])+1, "du ", nbr
-
+						
 						my_group[nbr][(my_group[nbr][0])+1] = my_group[(my_group[nbr][nbr2])] [nbr3]
 						my_group[nbr][0]= my_group[nbr][0] + 1		
 						if (my_group [my_group[nbr][nbr2+1]][0]) == 1:
@@ -215,24 +211,7 @@ def show_depth():
 		for bg in range (nbr_player):
 			print my_group[bg]
 
-					
-
-		"""print "player n =", affi, "got ", my_mat[affi][4], "relation with "
-			for i in range (my_mat[affi][4]):
-				print my_mat[affi][5+i]
-		"""
-			#my_group[affi][0]= my_mat[affi][4]  
-
-
-		#print "my official group" ,my_group
-		"""
-		for i in range (nbr_player ):
-			if my_group[i][0] !=0:
-				print "le jouer",i, "a ", my_group[i][0] ,"amies qui sont "
-				for ii in range (my_group[i][0]) : 
-					print my_group[i][ii+1]
-		"""
-
+	
 		for affi in range (nbr_player ):
 			msg = OSC.OSCMessage() #  we reuse the same variable msg used above overwriting it
 			msg.setAddress("/"+str(affi))
@@ -256,7 +235,7 @@ def show_depth():
 
 
 cv.NamedWindow('Depth')
-
+cv.CreateTrackbar('threshold', 'Depth', seuil_detect,     200,  change_threshold)
 
 
 print('Press ESC in window to stop')
