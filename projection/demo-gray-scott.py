@@ -42,7 +42,7 @@ John E. Pearson, Science 261, 5118, 189-192, 1993.
 
 '''
 from dana import *
-import glumpy
+import numpy, glumpy
 import sys
 
 n  = 128
@@ -92,9 +92,6 @@ t  = 10000*second
 ##    return Z, n 
 #
 #
-#Du, Dv, F, k = zoo['Coral']
-##Z, n = 
-#init(Du, Dv, F, k)
 Du, Dv, F, k = 0.16, 0.08, 0.035, 0.065 # Bacteria 1
 
 Z = Group((n,n), '''du/dt = Du*Lu - Z + F*(1-U) : float32
@@ -120,50 +117,60 @@ Z['U'] = Z['u']
 Z['V'] = Z['v']
 
 
-Zu = glumpy.Image(Z['u'], interpolation='bicubic',
-                  cmap=glumpy.colormap.Hot, vmin=0.0, vmax=1.0)
-window = glumpy.Window(800,800)
+Zu = glumpy.image.Image(Z['u'], interpolation='nearest',
+                 colormap=glumpy.colormap.Grey,  vmin=0, vmax=1)
+#window = glumpy.Window(800,800)
+window = glumpy.figure( (n,n) )
 
-@window.event
-def on_mouse_drag(x, y, dx, dy, button):
-    global Z, n
-    center =( int((1-y/float(window.width)) * (n-1)),
-              int(x/float(window.height) * (n-1)) )
-    radius = 8
-    def distance(x,y):
-        return np.sqrt((x-center[0])**2+(y-center[1])**2)
-    D = np.fromfunction(distance,(n,n))
-    M = np.where(D<=radius,True,False).astype(np.float32)
-    Z['U'] = Z['u'] = (1-M)*Z['u'] + M*0.50
-    Z['V'] = Z['v'] = (1-M)*Z['v'] + M*0.25
-    Zu.update()
-
-@window.event
-def on_key_press(key, modifiers):
-    global zoo, Z, n
-    if key == glumpy.key.ESCAPE:
-        sys.exit()
-    elif key == glumpy.key.N:
-        i = np.random.randint(0, len(zoo.keys()))
-        Du, Dv, F, k = zoo.values()[i]
-        print zoo.keys()[i]
-        #Z, n = init(Du, Dv, F, k)
-        Z._namespace['Du'] = Du
-        Z._namespace['Dv'] = Dv
-        Z._namespace['F'] = F
-        Z._namespace['k'] = k
+#@window.event
+#def on_mouse_drag(x, y, dx, dy, button):
+#    global Z, n
+#    center =( int((1-y/float(window.width)) * (n-1)),
+#              int(x/float(window.height) * (n-1)) )
+#    radius = 8
+#    def distance(x,y):
+#        return np.sqrt((x-center[0])**2+(y-center[1])**2)
+#    D = np.fromfunction(distance,(n,n))
+#    M = np.where(D<=radius,True,False).astype(np.float32)
+#    Z['U'] = Z['u'] = (1-M)*Z['u'] + M*0.50
+#    Z['V'] = Z['v'] = (1-M)*Z['v'] + M*0.25
+#    Zu.update()
+#
+#@window.event
+#def on_key_press(key, modifiers):
+#    global zoo, Z, n
+#    if key == glumpy.key.ESCAPE:
+#        sys.exit()
+#    elif key == glumpy.key.N:
+#        i = np.random.randint(0, len(zoo.keys()))
+#        Du, Dv, F, k = zoo.values()[i]
+#        print zoo.keys()[i]
+#        #Z, n = init(Du, Dv, F, k)
+#        Z._namespace['Du'] = Du
+#        Z._namespace['Dv'] = Dv
+#        Z._namespace['F'] = F
+#        Z._namespace['k'] = k
         
+#        @fig.event
+
+
 @window.event
 def on_draw():
-    global Z, n
+#    global Z, n
     window.clear()
-    Zu.blit(0,0,window.width,window.height)
+#    Zu.blit(0,0,0,window.width,window.height)
+    Zu.update()
+    Zu.draw(x=0, y=0, z=0, width=window.width, height=window.height )
+    
 
 @window.event
-def on_idle(*args):
-    global Z, n
+def on_idle(dt):
+#    global Z, n
     for i in range(10):
         Z.evaluate(dt=dt)
     Zu.update()
     window.draw()
-window.mainloop()
+
+glumpy.show()
+#window.mainloop()
+
