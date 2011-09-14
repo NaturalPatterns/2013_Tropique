@@ -99,7 +99,7 @@ Du, Dv, F, k = zoo['Fingerprint']
 Z, n = init(Du, Dv, F, k)
 Zu = glumpy.Image(Z['u'], interpolation=interpolation,
                   cmap=glumpy.colormap.Grey_r, vmin=0.0 , vmax=1.0)
-window = glumpy.Window(width,n, fullscreen = fullscreen)
+window = glumpy.Window(width, n, fullscreen = fullscreen)
 
 @window.event
 def on_mouse_press(x, y, dx, dy, button):
