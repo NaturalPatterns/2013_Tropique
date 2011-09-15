@@ -18,7 +18,7 @@ doit être gris.
 import numpy, glumpy
 
 ############################################################################
-downscale = 10
+downscale = 4
 N_X, N_Y = 1200/downscale, 1920/downscale # size of the simulation grid
 width = .01
 #R_min = 1.
@@ -36,13 +36,16 @@ cmap = glumpy.colormap.Colormap("blue",
 dens  = numpy.zeros((N_X, N_Y), dtype=numpy.float32) # density
 X, Y = numpy.mgrid[0:N_X, 0:N_Y]
 y = N_Y/2
+x_VPs = [ N_X/4] #0 , N_X/4, N_X/2, 3*N_X/4 ]
+y_VPs = [ -10 ] #, -10, -10, -10 ]
+
 fig = glumpy.figure((N_Y*downscale, N_X*downscale)) # , fullscreen = fullscreen
 im_buffer = glumpy.Image(dens, interpolation='bicubic', colormap=cmap)
 ############################################################################
 def rayon(x, y, x_0, y_0):
     R = numpy.sqrt( (X-x_0)**2 + (Y-y_0)**2)
     r = numpy.sqrt( (x-x_0)**2 + (y-y_0)**2)
-    d = numpy.abs((x-x_0)*(y-y_0) - (x_0-X)*(y_0-Y)) / r
+    d = numpy.abs((x-x_0)*(y_0-Y) - (x_0-X)*(y-y_0)) / r
     R1 = numpy.sqrt( R**2 - d**2 )
     return numpy.exp(- ( d )**2 / 2 / R1**2 / width**2 ) / R #numpy.sqrt( R**2 + 12 )
 #    return R1
@@ -57,12 +60,12 @@ def on_draw():
 @fig.event
 def on_idle(elasped):
     global dens, y
-    x_0, y_0 = -10, N_Y/2
-#    y += numpy.random.randn()*N_Y/100
-#    y = numpy.mod(y, N_Y)
+    y += numpy.random.randn()*N_Y/100
+    y = numpy.mod(y, N_Y)
 #    print y
     dens *= 0.
-    dens  += rayon(N_X, y, x_0, y_0)
+    for x_0, y_0 in zip(x_VPs, y_VPs):
+        dens  += rayon(N_X/2, y, x_0, y_0)
 
 #    print dens.max(), dens.min()
 #    dens  = numpy.ones((N_X, N_Y), dtype=numpy.float32) # density
