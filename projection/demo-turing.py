@@ -31,34 +31,21 @@ Turing 52 implementation + guests
 # Mouse click to add smoke
 # Mouse move to add some turbulences
 # -----------------------------------------------------------------------------
-import sys
 import numpy, glumpy
 from scipy.ndimage.filters import laplace
 ############################################################################
-N = 128 # size of the simulation grid
-reaction_type = 'Turing' # 'GrayScott' # 
-
-if reaction_type == 'Turing':
-    dt = 0.02
-    # http://www.cs.utah.edu/~gk/papers/tvcg00/node7.html 
-    #/ http://www-inrev.univ-paris8.fr/extras/Michel-Bret/cours/bret/cours/math/st.htm
-    diff, diff_inh = .25, .0625 #0., 0. #
-    rho_a, mu_a =  .03125, 16.
-    rho_h, mu_h = .03125, 12.
-    init = 4.
-    source = init
-elif reaction_type == 'GrayScott':
-    dt = 1e-0
-    diff, diff_inh = 2e-5, 1e-5 #0., 0. #
-#    F, k = 0.098, 0.057 # (persistent stripes that form a linked network of polygonal cells, with gradual evolution into fewer and larger cells reminiscent of soap bubbles)
-#    F, k = 0.014, 0.057 # showed briefly while looking for a better example)
-    F, k = 0.014, 0.055 #(low-U high-V spots that move a bit, then "split" into two spots which then move and split again, etc.)
-    # skate    
-    F, k = 0.0620, 0.0609
-#    F, k = 0.06, 0.0620 # F=0.0260, k=0.0530.
-    init = 0.
-    source =.5
-
+screen_X, screen_Y = 1200, 1920
+downscale = 2 # increase to match your CPU's speed
+N_X, N_Y = screen_X/downscale, screen_Y/downscale # size of the simulation grid
+############################################################################
+dt = 0.02
+# http://www.cs.utah.edu/~gk/papers/tvcg00/node7.html 
+#/ http://www-inrev.univ-paris8.fr/extras/Michel-Bret/cours/bret/cours/math/st.htm
+diff, diff_inh = .25, .0625 #0., 0. #
+rho_a, mu_a =  .03125, 16.
+rho_h, mu_h = .03125, 12.
+init = 4.
+N_do = 5
 
 dens_noise, inh_noise = .05,  .05
 
@@ -70,120 +57,59 @@ interpolation= 'bicubic' # 'nearest' #
 cmap = glumpy.colormap.Colormap("BlueGrey",
                                 (0., (0.,0.,0.)), (1., (0.75,0.75,1.00)))
 ############################################################################
-
-############################################################################
 # initialization
-dens  = init * numpy.ones((N,N), dtype=numpy.float32) # density of activator
-inh  = init * numpy.ones((N,N), dtype=numpy.float32) # density of inhibitor
-dens += dens_noise * numpy.random.randn(N,N)**2     
-inh += inh_noise * numpy.random.randn(N,N)**2  
+dens  = init * numpy.ones((N_X, N_Y), dtype=numpy.float32) # density of activator
+inh  = init * numpy.ones((N_X, N_Y), dtype=numpy.float32) # density of inhibitor
+dens += dens_noise * numpy.random.randn(N_X, N_Y)**2     
+inh += inh_noise * numpy.random.randn(N_X, N_Y)**2  
+############################################################################
+fig = glumpy.figure((N_Y*downscale, N_X*downscale)) # , fullscreen = fullscreen
+Zu = glumpy.Image(dens, interpolation=interpolation, colormap=cmap)
 
-Z = numpy.zeros((N,N),dtype=numpy.float32)
-I = glumpy.Image(Z, interpolation=interpolation, cmap=cmap, vmin=0, vmax=1.)
-t, t0, frames = 0,0,0
-window = glumpy.Window(1600/downscale,900/downscale, fullscreen = fullscreen)
-window.last_drag = None
-
-# events
-@window.event
-def on_mouse_drag(x, y, dx, dy, button):
-    window.last_drag = x,y,dx,dy,button
-
-@window.event
-def on_mouse_motion(x, y, dx, dy):
-    window.last_drag = x,y,dx,dy,0
-
-@window.event
+@fig.event
 def on_key_press(key, modifiers):
-    global dens, inh, dens_noise, inh_noise, dt, diff, diff_inh, rho_a, mu_a, rho_h, mu_h
-    if key == glumpy.key.ESCAPE:
-        sys.exit()
-    elif key == glumpy.key.SPACE:
-#        dens[...] = inh[...]  = 0.0
-        dens = dens_noise * numpy.random.randn(N,N)**2     
-        inh = inh_noise * numpy.random.randn(N,N)**2  
+    global dens, inh, dens_noise, inh_noise, N_X, N_Y
+    if key == glumpy.window.key.N:
+        dens = dens_noise * numpy.random.randn(N_X, N_Y)**2     
+        inh = inh_noise * numpy.random.randn(N_X, N_Y)**2  
 
-#    elif key == glumpy.key.R:
-#        dt *= 1.0125
-#    elif key == glumpy.key.D:
-#        dt *= .9875
-#    elif key == glumpy.key.T:
-#        diff *= 1.0125
-#    elif key == glumpy.key.F:
-#        diff *= .9875
-#    elif key == glumpy.key.Y:
-#        diff_inh *= 1.0125
-#    elif key == glumpy.key.G:
-#        diff_inh *= .9875
-#    elif key == glumpy.key.U:
-#        rho_a *= 1.0125
-#    elif key == glumpy.key.H:
-#        rho_a *= .9875
-#    elif key == glumpy.key.I:
-#        rho_h *= 1.0125
-#    elif key == glumpy.key.J:
-#        rho_h *= .9875
-#    elif key == glumpy.key.O:
-#        mu_a *= 1.0125
-#    elif key == glumpy.key.K:
-#        mu_a *= .9875
-#    elif key == glumpy.key.P:
-#        mu_h *= 1.0125
-#    elif key == glumpy.key.L:
-#        mu_h *= .9875
-#    print ' dt, diff, diff_inh, rho_a, rho_h, mu_a, mu_h = ', dt, diff, diff_inh, rho_a, rho_h, mu_a, mu_h
-#
 
-# main loop
-@window.event
-def on_idle(*args):
-    global dens, inh, dens_noise, inh_noise, dt, diff, diff_inh, rho_a, mu_a, rho_h, mu_h
-    window.clear()
-    if window.last_drag:
-        x,y,dx,dy,button = window.last_drag
-        j = min(max(int(N*x/float(window.width)),0),N-1)
-        i = min(max(int(N*(window.height-y)/float(window.height)),0),N-1)
-        if  button:#False:#not button:
-#            u_[i,j] = -force * dy
-#            v_[i,j] = force * dx
-#        else:
-#            print i,j
-            dens[i,j] = inh[i,j] = source
-#            dens_[:,j] = source # creating a vertical line
+@fig.event
+def on_mouse_drag(x, y, dx, dy, button):
+    global dens, inh, dens_noise, inh_noise, N_X, N_Y
+    center =( int( (1-y/float(fig.height)) * (N_X-1)),
+              int( x/float(fig.width) * (N_Y-1)) )
+    def distance(x,y):
+        return numpy.sqrt((x-center[0])**2+(y-center[1])**2)
+    D = numpy.fromfunction(distance,(N_X, N_Y))
+    M = numpy.where(D<=5,True,False).astype(numpy.float32)
+    dens[...] = (1-M)*dens #+ M*0.50
+#    inh[...] = (1-M)*inh + M*0.25
+    Zu.update()
+
+
+@fig.event
+def on_draw():
+    fig.clear()
+    Zu.draw( x=0, y=0, z=0,
+             width=fig.width, height=fig.height )
+
+@fig.event
+def on_idle(elasped):
+    global dens, inh, dens_noise, inh_noise, N_X, N_Y
+    for i in range(N_do):
+        # Heat equation
+        #    dens +=  diff * laplace(dens, mode='wrap')
     
-    window.last_drag = None
-    
-    # Heat equation
-#    dens +=  diff * laplace(dens, mode='wrap')
-    if reaction_type == 'Turing':
-
         # Turing    
         dens += (rho_a * (mu_a - dens * inh) + diff * laplace(dens, mode='wrap'))*dt
-        inh += (rho_h * (dens * inh - inh - mu_h + inh_noise * numpy.random.randn(N,N) ) + diff_inh * laplace(inh, mode='wrap'))*dt
-
-    elif reaction_type == 'GrayScott':
-        #  Gray-Scott model : http://mrob.com/pub/comp/xmorphia/
-        dens += (- dens * inh**2 + F * (1. - dens) + diff * laplace(dens, mode='wrap'))*dt
-        inh += ( dens * inh**2 - (F + k) * inh  + diff_inh * laplace(inh, mode='wrap'))*dt    
-
-    # Fitzhugh-Nagumo
-#    dens += (rho_a * (mu_a - dens * inh) + diff * laplace(dens, mode='wrap'))*dt
-#    inh += (rho_h * (dens * inh - inh - mu_h + inh_noise * numpy.random.randn(N,N) ) + diff_inh * laplace(inh, mode='wrap'))*dt
+        inh += (rho_h * (dens * inh - inh - mu_h + inh_noise * numpy.random.randn(N_X, N_Y) ) + diff_inh * laplace(inh, mode='wrap'))*dt    
     
+        # Fitzhugh-Nagumo
+        #    dens += (rho_a * (mu_a - dens * inh) + diff * laplace(dens, mode='wrap'))*dt
+        #    inh += (rho_h * (dens * inh - inh - mu_h + inh_noise * numpy.random.randn(N,N) ) + diff_inh * laplace(inh, mode='wrap'))*dt
+        
+    Zu.update()
+    fig.draw()
 
-
-    Z[...] = (dens-dens.min())/(dens.max()-dens.min())
-    I.update()
-    I.blit(0,0,window.width,window.height)
-    window.draw()
-
-    global t, t0, frames
-    t += args[0]
-    frames = frames + 1
-    if t-t0 > 5.0:
-        print 'min-max of densities: ',  dens.min(),  dens.max(), inh.min(),  inh.max()
-        fps = float(frames)/(t-t0)
-        print 'FPS: %.2f (%d frames in %.2f seconds)' % (fps, frames, t-t0)
-        frames,t0 = 0, t
-
-window.mainloop()
+glumpy.show()
