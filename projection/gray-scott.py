@@ -70,7 +70,8 @@ zoo = {'Pulses':        [0.16, 0.08, 0.020, 0.055],
 #                                (0.00, (0.2, 0.2, 1.0)),
 #                                (1.00, (1.0, 1.0, 1.0)))
 cmap=glumpy.colormap.Grey_r
-
+interpolation = 'bicubic' # 'nearest' #
+N_do = 5
 ############################################################################
 
 
@@ -203,7 +204,7 @@ U[...] = u
 V[...] = v
 
 fig = glumpy.figure((N_Y*downscale, N_X*downscale)) # , fullscreen = fullscreen
-Zu = glumpy.Image(u, interpolation='bicubic', colormap=cmap)
+Zu = glumpy.Image(u, interpolation=interpolation, colormap=cmap)
 
 @fig.event
 def on_key_press(key, modifiers):
@@ -236,7 +237,7 @@ def on_draw():
 @fig.event
 def on_idle(elasped):
     global u,v,U,V,Z,Du,Dv,F,k
-    for i in range(5):
+    for i in range(N_do):
         Lu = (K*U.ravel()).reshape(U.shape)
         Lv = (K*V.ravel()).reshape(V.shape)
         u += dt * (Du*Lu - Z +  F   *(1-U))
