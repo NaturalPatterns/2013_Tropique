@@ -42,14 +42,17 @@ John E. Pearson, Science 261, 5118, 189-192, 1993.
 import numpy as np
 import scipy.sparse as sp
 import glumpy
+from solver import vel_step, dens_step
 
 ############################################################################
 screen_X, screen_Y = 1200, 1920
 downscale = 10 # increase to match your CPU's speed
 N_X, N_Y = screen_X/downscale, screen_Y/downscale # size of the simulation grid
+############################################################################
 # Parameters from http://www.aliensaint.com/uo/java/rd/
 # -----------------------------------------------------
-dt = 1
+dt = 1.
+dtGS = 1e-0
 t  = 10000
 zoo = {'Pulses':        [0.16, 0.08, 0.020, 0.055],
        'Worms 0':       [0.16, 0.08, 0.050, 0.065], 
@@ -65,6 +68,10 @@ zoo = {'Pulses':        [0.16, 0.08, 0.020, 0.055],
        'Spirals Fast':  [0.10, 0.16, 0.020, 0.050],
        'Unstable':      [0.16, 0.08, 0.020, 0.055],
 }
+Ddens, Dinh, F, k = zoo['Worms 0']
+diff = 0. # 1e-9
+visc = 0. # 1e-12
+force = .05
 ############################################################################
 #cmap = glumpy.colormap.Colormap("blue",
 #                                (0.00, (0.2, 0.2, 1.0)),
@@ -175,11 +182,12 @@ def convolution_matrix(src, dst, kernel, toric=True):
 
     return sp.coo_matrix( (D,(R,C)), (dst.size,src.size)).tocsr()
 
-
-
-
-Ddens, Dinh, F, k = zoo['Worms 0']
-
+# motion field
+u     = np.zeros((N_X, N_Y), dtype=np.float32)
+u_    = np.zeros((N_X, N_Y), dtype=np.float32)
+v     = np.zeros((N_X, N_Y), dtype=np.float32)
+v_    = np.zeros((N_X, N_Y), dtype=np.float32)
+# chemicals
 dens = np.zeros((N_X, N_Y), dtype = np.float32)
 inh = np.zeros((N_X, N_Y), dtype = np.float32)
 dens_ = np.zeros((N_X, N_Y), dtype = np.float32)
@@ -191,7 +199,7 @@ K = convolution_matrix(Z,Z, np.array([[np.NaN,  1., np.NaN],
 Ldens = (K*dens_.ravel()).reshape(dens_.shape)
 Linh = (K*inh_.ravel()).reshape(inh_.shape)
 
-r = N_X / 5
+r = N_X / 20
 dens[...] = 1.0
 inh[...] = 0.0
 dens[N_X/2-r:N_X/2+r,N_Y/2-r:N_Y/2+r] = 0.50
@@ -202,7 +210,9 @@ dens_[...] = dens
 inh_[...] = inh
 
 fig = glumpy.figure((N_Y*downscale, N_X*downscale)) # , fullscreen = fullscreen
+fig.last_drag = None
 Zdens = glumpy.Image(dens, interpolation=interpolation, colormap=cmap)
+t, t0, frames = 0,0,0
 
 @fig.event
 def on_key_press(key, modifiers):
@@ -211,19 +221,35 @@ def on_key_press(key, modifiers):
         i = np.random.randint(0, len(zoo.keys()))
         Ddens, Dinh, F, k = zoo.values()[i]
         print zoo.keys()[i]
+    elif key == glumpy.window.key.SPACE:
+        u[...] = u_[...] = 0.0
+        v[...] = v_[...] = 0.0
+
 
 @fig.event
 def on_mouse_drag(x, y, dx, dy, button):
-    global dens,inh,dens_,inh_,Z,Ddens,Dinh,F,k, N_X, N_Y
-    center =( int( (1-y/float(fig.height)) * (N_X-1)),
-              int( x/float(fig.width) * (N_Y-1)) )
-    def distance(x,y):
-        return np.sqrt((x-center[0])**2+(y-center[1])**2)
-    D = np.fromfunction(distance,(N_X, N_Y))
-    M = np.where(D<=5,True,False).astype(np.float32)
-    dens_[...] = dens[...] = (1-M)*dens + M*0.50
-    inh_[...] = inh[...] = (1-M)*inh + M*0.25
-    Zdens.update()
+    fig.last_drag = x,y,dx,dy,button
+
+@fig.event
+def on_mouse_motion(x, y, dx, dy):
+    fig.last_drag = x,y,dx,dy,0
+
+#@fig.event
+#def on_mouse_drag(x, y, dx, dy, button):
+#    global dens,inh,dens_,inh_,u, u_, v, v_, Z,Ddens,Dinh,F,k, N_X, N_Y
+#    center =( int( (1-y/float(fig.height)) * (N_X-1)),
+#              int( x/float(fig.width) * (N_Y-1)) )
+#    if not button:
+#        u_[center[0],center[1]] = -force * dy
+#        v_[center[0],center[1]] = force * dx
+#    else:
+#        def distance(x,y):
+#            return np.sqrt((x-center[0])**2+(y-center[1])**2)
+#        D = np.fromfunction(distance,(N_X, N_Y))
+#        M = np.where(D<=5,True,False).astype(np.float32)
+#        dens_[...] = dens[...] = (1-M)*dens + M*0.50
+#        inh_[...] = inh[...] = (1-M)*inh + M*0.25
+#        Zdens.update()
 
 
 @fig.event
@@ -233,18 +259,54 @@ def on_draw():
              width=fig.width, height=fig.height )
 
 @fig.event
-def on_idle(elasped):
-    global dens,inh,dens_,inh_,Z,Ddens,Dinh,F,k
+def on_idle(elapsed):
+    global dens,inh,dens_,inh_, u, u_, v, v_, Z,Ddens,Dinh,F,k
+    u_[...] = v_[...] = 0.0
+#    dens_[...] = inh_[...] = 0.0
+
+    if fig.last_drag:
+        x,y,dx,dy,button = fig.last_drag
+        center =( int( (1-y/float(fig.height)) * (N_X-1)),
+                  int( x/float(fig.width) * (N_Y-1)) )
+        if not button:
+            u_[center[0],center[1]] = -force * dy
+            v_[center[0],center[1]] = force * dx
+        else:
+            def distance(x,y):
+                return np.sqrt((x-center[0])**2+(y-center[1])**2)
+            D = np.fromfunction(distance,(N_X, N_Y))
+            M = np.where(D<=5,True,False).astype(np.float32)
+            dens_[...] = dens[...] = (1-M)*dens + M*0.50
+            inh_[...] = inh[...] = (1-M)*inh + M*0.25
+            Zdens.update()
+        
+    fig.last_drag = None
+
+    # advection
+    vel_step(N_X-2, N_Y-2, u, v, u_, v_, visc, dt)
+    dens_step(N_X-2, N_Y-2, dens, 0.*dens_, u, v, diff, dt)
+    dens_step(N_X-2, N_Y-2, inh, 0.*inh_, u, v, diff, dt)
+
+
     for i in range(N_do):
         Ldens = (K*dens_.ravel()).reshape(dens_.shape)
         Linh = (K*inh_.ravel()).reshape(inh_.shape)
-        dens += dt * (Ddens*Ldens - Z +  F   *(1-dens_))
-        inh += dt * (Dinh*Linh + Z - (F+k)*inh_    )
+        dens += dtGS * (Ddens*Ldens - Z +  F   *(1-dens_))
+        inh += dtGS * (Dinh*Linh + Z - (F+k)*inh_    )
         #dens_,inh_ = np.maximum(dens,0), np.maximum(inh,0)
         dens_,inh_ = dens, inh
         Z = dens_*inh_*inh_
-
+        
+    Z = dens_*inh_*inh_
     Zdens.update()
     fig.draw()
+
+    global t, t0, frames
+    t += elapsed
+    frames = frames + 1
+    if t-t0 > 5.0:
+        fps = float(frames)/(t-t0)
+        print 'FPS: %.2f (%d frames in %.2f seconds)' % (fps, frames, t-t0)
+        frames,t0 = 0, t
 
 glumpy.show()
