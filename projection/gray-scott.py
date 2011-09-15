@@ -73,8 +73,6 @@ cmap=glumpy.colormap.Grey_r
 interpolation = 'bicubic' # 'nearest' #
 N_do = 5
 ############################################################################
-
-
 def convolution_matrix(src, dst, kernel, toric=True):
     '''
     Build a sparse convolution matrix M such that:
@@ -180,73 +178,73 @@ def convolution_matrix(src, dst, kernel, toric=True):
 
 
 
-Du, Dv, F, k = zoo['Worms 0']
+Ddens, Dinh, F, k = zoo['Worms 0']
 
-u = np.zeros((N_X, N_Y), dtype = np.float32)
-v = np.zeros((N_X, N_Y), dtype = np.float32)
-U = np.zeros((N_X, N_Y), dtype = np.float32)
-V = np.zeros((N_X, N_Y), dtype = np.float32)
-Z = U*V*V
+dens = np.zeros((N_X, N_Y), dtype = np.float32)
+inh = np.zeros((N_X, N_Y), dtype = np.float32)
+dens_ = np.zeros((N_X, N_Y), dtype = np.float32)
+inh_ = np.zeros((N_X, N_Y), dtype = np.float32)
+Z = dens_*inh_*inh_
 K = convolution_matrix(Z,Z, np.array([[np.NaN,  1., np.NaN], 
                                       [  1.,   -4.,   1.  ],
                                       [np.NaN,  1., np.NaN]]))
-Lu = (K*U.ravel()).reshape(U.shape)
-Lv = (K*V.ravel()).reshape(V.shape)
+Ldens = (K*dens_.ravel()).reshape(dens_.shape)
+Linh = (K*inh_.ravel()).reshape(inh_.shape)
 
 r = N_X / 5
-u[...] = 1.0
-v[...] = 0.0
-u[N_X/2-r:N_X/2+r,N_Y/2-r:N_Y/2+r] = 0.50
-v[N_X/2-r:N_X/2+r,N_Y/2-r:N_Y/2+r] = 0.25
-u += .05*np.random.random((N_X, N_Y))
-v += .05*np.random.random((N_X, N_Y))
-U[...] = u
-V[...] = v
+dens[...] = 1.0
+inh[...] = 0.0
+dens[N_X/2-r:N_X/2+r,N_Y/2-r:N_Y/2+r] = 0.50
+inh[N_X/2-r:N_X/2+r,N_Y/2-r:N_Y/2+r] = 0.25
+dens += .05*np.random.random((N_X, N_Y))
+inh += .05*np.random.random((N_X, N_Y))
+dens_[...] = dens
+inh_[...] = inh
 
 fig = glumpy.figure((N_Y*downscale, N_X*downscale)) # , fullscreen = fullscreen
-Zu = glumpy.Image(u, interpolation=interpolation, colormap=cmap)
+Zdens = glumpy.Image(dens, interpolation=interpolation, colormap=cmap)
 
 @fig.event
 def on_key_press(key, modifiers):
-    global u,v,U,V,Z,Du,Dv,F,k, N_X, N_Y
+    global dens,inh,dens_,inh_,Z,Ddens,Dinh,F,k, N_X, N_Y
     if key == glumpy.window.key.N:
         i = np.random.randint(0, len(zoo.keys()))
-        Du, Dv, F, k = zoo.values()[i]
+        Ddens, Dinh, F, k = zoo.values()[i]
         print zoo.keys()[i]
 
 @fig.event
 def on_mouse_drag(x, y, dx, dy, button):
-    global u,v,U,V,Z,Du,Dv,F,k, N_X, N_Y
+    global dens,inh,dens_,inh_,Z,Ddens,Dinh,F,k, N_X, N_Y
     center =( int( (1-y/float(fig.height)) * (N_X-1)),
               int( x/float(fig.width) * (N_Y-1)) )
     def distance(x,y):
         return np.sqrt((x-center[0])**2+(y-center[1])**2)
     D = np.fromfunction(distance,(N_X, N_Y))
     M = np.where(D<=5,True,False).astype(np.float32)
-    U[...] = u[...] = (1-M)*u + M*0.50
-    V[...] = v[...] = (1-M)*v + M*0.25
-    Zu.update()
+    dens_[...] = dens[...] = (1-M)*dens + M*0.50
+    inh_[...] = inh[...] = (1-M)*inh + M*0.25
+    Zdens.update()
 
 
 @fig.event
 def on_draw():
     fig.clear()
-    Zu.draw( x=0, y=0, z=0,
+    Zdens.draw( x=0, y=0, z=0,
              width=fig.width, height=fig.height )
 
 @fig.event
 def on_idle(elasped):
-    global u,v,U,V,Z,Du,Dv,F,k
+    global dens,inh,dens_,inh_,Z,Ddens,Dinh,F,k
     for i in range(N_do):
-        Lu = (K*U.ravel()).reshape(U.shape)
-        Lv = (K*V.ravel()).reshape(V.shape)
-        u += dt * (Du*Lu - Z +  F   *(1-U))
-        v += dt * (Dv*Lv + Z - (F+k)*V    )
-        #U,V = np.maximum(u,0), np.maximum(v,0)
-        U,V = u, v
-        Z = U*V*V
+        Ldens = (K*dens_.ravel()).reshape(dens_.shape)
+        Linh = (K*inh_.ravel()).reshape(inh_.shape)
+        dens += dt * (Ddens*Ldens - Z +  F   *(1-dens_))
+        inh += dt * (Dinh*Linh + Z - (F+k)*inh_    )
+        #dens_,inh_ = np.maximum(dens,0), np.maximum(inh,0)
+        dens_,inh_ = dens, inh
+        Z = dens_*inh_*inh_
 
-    Zu.update()
+    Zdens.update()
     fig.draw()
 
 glumpy.show()
