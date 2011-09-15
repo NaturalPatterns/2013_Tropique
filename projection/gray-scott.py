@@ -187,6 +187,8 @@ U[...] = u
 V[...] = v
 
 fig = glumpy.figure((512,512))
+#fullscreen = False
+#fig = glumpy.Window(size=(512, 512), fullscreen = fullscreen)
 cmap = glumpy.colormap.Colormap("blue",
                                 (0.00, (0.2, 0.2, 1.0)),
                                 (1.00, (1.0, 1.0, 1.0)))
