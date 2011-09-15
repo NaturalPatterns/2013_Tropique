@@ -43,6 +43,35 @@ import numpy as np
 import scipy.sparse as sp
 import glumpy
 
+############################################################################
+screen_X, screen_Y = 1200, 1920
+downscale = 10 # increase to match your CPU's speed
+N_X, N_Y = screen_X/downscale, screen_Y/downscale # size of the simulation grid
+# Parameters from http://www.aliensaint.com/uo/java/rd/
+# -----------------------------------------------------
+dt = 1
+t  = 10000
+zoo = {'Pulses':        [0.16, 0.08, 0.020, 0.055],
+       'Worms 0':       [0.16, 0.08, 0.050, 0.065], 
+       'Worms 1':       [0.16, 0.08, 0.052, 0.065], 
+       'Worms 2':       [0.16, 0.08, 0.054, 0.063],
+       'Zebrafish':     [0.16, 0.08, 0.035, 0.060],
+       'Bacteria 1':    [0.16, 0.08, 0.035, 0.065],
+       'Bacteria 2':    [0.14, 0.06, 0.035, 0.065],
+       'Coral':         [0.16, 0.08, 0.060, 0.062],
+       'Fingerprint':   [0.19, 0.05, 0.060, 0.062],
+       'Spirals':       [0.10, 0.10, 0.018, 0.050],
+       'Spirals Dense': [0.12, 0.08, 0.020, 0.050],
+       'Spirals Fast':  [0.10, 0.16, 0.020, 0.050],
+       'Unstable':      [0.16, 0.08, 0.020, 0.055],
+}
+############################################################################
+#cmap = glumpy.colormap.Colormap("blue",
+#                                (0.00, (0.2, 0.2, 1.0)),
+#                                (1.00, (1.0, 1.0, 1.0)))
+cmap=glumpy.colormap.Grey_r
+
+############################################################################
 
 
 def convolution_matrix(src, dst, kernel, toric=True):
@@ -148,27 +177,14 @@ def convolution_matrix(src, dst, kernel, toric=True):
     return sp.coo_matrix( (D,(R,C)), (dst.size,src.size)).tocsr()
 
 
-# Parameters from http://www.aliensaint.com/uo/java/rd/
-# -----------------------------------------------------
-n  = 200
-dt = 1
-t  = 10000
-# Du, Dv, F, k = 0.16, 0.08, 0.035, 0.065 # Bacteria 1
-# Du, Dv, F, k = 0.14, 0.06, 0.035, 0.065 # Bacteria 2
-# Du, Dv, F, k = 0.16, 0.08, 0.060, 0.062 # Coral
-# Du, Dv, F, k = 0.19, 0.05, 0.060, 0.062 # Fingerprint
-# Du, Dv, F, k = 0.10, 0.10, 0.018, 0.050 # Spirals
-# Du, Dv, F, k = 0.12, 0.08, 0.020, 0.050 # Spirals Dense
-# Du, Dv, F, k = 0.10, 0.16, 0.020, 0.050 # Spirals Fast
-# Du, Dv, F, k = 0.16, 0.08, 0.020, 0.055 # Unstable
-Du, Dv, F, k = 0.16, 0.08, 0.050, 0.065 # Worms 1
-# Du, Dv, F, k = 0.16, 0.08, 0.054, 0.063 # Worms 2
-# Du, Dv, F, k = 0.16, 0.08, 0.035, 0.060 # Zebrafish
 
-u = np.zeros((n,n), dtype = np.float32)
-v = np.zeros((n,n), dtype = np.float32)
-U = np.zeros((n,n), dtype = np.float32)
-V = np.zeros((n,n), dtype = np.float32)
+
+Du, Dv, F, k = zoo['Worms 0']
+
+u = np.zeros((N_X, N_Y), dtype = np.float32)
+v = np.zeros((N_X, N_Y), dtype = np.float32)
+U = np.zeros((N_X, N_Y), dtype = np.float32)
+V = np.zeros((N_X, N_Y), dtype = np.float32)
 Z = U*V*V
 K = convolution_matrix(Z,Z, np.array([[np.NaN,  1., np.NaN], 
                                       [  1.,   -4.,   1.  ],
@@ -176,33 +192,35 @@ K = convolution_matrix(Z,Z, np.array([[np.NaN,  1., np.NaN],
 Lu = (K*U.ravel()).reshape(U.shape)
 Lv = (K*V.ravel()).reshape(V.shape)
 
-r = 20
+r = N_X / 5
 u[...] = 1.0
 v[...] = 0.0
-u[n/2-r:n/2+r,n/2-r:n/2+r] = 0.50
-v[n/2-r:n/2+r,n/2-r:n/2+r] = 0.25
-u += 0.05*np.random.random((n,n))
-v += 0.05*np.random.random((n,n))
+u[N_X/2-r:N_X/2+r,N_Y/2-r:N_Y/2+r] = 0.50
+v[N_X/2-r:N_X/2+r,N_Y/2-r:N_Y/2+r] = 0.25
+u += .05*np.random.random((N_X, N_Y))
+v += .05*np.random.random((N_X, N_Y))
 U[...] = u
 V[...] = v
 
-fig = glumpy.figure((512,512))
-#fullscreen = False
-#fig = glumpy.Window(size=(512, 512), fullscreen = fullscreen)
-cmap = glumpy.colormap.Colormap("blue",
-                                (0.00, (0.2, 0.2, 1.0)),
-                                (1.00, (1.0, 1.0, 1.0)))
+fig = glumpy.figure((N_Y*downscale, N_X*downscale)) # , fullscreen = fullscreen
 Zu = glumpy.Image(u, interpolation='bicubic', colormap=cmap)
 
+@fig.event
+def on_key_press(key, modifiers):
+    global u,v,U,V,Z,Du,Dv,F,k, N_X, N_Y
+    if key == glumpy.window.key.N:
+        i = np.random.randint(0, len(zoo.keys()))
+        Du, Dv, F, k = zoo.values()[i]
+        print zoo.keys()[i]
 
 @fig.event
 def on_mouse_drag(x, y, dx, dy, button):
-    global u,v,U,V,Z,Du,Dv,F,k,n
-    center =( int((1-y/float(fig.width)) * (n-1)),
-              int(   x/float(fig.height) * (n-1)) )
+    global u,v,U,V,Z,Du,Dv,F,k, N_X, N_Y
+    center =( int( (1-y/float(fig.height)) * (N_X-1)),
+              int( x/float(fig.width) * (N_Y-1)) )
     def distance(x,y):
         return np.sqrt((x-center[0])**2+(y-center[1])**2)
-    D = np.fromfunction(distance,(n,n))
+    D = np.fromfunction(distance,(N_X, N_Y))
     M = np.where(D<=5,True,False).astype(np.float32)
     U[...] = u[...] = (1-M)*u + M*0.50
     V[...] = v[...] = (1-M)*v + M*0.25
