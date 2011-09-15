@@ -18,11 +18,14 @@ doit être gris.
 import numpy, glumpy
 
 ############################################################################
-downscale = 4
+downscale = 2
 N_X, N_Y = 1200/downscale, 1920/downscale # size of the simulation grid
-width = .01
-#R_min = 1.
-
+recul = 20
+x_VPs = [ 0 , N_X/4, N_X/2, 3*N_X/4, N_X,  0 , N_X/4, N_X/2, 3*N_X/4, N_X ]
+y_VPs = [ -recul , -recul, -recul, -recul, -recul, N_Y+recul, N_Y+recul, N_Y+recul, N_Y+recul, N_Y+recul ]
+width = 1.
+N_sources = 10
+speed = 5e-3 
 # visualization parameters
 fullscreen = False # True #
 interpolation= 'bicubic' # 'nearest' #
@@ -35,9 +38,8 @@ cmap = glumpy.colormap.Colormap("blue",
 # initialization
 dens  = numpy.zeros((N_X, N_Y), dtype=numpy.float32) # density
 X, Y = numpy.mgrid[0:N_X, 0:N_Y]
-y = N_Y/2
-x_VPs = [ N_X/4] #0 , N_X/4, N_X/2, 3*N_X/4 ]
-y_VPs = [ -10 ] #, -10, -10, -10 ]
+#x = numpy.linspace(0, N_X, N_sources)
+x = numpy.random.rand(N_sources)*N_X
 
 fig = glumpy.figure((N_Y*downscale, N_X*downscale)) # , fullscreen = fullscreen
 im_buffer = glumpy.Image(dens, interpolation='bicubic', colormap=cmap)
@@ -47,7 +49,7 @@ def rayon(x, y, x_0, y_0):
     r = numpy.sqrt( (x-x_0)**2 + (y-y_0)**2)
     d = numpy.abs((x-x_0)*(y_0-Y) - (x_0-X)*(y-y_0)) / r
     R1 = numpy.sqrt( R**2 - d**2 )
-    return numpy.exp(- ( d )**2 / 2 / R1**2 / width**2 ) / R #numpy.sqrt( R**2 + 12 )
+    return numpy.exp(- ( d )**2 / 2 / R1**2 * r**2 / width**2 ) / R #numpy.sqrt( R**2 + 12 )
 #    return R1
 ############################################################################
 
@@ -59,18 +61,13 @@ def on_draw():
 
 @fig.event
 def on_idle(elasped):
-    global dens, y
-    y += numpy.random.randn()*N_Y/100
-    y = numpy.mod(y, N_Y)
-#    print y
+    global dens, x
+    x += numpy.random.randn(N_sources)*N_X*speed
+    x = numpy.mod(x, N_Y)
     dens *= 0.
-    for x_0, y_0 in zip(x_VPs, y_VPs):
-        dens  += rayon(N_X/2, y, x_0, y_0)
-
-#    print dens.max(), dens.min()
-#    dens  = numpy.ones((N_X, N_Y), dtype=numpy.float32) # density
-#    dens[numpy.random.randint(N_X),numpy.random.randint(N_Y)] = -50
-#    dens = dens.astype(numpy.float32)
+    for x_ in x:
+        for x_0, y_0 in zip(x_VPs, y_VPs):
+            dens  += rayon(x_, N_Y/2, x_0, y_0)
     im_buffer.update()
     fig.draw()
 
