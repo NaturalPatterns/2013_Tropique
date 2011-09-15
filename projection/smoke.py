@@ -40,23 +40,27 @@ import sys
 import numpy, glumpy
 from solver import vel_step, dens_step
 
-N = 50
-size = N+2
+############################################################################
+screen_X, screen_Y = 1200, 1920
+downscale = 10 # increase to match your CPU's speed
+N_X, N_Y = screen_X/downscale, screen_Y/downscale # size of the simulation grid
+############################################################################
+size_X, size_Y = N_X+2, N_Y+2
 dt = 0.1
-diff = 0.0
-visc = 0.0
-force = 1
+diff = 1e-9
+visc = 1e-12
+force = .15
 source = 25.0
-u     = numpy.zeros((size,size), dtype=numpy.float32)
-u_    = numpy.zeros((size,size), dtype=numpy.float32)
-v     = numpy.zeros((size,size), dtype=numpy.float32)
-v_    = numpy.zeros((size,size), dtype=numpy.float32)
-dens  = numpy.zeros((size,size), dtype=numpy.float32)
-dens_ = numpy.zeros((size,size), dtype=numpy.float32)
-Z = numpy.zeros((N,N),dtype=numpy.float32)
+u     = numpy.zeros((size_X, size_Y), dtype=numpy.float32)
+u_    = numpy.zeros((size_X, size_Y), dtype=numpy.float32)
+v     = numpy.zeros((size_X, size_Y), dtype=numpy.float32)
+v_    = numpy.zeros((size_X, size_Y), dtype=numpy.float32)
+dens  = numpy.zeros((size_X, size_Y), dtype=numpy.float32)
+dens_ = numpy.zeros((size_X, size_Y), dtype=numpy.float32)
+Z = numpy.zeros((N_X, N_Y),dtype=numpy.float32)
 
 
-fig = glumpy.figure((800,800))
+fig = glumpy.figure((N_Y*downscale, N_X*downscale))
 fig.last_drag = None
 
 cmap = glumpy.colormap.Colormap("BlueGrey",
@@ -92,21 +96,22 @@ def on_draw():
 
 @fig.event
 def on_idle(*args):
-    global dens, dens_, u, u_, v, v_, N, visc, dt, diff
+    global dens, dens_, u, u_, v, v_, N_X, N_Y, visc, dt, diff
     dens_[...] = u_[...] = v_[...] = 0.0
     if fig.last_drag:
         x,y,dx,dy,button = fig.last_drag
-        j = min(max(int((N+2)*x/float(fig.width)),0),N+1)
-        i = min(max(int((N+2)*(fig.height-y)/float(fig.height)),0),N+1)
+        j = min(max(int((N_Y+2)*x/float(fig.width)),0),N_X+1)
+        i = min(max(int((N_X+2)*(fig.height-y)/float(fig.height)),0),N_X+1)
         if not button:
             u_[i,j] = -force * dy
             v_[i,j] = force * dx
         else:
             dens_[i,j] = source
     fig.last_drag = None
-    vel_step(N, u, v, u_, v_, visc, dt)
-    dens_step(N, dens, dens_, u, v, diff, dt)
+    vel_step(N_X, N_Y, u, v, u_, v_, visc, dt)
+    dens_step(N_X, N_Y, dens, dens_, u, v, diff, dt)
     Z[...] = dens[0:-2,0:-2]
+#    Z[...] = u[0:-2,0:-2] / numpy.abs(u).max() * 5.
     I.update()
     fig.draw()
 
