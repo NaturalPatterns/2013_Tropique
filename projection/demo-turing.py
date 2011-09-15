@@ -4,7 +4,7 @@
 # Copyright (C) 2011 _ Laurent Perrinet
 """
 
-Turing 52 implementation + guests
+Turing 52 implementation using scipy's Laplace function.
 
 
 @article{Turing52,
@@ -35,7 +35,7 @@ import numpy, glumpy
 from scipy.ndimage.filters import laplace
 ############################################################################
 screen_X, screen_Y = 1200, 1920
-downscale = 2 # increase to match your CPU's speed
+downscale = 10 # increase to match your CPU's speed
 N_X, N_Y = screen_X/downscale, screen_Y/downscale # size of the simulation grid
 ############################################################################
 dt = 0.02
@@ -45,13 +45,10 @@ diff, diff_inh = .25, .0625 #0., 0. #
 rho_a, mu_a =  .03125, 16.
 rho_h, mu_h = .03125, 12.
 init = 4.
-N_do = 5
-
 dens_noise, inh_noise = .05,  .05
-
+############################################################################
 # visualization parameters
-downscale = 2
-fullscreen = False # True #
+N_do = 5
 interpolation= 'bicubic' # 'nearest' #
 # TODO : show both populations
 cmap = glumpy.colormap.Colormap("BlueGrey",
@@ -62,17 +59,15 @@ dens  = init * numpy.ones((N_X, N_Y), dtype=numpy.float32) # density of activato
 inh  = init * numpy.ones((N_X, N_Y), dtype=numpy.float32) # density of inhibitor
 dens += dens_noise * numpy.random.randn(N_X, N_Y)**2     
 inh += inh_noise * numpy.random.randn(N_X, N_Y)**2  
-############################################################################
 fig = glumpy.figure((N_Y*downscale, N_X*downscale)) # , fullscreen = fullscreen
 Zu = glumpy.Image(dens, interpolation=interpolation, colormap=cmap)
-
+############################################################################
 @fig.event
 def on_key_press(key, modifiers):
     global dens, inh, dens_noise, inh_noise, N_X, N_Y
     if key == glumpy.window.key.N:
-        dens = dens_noise * numpy.random.randn(N_X, N_Y)**2     
-        inh = inh_noise * numpy.random.randn(N_X, N_Y)**2  
-
+        dens = init + dens_noise * numpy.random.randn(N_X, N_Y)**2     
+        inh = init + inh_noise * numpy.random.randn(N_X, N_Y)**2  
 
 @fig.event
 def on_mouse_drag(x, y, dx, dy, button):
@@ -83,10 +78,9 @@ def on_mouse_drag(x, y, dx, dy, button):
         return numpy.sqrt((x-center[0])**2+(y-center[1])**2)
     D = numpy.fromfunction(distance,(N_X, N_Y))
     M = numpy.where(D<=5,True,False).astype(numpy.float32)
-    dens[...] = (1-M)*dens #+ M*0.50
+    dens[...] = (1-M)*dens + M*init
 #    inh[...] = (1-M)*inh + M*0.25
     Zu.update()
-
 
 @fig.event
 def on_draw():
