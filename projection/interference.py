@@ -18,14 +18,15 @@ doit être gris.
 import numpy, glumpy
 
 ############################################################################
-downscale = 2
+downscale = 4
 N_X, N_Y = 1200/downscale, 1920/downscale # size of the simulation grid
 recul = 20
 x_VPs = [ 0 , N_X/4, N_X/2, 3*N_X/4, N_X,  0 , N_X/4, N_X/2, 3*N_X/4, N_X ]
 y_VPs = [ -recul , -recul, -recul, -recul, -recul, N_Y+recul, N_Y+recul, N_Y+recul, N_Y+recul, N_Y+recul ]
-width = 1.
-N_sources = 10
-speed = 5e-3 
+width = 4.
+N_sources = 6
+speed = 5e-3
+noise=1e-4
 # visualization parameters
 fullscreen = False # True #
 interpolation= 'bicubic' # 'nearest' #
@@ -37,12 +38,13 @@ cmap = glumpy.colormap.Colormap("blue",
 ############################################################################
 # initialization
 dens  = numpy.zeros((N_X, N_Y), dtype=numpy.float32) # density
+lum  = numpy.zeros((N_X, N_Y), dtype=numpy.float32) # luminance
 X, Y = numpy.mgrid[0:N_X, 0:N_Y]
 #x = numpy.linspace(0, N_X, N_sources)
 x = numpy.random.rand(N_sources)*N_X
 
 fig = glumpy.figure((N_Y*downscale, N_X*downscale)) # , fullscreen = fullscreen
-im_buffer = glumpy.Image(dens, interpolation='bicubic', colormap=cmap)
+im_buffer = glumpy.Image(dens, interpolation='bicubic', colormap=glumpy.colormap.Grey)#cmap)
 ############################################################################
 def rayon(x, y, x_0, y_0):
     R = numpy.sqrt( (X-x_0)**2 + (Y-y_0)**2)
@@ -61,13 +63,14 @@ def on_draw():
 
 @fig.event
 def on_idle(elasped):
-    global dens, x
+    global dens, lum, x
     x += numpy.random.randn(N_sources)*N_X*speed
     x = numpy.mod(x, N_Y)
     dens *= 0.
     for x_ in x:
         for x_0, y_0 in zip(x_VPs, y_VPs):
-            dens  += rayon(x_, N_Y/2, x_0, y_0)
+            dens  += rayon(x_, (x_-N_X/2)**2 / N_Y + N_Y/2, x_0, y_0)
+    dens = numpy.log(dens+noise)
     im_buffer.update()
     fig.draw()
 
