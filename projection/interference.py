@@ -18,80 +18,57 @@ doit être gris.
 import numpy, glumpy
 
 ############################################################################
-N_X, N_Y = 400, 600 # size of the simulation grid
+downscale = 10
+N_X, N_Y = 1200/downscale, 1920/downscale # size of the simulation grid
+width = .01
+#R_min = 1.
 
 # visualization parameters
-downscale = 2
 fullscreen = False # True #
 interpolation= 'bicubic' # 'nearest' #
-cmap = glumpy.colormap.Colormap("BlueGrey",
-                                (0., (0.,0.,0.)), (1., (0.75,0.75,1.00)))
-############################################################################
-
+#cmap = glumpy.colormap.Colormap("BlueGrey",
+#                                (0., (0.,0.,0.)), (1., (0.75,0.75,1.00)))
+cmap = glumpy.colormap.Colormap("blue",
+                                (0.00, (0.2, 0.2, 1.0)),
+                                (1.00, (1.0, 1.0, 1.0)))
 ############################################################################
 # initialization
 dens  = numpy.zeros((N_X, N_Y), dtype=numpy.float32) # density
-
-Z = numpy.zeros((N_X, N_Y), dtype=numpy.float32)
-I = glumpy.Image(Z, interpolation=interpolation, cmap=cmap, vmin=0, vmax=1.)
-t, t0, frames = 0,0,0
-window = glumpy.Window(1600/downscale,900/downscale, fullscreen = fullscreen)
-window.last_drag = None
-
-# events
-@window.event
-def on_mouse_drag(x, y, dx, dy, button):
-    window.last_drag = x,y,dx,dy,button
-
-@window.event
-def on_mouse_motion(x, y, dx, dy):
-    window.last_drag = x,y,dx,dy,0
-
-@window.event
-def on_key_press(key, modifiers):
-    global dens, inh, dens_noise, inh_noise, dt, diff, diff_inh, rho_a, mu_a, rho_h, mu_h
-    if key == glumpy.key.ESCAPE:
-        sys.exit()
-    elif key == glumpy.key.SPACE:
-#        dens[...] = inh[...]  = 0.0
-        dens = dens_noise * numpy.random.randn(N,N)**2     
-        inh = inh_noise * numpy.random.randn(N,N)**2  
-
+X, Y = numpy.mgrid[0:N_X, 0:N_Y]
+y = N_Y/2
+fig = glumpy.figure((N_Y*downscale, N_X*downscale)) # , fullscreen = fullscreen
+im_buffer = glumpy.Image(dens, interpolation='bicubic', colormap=cmap)
+############################################################################
+def rayon(x, y, x_0, y_0):
+    R = numpy.sqrt( (X-x_0)**2 + (Y-y_0)**2)
+    r = numpy.sqrt( (x-x_0)**2 + (y-y_0)**2)
+    d = numpy.abs((x-x_0)*(y-y_0) - (x_0-X)*(y_0-Y)) / r
+    R1 = numpy.sqrt( R**2 - d**2 )
+    return numpy.exp(- ( d )**2 / 2 / R1**2 / width**2 ) / R #numpy.sqrt( R**2 + 12 )
+#    return R1
+############################################################################
 
 # main loop
-@window.event
-def on_idle(*args):
-    global dens, inh, dens_noise, inh_noise, dt, diff, diff_inh, rho_a, mu_a, rho_h, mu_h
-    window.clear()
-    if window.last_drag:
-        x,y,dx,dy,button = window.last_drag
-        j = min(max(int(N_Y*x/float(window.width)),0),N-1)
-        i = min(max(int(N_X*(window.height-y)/float(window.height)),0),N-1)
-        if  button:#False:#not button:
-            dens[i,j] = inh[i,j] = source
-#            dens_[:,j] = source # creating a vertical line
-    
-    window.last_drag = None
-    
-    # Heat equation
-#    dens +=  diff * laplace(dens, mode='wrap')
-    dens  = numpy.zeros((N_X, N_Y), dtype=numpy.float32) # density
-    x_0, y_0 = 0, 0
-    for x, y in zip([0.5, 0.5]):
-        dens += rayon(x_0, y_0, x, y)
+@fig.event
+def on_draw():
+    fig.clear()
+    im_buffer.draw( x=0, y=0, z=0, width=fig.width, height=fig.height )
 
-    Z[...] = (dens-dens.min())/(dens.max()-dens.min())
-    I.update()
-    I.blit(0,0,window.width,window.height)
-    window.draw()
+@fig.event
+def on_idle(elasped):
+    global dens, y
+    x_0, y_0 = -10, N_Y/2
+#    y += numpy.random.randn()*N_Y/100
+#    y = numpy.mod(y, N_Y)
+#    print y
+    dens *= 0.
+    dens  += rayon(N_X, y, x_0, y_0)
 
-    global t, t0, frames
-    t += args[0]
-    frames = frames + 1
-    if t-t0 > 5.0:
-        print 'min-max of densities: ',  dens.min(),  dens.max(), inh.min(),  inh.max()
-        fps = float(frames)/(t-t0)
-        print 'FPS: %.2f (%d frames in %.2f seconds)' % (fps, frames, t-t0)
-        frames,t0 = 0, t
+#    print dens.max(), dens.min()
+#    dens  = numpy.ones((N_X, N_Y), dtype=numpy.float32) # density
+#    dens[numpy.random.randint(N_X),numpy.random.randint(N_Y)] = -50
+#    dens = dens.astype(numpy.float32)
+    im_buffer.update()
+    fig.draw()
 
-window.mainloop()
+glumpy.show()
