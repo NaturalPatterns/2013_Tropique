@@ -26,7 +26,7 @@ y_VPs = [ -recul , -recul, -recul, -recul, -recul, N_Y+recul, N_Y+recul, N_Y+rec
 width = 4.
 N_sources = 6
 speed = 5e-3
-noise=1e-4
+noise=1e-0
 # visualization parameters
 fullscreen = False # True #
 interpolation= 'bicubic' # 'nearest' #
@@ -42,7 +42,8 @@ lum  = numpy.zeros((N_X, N_Y), dtype=numpy.float32) # luminance
 X, Y = numpy.mgrid[0:N_X, 0:N_Y]
 #x = numpy.linspace(0, N_X, N_sources)
 x = numpy.random.rand(N_sources)*N_X
-
+t, t0, frames, elapsed = 0,0,0, 0
+N_VPs = len(x_VPs)
 fig = glumpy.figure((N_Y*downscale, N_X*downscale)) # , fullscreen = fullscreen
 im_buffer = glumpy.Image(dens, interpolation='bicubic', colormap=glumpy.colormap.Grey)#cmap)
 ############################################################################
@@ -62,16 +63,24 @@ def on_draw():
     im_buffer.draw( x=0, y=0, z=0, width=fig.width, height=fig.height )
 
 @fig.event
-def on_idle(elasped):
+def on_idle(elapsed):
     global dens, lum, x
     x += numpy.random.randn(N_sources)*N_X*speed
     x = numpy.mod(x, N_Y)
+#    print x
     dens *= 0.
     for x_ in x:
         for x_0, y_0 in zip(x_VPs, y_VPs):
-            dens  += rayon(x_, (x_-N_X/2)**2 / N_Y + N_Y/2, x_0, y_0)
-    dens = numpy.log(dens+noise)
+            dens  += rayon(x_, (x_-N_X/2)**2 / N_Y + N_Y/2, x_0, y_0) / N_sources / N_VPs
+#    dens = numpy.log(dens+noise)
     im_buffer.update()
-    fig.draw()
-
+    fig.redraw()
+    
+    global t, t0, frames
+    t += elapsed
+    frames = frames + 1
+    if t-t0 > 5.0:
+        fps = float(frames)/(t-t0)
+        print 'FPS: %.2f (%d frames in %.2f seconds)' % (fps, frames, t-t0)
+        frames,t0 = 0, t
 glumpy.show()

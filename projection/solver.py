@@ -7,31 +7,37 @@ Parts of author's work are also protected
 under U. S. patent #6,266,071 B1 [Patent].
 """
 
-def set_bnd(N_X, N_Y, b, x):
-    """
-    We assume that the fluid is contained in a box with solid walls: no flow
-    should exit the walls. This simply means that the horizontal component of
-    the velocity should be zero on the vertical walls, while the vertical
-    component of the velocity should be zero on the horizontal walls. For the
-    density and other fields considered in the code we simply assume
-    continuity. The following code implements these conditions.
-    """
-    if b == 1:
-        x[0,:] = -x[1,:]
-        x[N_X+1,:] = -x[N_X,:]
+def set_bnd(N_X, N_Y, b, x, toric=False):
+    if toric:
+        tmp = x.copy()
+        x[0,:] = tmp[N_X+1,:]
+        
     else:
-        x[0,:] = x[1,:]
-        x[N_X+1,:] = x[N_X,:]
-    if b == 2:
-        x[:,0] = -x[:,1]
-        x[:,N_Y+1] = -x[:,N_Y]
-    else:
-        x[:,0] = x[:,1]
-        x[:,N_Y+1] = x[:,N_Y]
-    x[0,0] = 0.5*(x[1,0]+x[0,1])
-    x[0,N_Y+1] = 0.5*(x[1,N_Y+1]+x[0,N_Y])
-    x[N_X+1,0] = 0.5*(x[N_X,0]+x[N_X+1,1])
-    x[N_X+1,N_Y+1] = 0.5*(x[N_X,N_Y+1]+x[N_X+1,N_Y])
+        """
+        We assume that the fluid is contained in a box with solid walls: no flow
+        should exit the walls. This simply means that the horizontal component of
+        the velocity should be zero on the vertical walls, while the vertical
+        component of the velocity should be zero on the horizontal walls. For the
+        density and other fields considered in the code we simply assume
+        continuity. The following code implements these conditions.
+        """
+        if b == 1:
+            x[0,:] = -x[1,:]
+            x[N_X+1,:] = -x[N_X,:]
+        else:
+            x[0,:] = x[1,:]
+            x[N_X+1,:] = x[N_X,:]
+        if b == 2:
+            x[:,0] = -x[:,1]
+            x[:,N_Y+1] = -x[:,N_Y]
+        else:
+            x[:,0] = x[:,1]
+            x[:,N_Y+1] = x[:,N_Y]
+        # edges
+        x[0,0] = 0.5*(x[1,0]+x[0,1])
+        x[0,N_Y+1] = 0.5*(x[1,N_Y+1]+x[0,N_Y])
+        x[N_X+1,0] = 0.5*(x[N_X,0]+x[N_X+1,1])
+        x[N_X+1,N_Y+1] = 0.5*(x[N_X,N_Y+1]+x[N_X+1,N_Y])
 
 
 def lin_solve(N_X, N_Y, b, x, x0, a, c):

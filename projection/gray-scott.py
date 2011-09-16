@@ -52,7 +52,8 @@ N_X, N_Y = screen_X/downscale, screen_Y/downscale # size of the simulation grid
 # Parameters from http://www.aliensaint.com/uo/java/rd/
 # -----------------------------------------------------
 dt = 1.
-dtGS = 1e-0
+dt_GS = 5e-1
+N_GS = 5
 t  = 10000
 zoo = {'Pulses':        [0.16, 0.08, 0.020, 0.055],
        'Worms 0':       [0.16, 0.08, 0.050, 0.065], 
@@ -76,9 +77,11 @@ force = .05
 #cmap = glumpy.colormap.Colormap("blue",
 #                                (0.00, (0.2, 0.2, 1.0)),
 #                                (1.00, (1.0, 1.0, 1.0)))
-cmap=glumpy.colormap.Grey_r
+#cmap=glumpy.colormap.Grey_r
+cmap = glumpy.colormap.Colormap((0.,   (1.,1.,1.,1.)),
+                                (0.9,  (0.,0.,0.,1.)),
+                                (1.,   (0.,0.,0.,1.)))
 interpolation = 'bicubic' # 'nearest' #
-N_do = 5
 ############################################################################
 def convolution_matrix(src, dst, kernel, toric=True):
     '''
@@ -182,6 +185,66 @@ def convolution_matrix(src, dst, kernel, toric=True):
 
     return sp.coo_matrix( (D,(R,C)), (dst.size,src.size)).tocsr()
 
+
+# Canny edge-finding, implemented as per the Wikipedia article
+# Note that this takes four passes through the image to do the
+# non-maximal suppression, whereas a c or cython loop could do
+# it in one.
+import scipy.ndimage as nd
+def canny(image, high_threshold=.4, low_threshold=.2):#, .5, .3
+
+    # Filter kernels for calculating the value of neighbors in several directions
+    _N  = np.array([[0, 1, 0],
+                        [0, 0, 0],
+                        [0, 1, 0]], dtype=bool)
+    
+    _NE = np.array([[0, 0, 1],
+                        [0, 0, 0],
+                        [1, 0, 0]], dtype=bool)
+    
+    _W  = np.array([[0, 0, 0],
+                        [1, 0, 1],
+                        [0, 0, 0]], dtype=bool)
+    
+    _NW = np.array([[1, 0, 0],
+                        [0, 0, 0],
+                        [0, 0, 1]], dtype=bool)
+    
+    
+    
+    # After quantizing the angles, vertical (north-south) edges get values of 3,
+    # northwest-southeast edges get values of 2, and so on, as below:
+    _NE_d = 0
+    _W_d = 1
+    _NW_d = 2
+    _N_d = 3
+           
+    grad_x = nd.sobel(image, 0)
+    grad_y = nd.sobel(image, 1)
+    grad_mag = np.sqrt(grad_x**2+grad_y**2)
+    grad_angle = np.arctan2(grad_y, grad_x)
+    # next, scale the angles in the range [0, 3] and then round to quantize
+    quantized_angle = np.around(3 * (grad_angle + np.pi) /   (np.pi * 2))
+    # Non-maximal suppression: an edge pixel is only good if its magnitude is
+    # greater than its neighbors normal to the edge direction. We quantize
+    # edge direction into four angles, so we only need to look at four
+    # sets of neighbors
+    NE = nd.maximum_filter(grad_mag, footprint=_NE)
+    W  = nd.maximum_filter(grad_mag, footprint=_W)
+    NW = nd.maximum_filter(grad_mag, footprint=_NW)
+    N  = nd.maximum_filter(grad_mag, footprint=_N)
+    thinned = (((grad_mag > W)  & (quantized_angle == _N_d )) |
+              ((grad_mag > N)  & (quantized_angle == _W_d )) |
+              ((grad_mag > NW) & (quantized_angle == _NE_d)) |
+              ((grad_mag > NE) & (quantized_angle == _NW_d)) )
+    thinned_grad = thinned * grad_mag
+    # Now, hysteresis thresholding: find seeds above a high threshold, then
+    # expand out until we go below the low threshold
+    high = thinned_grad > high_threshold * grad_mag.max()
+    low = thinned_grad > low_threshold * grad_mag.max()
+    canny_edges = nd.binary_dilation(high, iterations=-1, mask=low) * 1.0
+    return grad_mag, thinned_grad, canny_edges
+
 # motion field
 u     = np.zeros((N_X, N_Y), dtype=np.float32)
 u_    = np.zeros((N_X, N_Y), dtype=np.float32)
@@ -192,6 +255,7 @@ dens = np.zeros((N_X, N_Y), dtype = np.float32)
 inh = np.zeros((N_X, N_Y), dtype = np.float32)
 dens_ = np.zeros((N_X, N_Y), dtype = np.float32)
 inh_ = np.zeros((N_X, N_Y), dtype = np.float32)
+edge = np.zeros((N_X, N_Y), dtype = np.float32)
 Z = dens_*inh_*inh_
 K = convolution_matrix(Z,Z, np.array([[np.NaN,  1., np.NaN], 
                                       [  1.,   -4.,   1.  ],
@@ -199,7 +263,7 @@ K = convolution_matrix(Z,Z, np.array([[np.NaN,  1., np.NaN],
 Ldens = (K*dens_.ravel()).reshape(dens_.shape)
 Linh = (K*inh_.ravel()).reshape(inh_.shape)
 
-r = N_X / 20
+r = N_X / 5
 dens[...] = 1.0
 inh[...] = 0.0
 dens[N_X/2-r:N_X/2+r,N_Y/2-r:N_Y/2+r] = 0.50
@@ -260,7 +324,7 @@ def on_draw():
 
 @fig.event
 def on_idle(elapsed):
-    global dens,inh,dens_,inh_, u, u_, v, v_, Z,Ddens,Dinh,F,k
+    global dens,inh,dens_,inh_, u, u_, v, v_, Z,Ddens,Dinh,F,k, edge
     u_[...] = v_[...] = 0.0
 #    dens_[...] = inh_[...] = 0.0
 
@@ -287,19 +351,20 @@ def on_idle(elapsed):
     dens_step(N_X-2, N_Y-2, dens, 0.*dens_, u, v, diff, dt)
     dens_step(N_X-2, N_Y-2, inh, 0.*inh_, u, v, diff, dt)
 
-
-    for i in range(N_do):
+    for i in range(N_GS):
         Ldens = (K*dens_.ravel()).reshape(dens_.shape)
         Linh = (K*inh_.ravel()).reshape(inh_.shape)
-        dens += dtGS * (Ddens*Ldens - Z +  F   *(1-dens_))
-        inh += dtGS * (Dinh*Linh + Z - (F+k)*inh_    )
+        dens += dt_GS * (Ddens*Ldens - Z +  F   *(1-dens_))
+        inh += dt_GS * (Dinh*Linh + Z - (F+k)*inh_    )
         #dens_,inh_ = np.maximum(dens,0), np.maximum(inh,0)
         dens_,inh_ = dens, inh
         Z = dens_*inh_*inh_
         
-    Z = dens_*inh_*inh_
+#    Z = dens_*inh_*inh_
+#    grad_mag, thinned_grad, edge = canny(dens)
+    
     Zdens.update()
-    fig.draw()
+    fig.redraw()
 
     global t, t0, frames
     t += elapsed
