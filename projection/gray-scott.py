@@ -4,9 +4,6 @@
 # Copyright INRIA
 # Contributors: Nicolas P. Rougier (Nicolas.Rougier@inria.fr)
 #
-# DANA is a computing framework for the simulation of distributed,
-# asynchronous, numerical and adaptive models.
-#
 # This software is governed by the CeCILL license under French law and abiding
 # by the rules of distribution of free software. You can use, modify and/ or
 # redistribute the software under the terms of the CeCILL license as circulated
@@ -31,19 +28,22 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL license and that you accept its terms.
 # -----------------------------------------------------------------------------
-'''
+"""
 Reaction Diffusion : Gray-Scott model
 
 References:
 ----------
 Complex Patterns in a Simple System
 John E. Pearson, Science 261, 5118, 189-192, 1993.
-'''
+
+"""
 import numpy as np
 import scipy.sparse as sp
 import glumpy
 from solver import vel_step, dens_step
-
+import os
+############################################################################
+HELP = ' Hi! wellcome to the wonderful world of gray-scott patterns! use the tab key to switch to and from fullscreen, the N key to change animal, C to change colormap, space to reset activities, H for this help, escape to exit '
 ############################################################################
 screen_X, screen_Y = 1200, 1920
 downscale = 10 # increase to match your CPU's speed
@@ -74,14 +74,38 @@ diff = 0. # 1e-9
 visc = 0. # 1e-12
 force = .05
 ############################################################################
-#cmap = glumpy.colormap.Colormap("blue",
-#                                (0.00, (0.2, 0.2, 1.0)),
-#                                (1.00, (1.0, 1.0, 1.0)))
-#cmap=glumpy.colormap.Grey_r
-cmap = glumpy.colormap.Colormap((0.,   (1.,1.,1.,1.)),
-                                (0.9,  (0.,0.,0.,1.)),
-                                (1.,   (0.,0.,0.,1.)))
-interpolation = 'bicubic' # 'nearest' #
+cmaps = {'blue':glumpy.colormap.Colormap("blue",
+                                 (0.00, (0.2, 0.2, 1.0)),
+                                 (1.00, (1.0, 1.0, 1.0))),
+        'grey':glumpy.colormap.Grey_r,
+        'binary':glumpy.colormap.Colormap(
+                                 (0.  , (1.,1.,1.,1.)),
+                                 (0.95, (0.,0.,0.,1.)),
+                                 (0.96, (1.,1.,1.,1.)),
+                                 (1.,   (1.,1.,1.,1.))),
+        'binary_reversed':glumpy.colormap.Colormap(
+                                 (0.  , (1.,1.,1.,1.)),
+                                 (0.95, (1.,1.,1.,1.)),
+                                 (0.96, (0.,0.,0.,1.)),
+                                 (1.,   (0.,0.,0.,1.))),
+        'contours_reversed':glumpy.colormap.Colormap(
+                                 (0.  , (1.,1.,1.,1.)),
+                                 (0.93, (1.,1.,1.,1.)),
+                                 (0.94, (0.,0.,0.,1.)),
+                                 (0.96, (0.,0.,0.,1.)),
+                                 (0.97, (1.,1.,1.,1.)),
+                                 (1.,   (1.,1.,1.,1.))),
+        'contours':glumpy.colormap.Colormap(
+                                 (0.  , (1.,1.,1.,1.)),
+                                 (0.93, (0.,0.,0.,1.)),
+                                 (0.94, (1.,1.,1.,1.)),
+                                 (0.96, (1.,1.,1.,1.)),
+                                 (0.97, (0.,0.,0.,1.)),
+                                 (1.,   (0.,0.,0.,1.)))
+        }
+cmap = cmaps['contours']
+interpolation = 'bicubic'
+#interpolation = 'nearest' # 
 ############################################################################
 def convolution_matrix(src, dst, kernel, toric=True):
     '''
@@ -185,66 +209,6 @@ def convolution_matrix(src, dst, kernel, toric=True):
 
     return sp.coo_matrix( (D,(R,C)), (dst.size,src.size)).tocsr()
 
-
-# Canny edge-finding, implemented as per the Wikipedia article
-# Note that this takes four passes through the image to do the
-# non-maximal suppression, whereas a c or cython loop could do
-# it in one.
-import scipy.ndimage as nd
-def canny(image, high_threshold=.4, low_threshold=.2):#, .5, .3
-
-    # Filter kernels for calculating the value of neighbors in several directions
-    _N  = np.array([[0, 1, 0],
-                        [0, 0, 0],
-                        [0, 1, 0]], dtype=bool)
-    
-    _NE = np.array([[0, 0, 1],
-                        [0, 0, 0],
-                        [1, 0, 0]], dtype=bool)
-    
-    _W  = np.array([[0, 0, 0],
-                        [1, 0, 1],
-                        [0, 0, 0]], dtype=bool)
-    
-    _NW = np.array([[1, 0, 0],
-                        [0, 0, 0],
-                        [0, 0, 1]], dtype=bool)
-    
-    
-    
-    # After quantizing the angles, vertical (north-south) edges get values of 3,
-    # northwest-southeast edges get values of 2, and so on, as below:
-    _NE_d = 0
-    _W_d = 1
-    _NW_d = 2
-    _N_d = 3
-           
-    grad_x = nd.sobel(image, 0)
-    grad_y = nd.sobel(image, 1)
-    grad_mag = np.sqrt(grad_x**2+grad_y**2)
-    grad_angle = np.arctan2(grad_y, grad_x)
-    # next, scale the angles in the range [0, 3] and then round to quantize
-    quantized_angle = np.around(3 * (grad_angle + np.pi) /   (np.pi * 2))
-    # Non-maximal suppression: an edge pixel is only good if its magnitude is
-    # greater than its neighbors normal to the edge direction. We quantize
-    # edge direction into four angles, so we only need to look at four
-    # sets of neighbors
-    NE = nd.maximum_filter(grad_mag, footprint=_NE)
-    W  = nd.maximum_filter(grad_mag, footprint=_W)
-    NW = nd.maximum_filter(grad_mag, footprint=_NW)
-    N  = nd.maximum_filter(grad_mag, footprint=_N)
-    thinned = (((grad_mag > W)  & (quantized_angle == _N_d )) |
-              ((grad_mag > N)  & (quantized_angle == _W_d )) |
-              ((grad_mag > NW) & (quantized_angle == _NE_d)) |
-              ((grad_mag > NE) & (quantized_angle == _NW_d)) )
-    thinned_grad = thinned * grad_mag
-    # Now, hysteresis thresholding: find seeds above a high threshold, then
-    # expand out until we go below the low threshold
-    high = thinned_grad > high_threshold * grad_mag.max()
-    low = thinned_grad > low_threshold * grad_mag.max()
-    canny_edges = nd.binary_dilation(high, iterations=-1, mask=low) * 1.0
-    return grad_mag, thinned_grad, canny_edges
-
 # motion field
 u     = np.zeros((N_X, N_Y), dtype=np.float32)
 u_    = np.zeros((N_X, N_Y), dtype=np.float32)
@@ -273,30 +237,49 @@ inh += .05*np.random.random((N_X, N_Y))
 dens_[...] = dens
 inh_[...] = inh
 
-fig = glumpy.figure((N_Y*downscale, N_X*downscale)) # , fullscreen = fullscreen
+fig = glumpy.figure((N_Y*downscale, N_X*downscale))
 fig.last_drag = None
 Zdens = glumpy.Image(dens, interpolation=interpolation, colormap=cmap)
-t, t0, frames = 0,0,0
+t, t0, frames = 0, 0, 0
 
 @fig.event
 def on_key_press(key, modifiers):
-    global dens,inh,dens_,inh_,Z,Ddens,Dinh,F,k, N_X, N_Y
-    if key == glumpy.window.key.N:
+    global Zdens, cmap, dens, inh, dens_, inh_, Z, Ddens, Dinh, F, k, N_X, N_Y
+    if key == glumpy.window.key.TAB:
+        if fig.window.get_fullscreen():
+            fig.window.set_fullscreen(0)
+        else:
+            fig.window.set_fullscreen(1)
+    elif key == glumpy.window.key.C:
+        cmap_old=cmap
+        while cmap_old==cmap:
+            i = np.random.randint(0, len(cmaps.keys()))
+            key = cmaps.keys()[i]
+            cmap=cmaps[key]
+        os.system('say colormap ' + key)
+        Zdens = glumpy.Image(dens, interpolation=interpolation, colormap=cmap)
+    elif key == glumpy.window.key.H:
+        os.system('say ' + HELP)
+    elif key == glumpy.window.key.B:
+        os.system('say On two occasions, I have been asked by members of Parliament: "Pray, Mr. Babbage, if you put into the machine wrong figures, will the right answers come out?" I am not able to rightly apprehend the kind of confusion of ideas that could provoke such a question.  ')
+    elif key == glumpy.window.key.N:
         i = np.random.randint(0, len(zoo.keys()))
         Ddens, Dinh, F, k = zoo.values()[i]
+        os.system('say  switched parameters to  ' + zoo.keys()[i])
         print zoo.keys()[i]
     elif key == glumpy.window.key.SPACE:
         u[...] = u_[...] = 0.0
         v[...] = v_[...] = 0.0
-
+    elif not(key == glumpy.window.key.ESCAPE):
+        os.system('say wrong key, dude! ' + HELP)
 
 @fig.event
 def on_mouse_drag(x, y, dx, dy, button):
-    fig.last_drag = x,y,dx,dy,button
+    fig.last_drag = x, y, dx, dy, button
 
 @fig.event
 def on_mouse_motion(x, y, dx, dy):
-    fig.last_drag = x,y,dx,dy,0
+    fig.last_drag = x, y, dx, dy, 0
 
 #@fig.event
 #def on_mouse_drag(x, y, dx, dy, button):
@@ -324,12 +307,12 @@ def on_draw():
 
 @fig.event
 def on_idle(elapsed):
-    global dens,inh,dens_,inh_, u, u_, v, v_, Z,Ddens,Dinh,F,k, edge
+    global Zdens, dens,inh,dens_,inh_, u, u_, v, v_, Z, Ddens,Dinh,F,k, edge
     u_[...] = v_[...] = 0.0
 #    dens_[...] = inh_[...] = 0.0
 
     if fig.last_drag:
-        x,y,dx,dy,button = fig.last_drag
+        x, y, dx, dy, button = fig.last_drag
         center =( int( (1-y/float(fig.height)) * (N_X-1)),
                   int( x/float(fig.width) * (N_Y-1)) )
         if not button:

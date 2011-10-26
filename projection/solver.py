@@ -79,7 +79,7 @@ def advect (N_X, N_Y, b, d, d0, u, v, dt):
            #define MAX(a,b) ((a)<(b) ? (b) : (a))
            #define MIN(a,b) ((a)>(b) ? (b) : (a))
 
-           float x, y, s1, s0, t1, t0;;
+           float x, y, s1, s0, t1, t0;
            int i0, i1, j0, j1;
            for (int i=1; i<(N_X+1); ++i) {
                for (int j=1; j<(N_Y+1); ++j) {
