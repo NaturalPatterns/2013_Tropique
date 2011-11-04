@@ -223,15 +223,14 @@ x, y = numpy.mgrid[0:size,0:size]
 x, y = x*1./(N+2), y*1./(N+2)
 #f = size / 10.
 #peigne = numpy.sin(y / f) ** 4
+window = glumpy.Window((1600/downscale,900/downscale))#, fullscreen = fullscreen)
+window.last_drag = None
 
 dens += dens_noise * numpy.random.randn(size,size)**2     
 inh += inh_noise * numpy.random.randn(size,size)**2  
 
-I = glumpy.Image(Z, interpolation=interpolation, cmap=cmap, vmin=0, vmax=1.)
+I = glumpy.Image(Z, interpolation=interpolation, colormap=glumpy.colormap.Grey_r, vmin=0, vmax=1.)
 t, t0, frames = 0,0,0
-
-window = glumpy.Window(1600/downscale,900/downscale, fullscreen = fullscreen)
-window.last_drag = None
 
 # events
 @window.event
@@ -355,4 +354,4 @@ def on_idle(*args):
         print 'FPS: %.2f (%d frames in %.2f seconds)' % (fps, frames, t-t0)
         frames,t0 = 0, t
 
-window.mainloop()
+glumpy.show()
