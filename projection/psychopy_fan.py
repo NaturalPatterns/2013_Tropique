@@ -10,7 +10,7 @@ length, length_increment  = .5, .01
 ##########################################
 from psychopy import visual, event, core#, log
 import numpy as np
-import Image
+#import Image
 globalClock = core.Clock()
 win = visual.Window(fullscr=True, color=[-1,-1,-1] , units='norm')
 win.setRecordFrameIntervals(True)
