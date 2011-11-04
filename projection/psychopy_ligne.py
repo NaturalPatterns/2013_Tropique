@@ -1,4 +1,21 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+
+Une série de 3 lignes parallèles qui tournent
+
+    interaction souris:
+        position souris: centre du stimulus
+        scroll up/down: change la vitesse de rotation
+    touches d'interaction:
+        s: showText
+        x: augmente longueur des lignes
+        c: diminue longueur des lignes
+        d: augmente écart entre les lignes
+        f: diminue écart entre les lignes
+       escape ou q: quitte
+         
+"""
 ##########################################
 downscale= 0 # 
 rotspeed, rotspeed_Increment = .001, 0.002 # en Hz?
@@ -44,7 +61,7 @@ while True:
     if t-lastFPSupdate>1.0:
         lastFPSupdate=t
         if showText:
-            message.setText(str(int(win.fps()))+  " fps / " +  str(decalage) + " /" +  str(Y) + " /" +  str(width) + " " +  str(rotspeed) + " / [Esc] to quit" )
+            message.setText(str(int(win.fps()))+  " fps / " +  str(decalage) + " /" +  str(size_h) + " /" +  str(width) + " " +  str(rotspeed) + " / [Esc] to quit" )
         else:
             message.setText('' )
         
