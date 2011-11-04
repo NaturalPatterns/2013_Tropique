@@ -1,4 +1,22 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+
+Une série de 3 lignes parallèles qui tournent. le centre de rotation est desaxé par rapport à la ligne.
+
+    interaction souris:
+        position souris: centre du stimulus
+        scroll up/down: change la vitesse de rotation
+        scroll left/right: change  le desaxage
+    touches d'interaction:
+        s: showText
+        x: augmente longueur des lignes
+        c: diminue longueur des lignes
+        d: augmente écart entre les lignes
+        f: diminue écart entre les lignes
+       escape ou q: quitte
+         
+"""
 ##########################################
 downscale= 0 # 
 rotspeed, rotspeed_Increment = .001, 0.002 # en Hz?

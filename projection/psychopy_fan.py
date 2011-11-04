@@ -1,4 +1,24 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+
+Une série de 3 lignes concentriques qui tournent.
+
+    interaction souris:
+        position souris: centre du stimulus
+        scroll up/down: change la vitesse de rotation
+        scroll left/right: change le rayon
+    touches d'interaction:
+        s: showText
+        x: augmente longueur des lignes
+        c: diminue longueur des lignes
+        d: augmente la finesse des lignes
+        f: diminue la finesse des lignes
+        v: augmente le nombre de lignes
+        b: diminue le nombre de ignes
+       escape ou q: quitte
+         
+"""
 ##########################################
 downscale=0 # 
 rotspeed, rotspeed_Increment = .001, 0.002 # en Hz?
@@ -28,13 +48,13 @@ def update_caroussel(X, Y, n_line, angle = 0.):
     return XY.T, phase
 
 def caroussel(n_line, width, length, angle = 0.):
+    global phase
     XY, phase = update_caroussel(X, Y, n_line, angle)
     global_lines = visual.ElementArrayStim(win, nElements=XY.shape[0], sizes=(length, width), elementTex='sqr', # sfs=3,
                                                     rgbs= np.array([1,1,1]), xys = XY, oris = phase  * 360 / 2. / np.pi  , units='height')
     return global_lines
 
 global_lines = caroussel(n_line, width, length, angle = 0.)
-
 
 showText = True
 myMouse = event.Mouse(win=win)
@@ -63,18 +83,21 @@ while True:
         elif key in ['f']:
             width += width_increment
             global_lines = caroussel(n_line, width, length, angle = 0.)
-        elif key in ['w']:
+        elif key in ['x']:
             length += -length_increment
             global_lines = caroussel(n_line, width, length, angle = 0.)
-        elif key in ['x']:
+        elif key in ['c']:
             length += length_increment
             global_lines = caroussel(n_line, width, length, angle = 0.)
-        elif key in ['-','[','c']:
+        elif key in ['-','[','v']:
             n_line -=1
             if n_line==0: n_line=1
-            global_lines = caroussel(n_line, width, length, angle = 0.)
-        elif key in ['+',']','v']:
+            else: 
+                phase = np.linspace(0,2*np.pi, n_line, endpoint=False)
+                global_lines = caroussel(n_line, width, length, angle = 0.)
+        elif key in ['+',']','b']:
             n_line+=1
+            phase = np.linspace(0,2*np.pi, n_line, endpoint=False)
             global_lines = caroussel(n_line, width, length, angle = 0.)
         elif key in ['escape','q']:
             core.quit()
