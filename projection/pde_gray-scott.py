@@ -38,9 +38,8 @@ John E. Pearson, Science 261, 5118, 189-192, 1993.
 
 """
 import numpy as np
-import scipy.sparse as sp
 import glumpy
-from solver import vel_step, dens_step
+from solver import vel_step, dens_step, convolution_matrix
 import os
 ############################################################################
 HELP = ' Hi! wellcome to the wonderful world of gray-scott patterns! use the tab key to switch to and from fullscreen, the N key to change animal, C to change colormap, space to reset activities, H for this help, escape to exit '
@@ -107,107 +106,9 @@ cmap = cmaps['contours']
 interpolation = 'bicubic'
 # interpolation = 'nearest' # 
 ############################################################################
-def convolution_matrix(src, dst, kernel, toric=True):
-    '''
-    Build a sparse convolution matrix M such that:
-
-    (M*src.ravel()).reshape(src.shape) = convolve2d(src,kernel)
-
-    You can specify whether convolution is toric or not and specify a different
-    output shape. If output (dst) is different, convolution is only applied at
-    corresponding normalized location within the src array.
-
-    Building the matrix can be pretty long if your kernel is big but it can
-    nonetheless saves you some time if you need to apply several convolution
-    compared to fft convolution (no need to go to the Fourier domain).
-
-    Parameters:
-    -----------
-
-    src : n-dimensional numpy array
-        Source shape
-
-    dst : n-dimensional numpy array
-        Destination shape
-
-    kernel : n-dimensional numpy array
-        Kernel to be used for convolution
-
-    Returns:
-    --------
-
-    A sparse convolution matrix
-
-    Examples:
-    ---------
-
-    >>> Z = np.ones((3,3))
-    >>> M = convolution_matrix(Z,Z,Z,True)
-    >>> print (M*Z.ravel()).reshape(Z.shape)
-    [[ 9.  9.  9.]
-     [ 9.  9.  9.]
-     [ 9.  9.  9.]]
-    >>> M = convolution_matrix(Z,Z,Z,False)
-    >>> print (M*Z.ravel()).reshape(Z.shape)
-    [[ 4.  6.  4.]
-     [ 6.  9.  6.]
-     [ 4.  6.  4.]]
-    '''
-
-    # Get non NaN value from kernel and their indices.
-    nz = (1 - np.isnan(kernel)).nonzero()
-    data = kernel[nz].ravel()
-    indices = [0,]*(len(kernel.shape)+1)
-    indices[0] = np.array(nz)
-    indices[0] += np.atleast_2d((np.array(src.shape)//2 - np.array(kernel.shape)//2)).T
-
-    # Generate an array A for a given shape such that given an index tuple I,
-    # we can translate into a flat index F = (I*A).sum()
-    to_flat_index = np.ones((len(src.shape),1), dtype=int)
-    if len(src.shape) > 1:
-        to_flat_index[:-1] = src.shape[1]
-
-    R, C, D = [], [], []
-    dst_index = 0
-    src_indices = []
-
-    # Translate target tuple indices into source tuple indices taking care of
-    # possible scaling (this is done by normalizing indices)
-    for i in range(len(src.shape)):
-        z = np.rint((np.linspace(0,1,dst.shape[i])*(src.shape[i]-1))).astype(int)
-        src_indices.append(z)
-
-    nd = [0,]*(len(kernel.shape))
-    for index in np.ndindex(dst.shape):
-        dims = []
-        # Are we starting a new dimension ?
-        if index[-1] == 0:
-            for i in range(len(index)-1,0,-1):
-                if index[i]: break
-                dims.insert(0,i-1)
-        dims.append(len(dst.shape)-1)
-        for dim in dims:
-            i = index[dim]
-
-            if toric:
-                z = (indices[dim][dim] - src.shape[dim]//2 +(kernel.shape[dim]+1)%2 + src_indices[dim][i]) % src.shape[dim]
-            else:
-                z = (indices[dim][dim] - src.shape[dim]//2 +(kernel.shape[dim]+1)%2 + src_indices[dim][i])
-            n = np.where((z >= 0)*(z < src.shape[dim]))[0]
-            if dim == 0:
-                nd[dim] = n.copy()
-            else:
-                nd[dim] = nd[dim-1][n]
-            indices[dim+1] = np.take(indices[dim], n, 1)
-            indices[dim+1][dim] = z[n]
-        dim = len(dst.shape)-1
-        z = indices[dim+1]
-        R.extend( [dst_index,]*len(z[0]) )
-        C.extend( (z*to_flat_index).sum(0).tolist() )
-        D.extend( data[nd[-1]].tolist() )
-        dst_index += 1
-
-    return sp.coo_matrix( (D,(R,C)), (dst.size,src.size)).tocsr()
+amp0, cycles = .1, 1
+xx, yy = np.meshgrid(np.linspace(0, cycles*np.pi, N_Y), np.linspace(0, cycles*np.pi, N_X))
+amp = 1 + amp0*(np.cos(xx)**2 + np.cos(yy)**2 )
 
 # motion field
 u     = np.zeros((N_X, N_Y), dtype=np.float32)
@@ -236,6 +137,10 @@ dens += .05*np.random.random((N_X, N_Y))
 inh += .05*np.random.random((N_X, N_Y))
 dens_[...] = dens
 inh_[...] = inh
+
+amp0, cycles = .1, 1
+xx, yy = np.meshgrid(np.linspace(0, cycles*np.pi, N_Y), np.linspace(0, cycles*np.pi, N_X))
+amp = 1 + .1*(np.cos(xx)**2 + np.cos(yy)**2 )
 
 fig = glumpy.figure((N_Y*downscale, N_X*downscale))
 fig.last_drag = None
@@ -337,7 +242,7 @@ def on_idle(elapsed):
     for i in range(N_GS):
         Ldens = (K*dens_.ravel()).reshape(dens_.shape)
         Linh = (K*inh_.ravel()).reshape(inh_.shape)
-        dens += dt_GS * (Ddens*Ldens - Z +  F   *(1-dens_))
+        dens += dt_GS * (amp*Ddens*Ldens - Z +  F   *(1-dens_))
         inh += dt_GS * (Dinh*Linh + Z - (F+k)*inh_    )
         #dens_,inh_ = np.maximum(dens,0), np.maximum(inh,0)
         dens_,inh_ = dens, inh
