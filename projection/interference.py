@@ -23,9 +23,11 @@ N_X, N_Y = 1200/downscale, 1920/downscale # size of the simulation grid
 recul = 20
 x_VPs = [ 0 , N_X/4, N_X/2, 3*N_X/4, N_X,  0 , N_X/4, N_X/2, 3*N_X/4, N_X ]
 y_VPs = [ -recul , -recul, -recul, -recul, -recul, N_Y+recul, N_Y+recul, N_Y+recul, N_Y+recul, N_Y+recul ]
+#x_VPs = [ 0 , N_X/2, N_X,  0 , N_X/2, N_X ]
+#y_VPs = [ -recul , -recul, -recul, N_Y+recul, N_Y+recul, N_Y+recul ]
 width = 4.
-N_sources = 6
-speed = 5e-3
+N_sources = 4
+speed = 1e-2
 noise=1e-0
 # visualization parameters
 fullscreen = False # True #
@@ -63,16 +65,24 @@ def on_draw():
     im_buffer.draw( x=0, y=0, z=0, width=fig.width, height=fig.height )
 
 @fig.event
+def on_key_press(key, modifiers):
+    if key == glumpy.window.key.TAB:
+        if fig.window.get_fullscreen():
+            fig.window.set_fullscreen(0)
+        else:
+            fig.window.set_fullscreen(1)
+
+@fig.event
 def on_idle(elapsed):
     global dens, lum, x
     x += numpy.random.randn(N_sources)*N_X*speed
     x = numpy.mod(x, N_Y)
-#    print x
+
     dens *= 0.
     for x_ in x:
         for x_0, y_0 in zip(x_VPs, y_VPs):
             dens  += rayon(x_, (x_-N_X/2)**2 / N_Y + N_Y/2, x_0, y_0) / N_sources / N_VPs
-#    dens = numpy.log(dens+noise)
+    dens = numpy.log(dens+noise)
     im_buffer.update()
     fig.redraw()
     

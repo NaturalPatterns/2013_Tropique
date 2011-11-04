@@ -105,7 +105,7 @@ cmaps = {'blue':glumpy.colormap.Colormap("blue",
         }
 cmap = cmaps['contours']
 interpolation = 'bicubic'
-#interpolation = 'nearest' # 
+# interpolation = 'nearest' # 
 ############################################################################
 def convolution_matrix(src, dst, kernel, toric=True):
     '''
