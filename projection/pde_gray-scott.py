@@ -68,45 +68,46 @@ zoo = {'Pulses':        [0.16, 0.08, 0.020, 0.055],
        'Spirals Fast':  [0.10, 0.16, 0.020, 0.050],
        'Unstable':      [0.16, 0.08, 0.020, 0.055],
 }
-Ddens, Dinh, F, k = zoo['Worms 0']
+Ddens, Dinh, F, k = zoo['Spirals Dense']
 diff = 0. # 1e-9
 visc = 0. # 1e-12
 force = .05
 ############################################################################
+threshold, inc =.95, 1.01
 cmaps = {'blue':glumpy.colormap.Colormap("blue",
                                  (0.00, (0.2, 0.2, 1.0)),
                                  (1.00, (1.0, 1.0, 1.0))),
         'grey':glumpy.colormap.Grey_r,
         'binary':glumpy.colormap.Colormap(
                                  (0.  , (1.,1.,1.,1.)),
-                                 (0.95, (0.,0.,0.,1.)),
-                                 (0.96, (1.,1.,1.,1.)),
+                                 (threshold, (0.,0.,0.,1.)),
+                                 (threshold*inc, (1.,1.,1.,1.)),
                                  (1.,   (1.,1.,1.,1.))),
         'binary_reversed':glumpy.colormap.Colormap(
                                  (0.  , (1.,1.,1.,1.)),
-                                 (0.95, (1.,1.,1.,1.)),
-                                 (0.96, (0.,0.,0.,1.)),
+                                 (threshold, (1.,1.,1.,1.)),
+                                 (threshold*inc, (0.,0.,0.,1.)),
                                  (1.,   (0.,0.,0.,1.))),
         'contours_reversed':glumpy.colormap.Colormap(
                                  (0.  , (1.,1.,1.,1.)),
-                                 (0.93, (1.,1.,1.,1.)),
-                                 (0.94, (0.,0.,0.,1.)),
-                                 (0.96, (0.,0.,0.,1.)),
-                                 (0.97, (1.,1.,1.,1.)),
+                                 (threshold/inc, (1.,1.,1.,1.)),
+                                 (threshold, (0.,0.,0.,1.)),
+                                 (threshold*inc, (0.,0.,0.,1.)),
+                                 (threshold*inc**2, (1.,1.,1.,1.)),
                                  (1.,   (1.,1.,1.,1.))),
         'contours':glumpy.colormap.Colormap(
                                  (0.  , (1.,1.,1.,1.)),
-                                 (0.93, (0.,0.,0.,1.)),
-                                 (0.94, (1.,1.,1.,1.)),
-                                 (0.96, (1.,1.,1.,1.)),
-                                 (0.97, (0.,0.,0.,1.)),
+                                 (threshold/inc, (0.,0.,0.,1.)),
+                                 (threshold, (1.,1.,1.,1.)),
+                                 (threshold*inc, (1.,1.,1.,1.)),
+                                 (threshold*inc**2, (0.,0.,0.,1.)),
                                  (1.,   (0.,0.,0.,1.)))
         }
 cmap = cmaps['contours']
 interpolation = 'bicubic'
 # interpolation = 'nearest' # 
 ############################################################################
-amp0, cycles = .1, 1
+amp0, cycles = .05, 1
 xx, yy = np.meshgrid(np.linspace(0, cycles*np.pi, N_Y), np.linspace(0, cycles*np.pi, N_X))
 amp = 1 + amp0*(np.cos(xx)**2 + np.cos(yy)**2 )
 
@@ -140,7 +141,7 @@ inh_[...] = inh
 
 amp0, cycles = .1, 1
 xx, yy = np.meshgrid(np.linspace(0, cycles*np.pi, N_Y), np.linspace(0, cycles*np.pi, N_X))
-amp = 1 + .1*(np.cos(xx)**2 + np.cos(yy)**2 )
+amp = 1 + amp0*(np.cos(xx)**2 + np.cos(yy)**2)
 
 fig = glumpy.figure((N_Y*downscale, N_X*downscale))
 fig.last_drag = None
@@ -242,7 +243,7 @@ def on_idle(elapsed):
     for i in range(N_GS):
         Ldens = (K*dens_.ravel()).reshape(dens_.shape)
         Linh = (K*inh_.ravel()).reshape(inh_.shape)
-        dens += dt_GS * (amp*Ddens*Ldens - Z +  F   *(1-dens_))
+        dens += dt_GS * (Ddens*Ldens - Z +  amp*    F   *(1-dens_))
         inh += dt_GS * (Dinh*Linh + Z - (F+k)*inh_    )
         #dens_,inh_ = np.maximum(dens,0), np.maximum(inh,0)
         dens_,inh_ = dens, inh

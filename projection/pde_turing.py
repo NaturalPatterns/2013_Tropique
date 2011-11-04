@@ -46,43 +46,44 @@ diff, diff_inh = .25, .0625 #0., 0. #
 rho_a, mu_a =  .03125, 16.
 rho_h, mu_h = .03125, 12.
 init = 4.
-dens_noise, inh_noise, amp0 = .05,  .05, .01
+dens_noise, inh_noise, amp0 = .05,  .05, .018
 ############################################################################
 # visualization parameters
 N_do = 5
 interpolation= 'bicubic' # 'nearest' #
 # TODO : show both populations
 ############################################################################
+threshold, inc =.5, 1.01
 cmaps = {'blue':glumpy.colormap.Colormap("blue",
                                  (0.00, (0.2, 0.2, 1.0)),
                                  (1.00, (1.0, 1.0, 1.0))),
         'grey':glumpy.colormap.Grey_r,
         'binary':glumpy.colormap.Colormap(
                                  (0.  , (1.,1.,1.,1.)),
-                                 (0.95, (0.,0.,0.,1.)),
-                                 (0.96, (1.,1.,1.,1.)),
+                                 (threshold, (0.,0.,0.,1.)),
+                                 (threshold*inc, (1.,1.,1.,1.)),
                                  (1.,   (1.,1.,1.,1.))),
         'binary_reversed':glumpy.colormap.Colormap(
                                  (0.  , (1.,1.,1.,1.)),
-                                 (0.95, (1.,1.,1.,1.)),
-                                 (0.96, (0.,0.,0.,1.)),
+                                 (threshold, (1.,1.,1.,1.)),
+                                 (threshold*inc, (0.,0.,0.,1.)),
                                  (1.,   (0.,0.,0.,1.))),
         'contours_reversed':glumpy.colormap.Colormap(
                                  (0.  , (1.,1.,1.,1.)),
-                                 (0.93, (1.,1.,1.,1.)),
-                                 (0.94, (0.,0.,0.,1.)),
-                                 (0.96, (0.,0.,0.,1.)),
-                                 (0.97, (1.,1.,1.,1.)),
+                                 (threshold/inc, (1.,1.,1.,1.)),
+                                 (threshold, (0.,0.,0.,1.)),
+                                 (threshold*inc, (0.,0.,0.,1.)),
+                                 (threshold*inc**2, (1.,1.,1.,1.)),
                                  (1.,   (1.,1.,1.,1.))),
         'contours':glumpy.colormap.Colormap(
                                  (0.  , (1.,1.,1.,1.)),
-                                 (0.93, (0.,0.,0.,1.)),
-                                 (0.94, (1.,1.,1.,1.)),
-                                 (0.96, (1.,1.,1.,1.)),
-                                 (0.97, (0.,0.,0.,1.)),
+                                 (threshold/inc, (0.,0.,0.,1.)),
+                                 (threshold, (1.,1.,1.,1.)),
+                                 (threshold*inc, (1.,1.,1.,1.)),
+                                 (threshold*inc**2, (0.,0.,0.,1.)),
                                  (1.,   (0.,0.,0.,1.)))
         }
-cmap = cmaps['blue']
+cmap = cmaps['contours']
 ############################################################################
 # initialization
 dens  = init * np.ones((N_X, N_Y), dtype=np.float32) # density of activator
