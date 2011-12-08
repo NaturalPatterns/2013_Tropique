@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 """
-    Script de test de la Kinect pour extraire la position 3D
+    Lignes radiales en feedbac kavec la kinect
     
 """
 import socket
@@ -9,8 +9,9 @@ import signal, sys
 #print socket.__version__
 #description res
 #host = '127.0.0.1'
-host = '192.168.1.4'
-port = 3002
+#host = '192.168.1.4'
+host = '10.42.43.50'
+port = 6007
 #port = 9999
 buf = 1024
 
@@ -61,7 +62,7 @@ def main():
     width, width_increment = .5,  .01 # largeur de la ligne en pixels
     n_line = 36
     size_h, size_h_increment = 1., .02
-    radius, radius_increment  = .5, .02
+    radius, radius_increment  = .35, .02
     length, length_increment  = .01, .001
     dX, dY = 0. , 0.
     az_m, az_r, el_m,  el_r = 0., -2., 0., 1.
@@ -81,28 +82,30 @@ def main():
     while True:
         try :
             dat = s.recvfrom(1024)
-            print dat
+            # @print dat
         except:
             print ("nodata")
         else :
-            dX_ , dY_ = float(dat[0]), 0.
-            if dX_ >   .99*4.5: 
+            dX_ , dY_  = dat[0].rsplit(',')
+            dX_ , dY_ = ( 1. -  float(dX_)/480.) * 2. -1.,  ( 1. -  float(dY_)/640.) * 2. -1.
+#            if dX_ >   .99*4.5: 
 #                print('confused!')
-                confused = (1. - 0.01) * (confused) +  0.01 *1
-                #noData=True
-            else:
-                #noData = False
-                #print dX_
-                confused = (1. - 0.01) * (confused)
-                dX, dY = (1- 1./10) * dX + 1./10 * (dX_ - 4.5/2.)/ az_r, (1- 1./10) * dY + 1./10 * dY_ / el_r
-
+#                confused = (1. - 0.01) * (confused) +  0.01 *1
+#                #noData=True
+#            else:
+#                #noData = False
+#                #print dX_
+#                confused = (1. - 0.01) * (confused)
+#                dX, dY = (1- 1./10) * dX + 1./10 * (dX_ - 4.5/2.)/ az_r, (1- 1./10) * dY + 1./10 * dY_ / el_r
+            # HACK:
+            dX, dY = dX_*1.5, dY_
         t=globalClock.getTime()
     #    print  win.fps(), str(win.fps())
         #update fps every second
         if t-lastFPSupdate>1.0:
             lastFPSupdate=t
             if showText:
-                message.setText(str(int(win.fps()))+  " fps / " +  str(width) + " /" +  str(length) + " / " +  str(rotspeed) + " / " +  str(confused) + " / s - d - f - w -x - c - v" )
+                message.setText(str(int(win.fps()))+  " fps / " +  str(width) + " /" +  str(length) + " / " +  str(rotspeed) + " / " +  str(dX)  + " / " +  str(dY) + " / s - d - f - w -x - c - v" )
             else:
                 message.setText('' )
             
@@ -133,7 +136,9 @@ def main():
 
         X, Y = myMouse.getPos()
         wheel_dX, wheel_dY = myMouse.getWheelRel()
-        rotspeed += wheel_dY*rotspeed_Increment
+#        rotspeed += wheel_dY*rotspeed_Increment
+        # HACK
+        rotspeed = dY*0.1 # rotspeed_Increment
         radius += wheel_dX*radius_increment 
         event.clearEvents() # get rid of other, unprocessed events
 
@@ -143,8 +148,8 @@ def main():
         walk += 0.01* np.random.randn(n_line,3)
         walk *= 1 + confused - .5
         
-        global_lines.setXYs( newXY + walk[:,0:2] )
-        global_lines.setOris( (phase +  angle + .0 * walk[:,2] ) * 360 / 2. / np.pi)
+        global_lines.setXYs( newXY + 0. * walk[:,0:2] )
+#        global_lines.setOris( (phase +  angle + .0 * walk[:,2] ) * 360 / 2. / np.pi)
         global_lines.draw()
         
 
