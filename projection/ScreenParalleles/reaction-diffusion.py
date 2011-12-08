@@ -44,10 +44,10 @@ U + 2V → 3V
 
 Variables & parameters
 ----------------------
-U and V and P are chemical species. 
-u and v represent their concentrations. 
-rᵤ and rᵥ are their diffusion rates. 
-k represents the rate of conversion of V to P. 
+U and V and P are chemical species.
+u and v represent their concentrations.
+rᵤ and rᵥ are their diffusion rates.
+k represents the rate of conversion of V to P.
 f represents the rate of the process that feeds U and drains U,V and P
 
 References
@@ -62,7 +62,7 @@ References
 '''
 import ctypes
 import pyglet
-import pyglet
+#import pyglet
 pyglet.options['debug_gl'] = False
 import numpy as np
 import pyglet.gl as gl
@@ -77,6 +77,7 @@ if __name__ == '__main__':
     display  = platform.get_default_display()
     screens  = display.get_screens()
     screen   = screens[0]
+    n_screens = len(screens)
 
     # Parameters
     # ----------
@@ -110,9 +111,11 @@ if __name__ == '__main__':
 
 
     win_1 = pyglet.window.Window(screen=screens[0], fullscreen=True)
-    win_2 = pyglet.window.Window(screen=screens[1], fullscreen=True)
-    win_3 = pyglet.window.Window(screen=screens[2], fullscreen=True)
-
+    if n_screens>1:
+        win_2 = pyglet.window.Window(screen=screens[1], fullscreen=True)
+        win_3 = pyglet.window.Window(screen=screens[2], fullscreen=True)
+    else:
+        print 'Running in single window mode '
 
 
     # texture_p holds parameters
@@ -126,7 +129,7 @@ if __name__ == '__main__':
     gl.glTexImage2D(texture_p.target, texture_p.level, gl.GL_RGBA32F_ARB,
                     width, height, 0, gl.GL_RGBA, gl.GL_FLOAT, data)
     gl.glBindTexture(texture_p.target, 0)
-    
+
     # texture_uv holds U & V values (red and green channels)
     # ------------------------------------------------------
     UV = np.zeros((height,width,4), dtype=np.float32)
@@ -177,7 +180,7 @@ if __name__ == '__main__':
     gl.glGenFramebuffersEXT(1, ctypes.byref(framebuffer))
     gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, framebuffer)
     gl.glFramebufferTexture2DEXT(gl.GL_FRAMEBUFFER_EXT, gl.GL_COLOR_ATTACHMENT0_EXT,
-                                 gl.GL_TEXTURE_2D, texture_uv.id, 0); 
+                                 gl.GL_TEXTURE_2D, texture_uv.id, 0);
     gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, 0)
 
 
@@ -185,7 +188,7 @@ if __name__ == '__main__':
     @win_1.event
     def on_draw():
         gl.glClearColor(1.0,1.0,1.0,1.0)
-	win_1.clear()
+        win_1.clear()
 
         # Compute
         gl.glViewport(0, 0, width, height)
@@ -195,15 +198,15 @@ if __name__ == '__main__':
         gl.glMatrixMode(gl.GL_MODELVIEW)
 
         gl.glActiveTexture( gl.GL_TEXTURE1 )
-	gl.glBindTexture(texture_p.target, texture_p.id)
+        gl.glBindTexture(texture_p.target, texture_p.id)
 
         gl.glActiveTexture( gl.GL_TEXTURE0 )
-	gl.glBindTexture(texture_uv.target, texture_uv.id)
+        gl.glBindTexture(texture_uv.target, texture_uv.id)
 
         gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, framebuffer)
-	reaction_shader.bind()
+        reaction_shader.bind()
         texture_uv.blit(x=0.0, y=0.0, width=1.0, height=1.0)
-	reaction_shader.unbind()
+        reaction_shader.unbind()
         gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, 0)
 
         # Render
@@ -213,80 +216,83 @@ if __name__ == '__main__':
         gl.glOrtho(0, 1, 0, 1, -1, 1)
         gl.glMatrixMode(gl.GL_MODELVIEW)
 
-	color_shader.bind()
+        color_shader.bind()
         texture_uv.blit(x=0.0, y=0.0, width=1.0, height=1.0)
-	color_shader.bind()
+        color_shader.bind()
 
+    if n_screens>1:
 
-    @win_2.event
-    def on_draw():
-        gl.glClearColor(1.0,1.0,1.0,1.0)
-	win_2.clear()
+        @win_2.event
+        def on_draw():
+            gl.glClearColor(1.0,1.0,1.0,1.0)
+            win_2.clear()
 
-        # Compute
-        gl.glViewport(0, 0, width, height)
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glLoadIdentity()
-        gl.glOrtho(0, 1, 0, 1, -1, 1)
-        gl.glMatrixMode(gl.GL_MODELVIEW)
+            # Compute
+            gl.glViewport(0, 0, width, height)
+            gl.glMatrixMode(gl.GL_PROJECTION)
+            gl.glLoadIdentity()
+            gl.glOrtho(0, 1, 0, 1, -1, 1)
+            gl.glMatrixMode(gl.GL_MODELVIEW)
 
-        gl.glActiveTexture( gl.GL_TEXTURE1 )
-	gl.glBindTexture(texture_p.target, texture_p.id)
+            gl.glActiveTexture( gl.GL_TEXTURE1 )
+            gl.glBindTexture(texture_p.target, texture_p.id)
 
-        gl.glActiveTexture( gl.GL_TEXTURE0 )
-	gl.glBindTexture(texture_uv.target, texture_uv.id)
+            gl.glActiveTexture( gl.GL_TEXTURE0 )
+            gl.glBindTexture(texture_uv.target, texture_uv.id)
 
-        gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, framebuffer)
-	reaction_shader.bind()
-        texture_uv.blit(x=0.0, y=0.0, width=1.0, height=1.0)
-	reaction_shader.unbind()
-        gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, 0)
+            gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, framebuffer)
+            reaction_shader.bind()
+            texture_uv.blit(x=0.0, y=0.0, width=1.0, height=1.0)
+            reaction_shader.unbind()
+            gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, 0)
 
-        # Render
-        gl.glViewport(0, 0, win_2.width, win_2.height)
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glLoadIdentity()
-        gl.glOrtho(0, 1, 0, 1, -1, 1)
-        gl.glMatrixMode(gl.GL_MODELVIEW)
+            # Render
+            gl.glViewport(0, 0, win_2.width, win_2.height)
+            gl.glMatrixMode(gl.GL_PROJECTION)
+            gl.glLoadIdentity()
+            gl.glOrtho(0, 1, 0, 1, -1, 1)
+            gl.glMatrixMode(gl.GL_MODELVIEW)
 
-	color_shader.bind()
-        texture_uv.blit(x=0.0, y=0.0, width=1.0, height=1.0)
-	color_shader.bind()
+            color_shader.bind()
+            texture_uv.blit(x=0.0, y=0.0, width=1.0, height=1.0)
+            color_shader.bind()
 
-    @win_3.event
-    def on_draw():
-        gl.glClearColor(1.0,1.0,1.0,1.0)
-	win_3.clear()
+    if n_screens>2:
 
-        # Compute
-        gl.glViewport(0, 0, width, height)
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glLoadIdentity()
-        gl.glOrtho(0, 1, 0, 1, -1, 1)
-        gl.glMatrixMode(gl.GL_MODELVIEW)
+        @win_3.event
+        def on_draw():
+            gl.glClearColor(1.0,1.0,1.0,1.0)
+            win_3.clear()
 
-        gl.glActiveTexture( gl.GL_TEXTURE1 )
-	gl.glBindTexture(texture_p.target, texture_p.id)
+            # Compute
+            gl.glViewport(0, 0, width, height)
+            gl.glMatrixMode(gl.GL_PROJECTION)
+            gl.glLoadIdentity()
+            gl.glOrtho(0, 1, 0, 1, -1, 1)
+            gl.glMatrixMode(gl.GL_MODELVIEW)
 
-        gl.glActiveTexture( gl.GL_TEXTURE0 )
-	gl.glBindTexture(texture_uv.target, texture_uv.id)
+            gl.glActiveTexture( gl.GL_TEXTURE1 )
+            gl.glBindTexture(texture_p.target, texture_p.id)
 
-        gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, framebuffer)
-	reaction_shader.bind()
-        texture_uv.blit(x=0.0, y=0.0, width=1.0, height=1.0)
-	reaction_shader.unbind()
-        gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, 0)
+            gl.glActiveTexture( gl.GL_TEXTURE0 )
+            gl.glBindTexture(texture_uv.target, texture_uv.id)
 
-        # Render
-        gl.glViewport(0, 0, win_3.width, win_3.height)
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glLoadIdentity()
-        gl.glOrtho(0, 1, 0, 1, -1, 1)
-        gl.glMatrixMode(gl.GL_MODELVIEW)
+            gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, framebuffer)
+            reaction_shader.bind()
+            texture_uv.blit(x=0.0, y=0.0, width=1.0, height=1.0)
+            reaction_shader.unbind()
+            gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, 0)
 
-	color_shader.bind()
-        texture_uv.blit(x=0.0, y=0.0, width=1.0, height=1.0)
-	color_shader.bind()
+            # Render
+            gl.glViewport(0, 0, win_3.width, win_3.height)
+            gl.glMatrixMode(gl.GL_PROJECTION)
+            gl.glLoadIdentity()
+            gl.glOrtho(0, 1, 0, 1, -1, 1)
+            gl.glMatrixMode(gl.GL_MODELVIEW)
+
+            color_shader.bind()
+            texture_uv.blit(x=0.0, y=0.0, width=1.0, height=1.0)
+            color_shader.bind()
 
 #pyglet.clock.schedule_interval(lambda dt: None, 1.0/60.0)
 pyglet.clock.schedule(lambda dt: None)
