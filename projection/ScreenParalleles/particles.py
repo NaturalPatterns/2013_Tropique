@@ -11,17 +11,30 @@ t = time.time()
 # ------------------
 import ctypes
 import pyglet
-pyglet.options['debug_gl'] = False
+#pyglet.options['debug_gl'] = False
 import pyglet.gl as gl
 from shader import Shader
 platform = pyglet.window.get_platform()
 display  = platform.get_default_display()
 screens  = display.get_screens()
 screen   = screens[0]
+# Parameters
+# ----------
 downscale = 4 # to debug
 #downscale = 1 # the real stuff
-N_X, N_Y = screen.width//downscale, screen.height//downscale # size of the simulation grid
-N_Z = screen.width//downscale # depth
+# x, l’axe long, y l’axe transversal, z la hauteur
+N_Y, N_Z = screen.width//downscale, screen.height//downscale # size of the simulation grid
+# Projection information
+# ----------------------
+# taille du plan de reference
+d_y, d_z = 8, 8*N_Z/N_Y # en metres
+# distance du plan de reference
+d_x = 10. # en metres
+# position spatiale des VPs par rapport au centre du plan de reference
+x_VPs = [ 8., 8., 8. ]
+y_VPs = [ -3., 0., 3. ] # en metres; placement regulier
+z_VPs = [ 0., 0., 0.] # en metres; on a place les VPs a la hauteur du centre du plan de reference
+# ---------
 # Scenarios
 # ---------
 scenario = 'calibration'
@@ -31,10 +44,11 @@ scenario = 'calibration'
 N = 1024
 #N = 16
 particles = np.zeros((6, N), dtype=np.float32)
-particles[0,:] = np.random.rand(N) * N_X
-particles[1,:] = np.random.rand(N) * N_Y
-particles[2,:] = np.random.rand(N) * N_Z
-particles[2:4,:] = np.random.randn(2,N) * .01 # speed is measured in screen size per second
+# x, l’axe long, y l’axe transversal, z la hauteur
+particles[0,:] = np.random.rand(N) * d_x
+particles[1,:] = np.random.rand(N) * d_y
+particles[2,:] = np.random.rand(N) * d_z
+particles[3:,:] = np.random.randn(3,N) * .01 # speed is measured in screen size per second
 #particles[2,:] = particles[1,:]
 #particles[3,:] = -particles[0,:]
 def do_scenario(particles, scenario):
@@ -42,13 +56,14 @@ def do_scenario(particles, scenario):
     t_last = t
     t = time.time()  
     if scenario == 'calibration':
-        particles[0,:], particles[1,:] = N_X/2, N_Y/2
+        particles[0,:], particles[1,:], particles[2,:] = 0., d_y/2, d_z/2
         frequency = .1 # how fast the whole disk moves in Hz
-        radius = .3 * N_Y
+        radius = .3 * d_z
         N_dots = 16
         angle = 2 * np.pi *  frequency *  t + np.linspace(0, 2 * np.pi, N_dots)
-        particles[0,:N_dots] = N_X/2 + radius * np.sin(angle)
-        particles[1,:N_dots] = N_Y/2 + radius * np.cos(angle)
+        particles[0,:N_dots] = 0. # on the refrerence plane
+        particles[1,:N_dots] = d_y/2 + radius * np.sin(angle)
+        particles[2,:N_dots] = d_z/2 + radius * np.cos(angle)
 
     elif scenario == 'flock':  
         # règle basique d'évitement
@@ -71,32 +86,34 @@ def do_scenario(particles, scenario):
         particles[2:4,:] *= .99
 
 
-    particles[0,:] = np.mod(particles[0,:], N_X)
-    particles[1,:] = np.mod(particles[1,:], N_Y)
+#    particles[0,:] = np.mod(particles[0,:], N_X)
+#    particles[1,:] = np.mod(particles[1,:], N_Y)
     
     return particles
 
 
-# Projection information
-# ----------------------
-# taille du plan de reference
-width, height = 8, 8*N_Y/N_X # en metres
-# position spatiale des VPs par rapport au centre du plan de reference
-#(x, y, z) du centre = (0, 0, 0), z est la profondeur
-x_VPs = [ -3., 0., 3. ] # en metres; placement regulier
-y_VPs = [ 0., 0., 0.] # en metres; on a place les VPs a la hauteur du centre du plan de reference
-z_VPs = [ 8., 8., 8. ]
+def projection(particles, i_VP, xc=0, yc=0., zc=0.): # yc=d_y/2., zc=d_z/2.):
+    # (xc, yc, zc) = coordonnees du centre du plan de reference
 
-def projection(particles, i_VP):
+    # TODO remove particles that are outside the depth range
 
-    image = np.ones((N_Y,N_X,4), dtype=np.float32)
+    # convert the position of each particle to a el, az coordinate projected on the reference plane
+    az = ((zc-particles[2,:])*(xc-x_VPs[i_VP])-(zc -z_VPs[i_VP])*(xc-particles[0,:]))/(x_VPs[i_VP]-particles[0,:])
+    el = ((yc-particles[1,:])*(xc-x_VPs[i_VP])-(yc -y_VPs[i_VP])*(xc-particles[0,:]))/(x_VPs[i_VP]-particles[0,:])
+#    # remove those that are outside the VP range
+#    az = az[0 < az < d_y]
+#    el = el[0 < el < d_z]
+    # convert to integers
+    az, el = np.floor(az*N_Y/d_y), np.floor(el*N_Z/d_z)
+    image = np.ones((N_Z,N_Y,4), dtype=np.float32)
     for i in range(N):
-        image[np.floor(particles[1, i]), np.floor(particles[0, i]), :] = 0.
+        if (0 <  az[i] < N_Y) and (0<el[i]<N_Z):
+            image[el[i], az[i], :] = 0.
+    return image
 
 # Screen information
 # ------------------
 n_screens = len(screens)
-
 win_1 = pyglet.window.Window(screen=screens[0], fullscreen=True)
 if n_screens>1:
     win_2 = pyglet.window.Window(screen=screens[1], fullscreen=True)
@@ -104,28 +121,17 @@ if n_screens>1:
 else:
     print 'Running in single window mode '
 
-
-# Parameters
-# ----------
-#scale = 2
-#width, height = screen.width//scale,screen.height//scale
 dt = 1.
 
-# texture_uv holds U & V values (red and green channels)
-# ------------------------------------------------------
-image = np.ones((N_Y,N_X,4), dtype=np.float32)
-#    image[:,:,0] = 1.0
-#r = 4
-#image[N_Y/2-r:N_Y/2+r, N_X/2-r:N_X/2+r, :] = 0.
-#    image[height/2-r:height/2+r, width/2-r:width/2+r, 1] = 0.25
+image = np.ones((N_Z,N_Y,4), dtype=np.float32)
 data = image.ctypes.data
 texture_data = pyglet.image.Texture.create_for_size(
-    gl.GL_TEXTURE_2D, N_X, N_Y, gl.GL_RGBA32F_ARB)
+    gl.GL_TEXTURE_2D, N_Y, N_Z, gl.GL_RGBA32F_ARB)
 gl.glBindTexture(texture_data.target, texture_data.id)
 gl.glTexParameteri(texture_data.target, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
 gl.glTexParameteri(texture_data.target, gl.GL_TEXTURE_MIN_FILTER, gl.GL_NEAREST)
 gl.glTexImage2D(texture_data.target, texture_data.level, gl.GL_RGBA32F_ARB,
-                N_X, N_Y, 0, gl.GL_RGBA, gl.GL_FLOAT, data)
+                N_Y, N_Z, 0, gl.GL_RGBA, gl.GL_FLOAT, data)
 gl.glBindTexture(texture_data.target, 0)
 
 # Framebuffer
@@ -136,7 +142,6 @@ gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, framebuffer)
 gl.glFramebufferTexture2DEXT(gl.GL_FRAMEBUFFER_EXT, gl.GL_COLOR_ATTACHMENT0_EXT,
                              gl.GL_TEXTURE_2D, texture_data.id, 0);
 gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, 0)
-
 
 # Color shader
 # ------------
@@ -153,72 +158,51 @@ def on_draw():
     global particles, N, scenario
     gl.glClearColor(1.0,1.0,1.0,1.0)
     win_1.clear()
-
     particles = do_scenario(particles, scenario=scenario)
-
-    data = image.ctypes.data
-
+    data = projection(particles, 0).ctypes.data
     gl.glTexImage2D(texture_data.target, texture_data.level, gl.GL_RGBA32F_ARB,
-                    N_X, N_Y, 0, gl.GL_RGBA, gl.GL_FLOAT, data)
+                    N_Y, N_Z, 0, gl.GL_RGBA, gl.GL_FLOAT, data)
     gl.glViewport(0, 0, win_1.width, win_1.height)
     gl.glMatrixMode(gl.GL_PROJECTION)
     gl.glLoadIdentity()
     gl.glOrtho(0, 1, 0, 1, -1, 1)
     gl.glMatrixMode(gl.GL_MODELVIEW)
     color_shader.bind()
-
     texture_data.blit(x=0.0, y=0.0, width=1.0, height=1.0)
 
 
 if n_screens>1:
-
     @win_2.event
     def on_draw():
         gl.glClearColor(1.0,1.0,1.0,1.0)
         win_2.clear()
-
-        image = np.ones((height,width,4), dtype=np.float32)
-        for i in range(N):
-            image[np.trunc(particles[0, i]*height), np.trunc(particles[1, i]*width), :] = 0.
-
-        data = image.ctypes.data
+        data = projection(particles, 1).ctypes.data
         gl.glTexImage2D(texture_data.target, texture_data.level, gl.GL_RGBA32F_ARB,
-                        N_X, N_Y, 0, gl.GL_RGBA, gl.GL_FLOAT, data)
+                        N_Y, N_Z, 0, gl.GL_RGBA, gl.GL_FLOAT, data)
         gl.glViewport(0, 0, win_2.width, win_2.height)
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
         gl.glOrtho(0, 1, 0, 1, -1, 1)
         gl.glMatrixMode(gl.GL_MODELVIEW)
         color_shader.bind()
-
         texture_data.blit(x=0.0, y=0.0, width=1.0, height=1.0)
 
 
 if n_screens>2:
-
     @win_3.event
     def on_draw():
         gl.glClearColor(1.0,1.0,1.0,1.0)
         win_3.clear()
-
-        image = np.ones((height,width,4), dtype=np.float32)
-        for i in range(N):
-            image[np.floor(particles[0, i]*height), np.floor(particles[1, i]*width), :] = 0.
-
-        data = image.ctypes.data
-
+        data = projection(particles, 2).ctypes.data
         gl.glTexImage2D(texture_data.target, texture_data.level, gl.GL_RGBA32F_ARB,
-                        N_X, N_Y, 0, gl.GL_RGBA, gl.GL_FLOAT, data)
+                        N_Y, N_Z, 0, gl.GL_RGBA, gl.GL_FLOAT, data)
         gl.glViewport(0, 0, win_3.width, win_3.height)
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
         gl.glOrtho(0, 1, 0, 1, -1, 1)
         gl.glMatrixMode(gl.GL_MODELVIEW)
         color_shader.bind()
-
         texture_data.blit(x=0.0, y=0.0, width=1.0, height=1.0)
-
-
 
 #pyglet.clock.schedule_interval(lambda dt: None, 1.0/60.0)
 pyglet.clock.schedule(lambda dt: None)
