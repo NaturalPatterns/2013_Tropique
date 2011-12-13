@@ -27,13 +27,13 @@ N_Y, N_Z = screen.width//downscale, screen.height//downscale # size of the simul
 # Projection information
 # ----------------------
 # taille du plan de reference
-d_y, d_z = 8, 8*N_Z/N_Y # en metres
+d_y, d_z = 7., 7.*N_Z/N_Y # en metres
 # distance du plan de reference
-d_x = 10. # en metres
+d_x = 8. # en metres
 # position spatiale des VPs par rapport au centre du plan de reference
-x_VPs = [ 8., 8., 8. ]
-y_VPs = [ -3., 0., 3. ] # en metres; placement regulier
-z_VPs = [ 0., 0., 0.] # en metres; on a place les VPs a la hauteur du centre du plan de reference
+x_VPs = [ d_x, d_x, d_x ] # en metres; placement regulier en profondeur a equidistance du plan de ref (le long d'un mur)
+y_VPs = [ .5*d_y, .3*d_y, .7*d_y ] # en metres; placement regulier, le centre en premier
+z_VPs = [ d_z/2, d_z/2, d_z/2] # en metres; on a place les VPs a la hauteur du centre du plan de reference
 # ---------
 # Scenarios
 # ---------
@@ -61,9 +61,14 @@ def do_scenario(particles, scenario):
         radius = .3 * d_z
         N_dots = 16
         angle = 2 * np.pi *  frequency *  t + np.linspace(0, 2 * np.pi, N_dots)
+        # a circle on the reference plane
         particles[0,:N_dots] = 0. # on the refrerence plane
         particles[1,:N_dots] = d_y/2 + radius * np.sin(angle)
         particles[2,:N_dots] = d_z/2 + radius * np.cos(angle)
+        # a circle in front going opposite sign
+        particles[0,N_dots:2*N_dots] = 1. # on the refrerence plane
+        particles[1,N_dots:2*N_dots] = d_y/2 + radius * np.sin(-angle)
+        particles[2,N_dots:2*N_dots] = d_z/2 + radius * np.cos(-angle)
 
     elif scenario == 'flock':  
         # règle basique d'évitement
@@ -92,14 +97,15 @@ def do_scenario(particles, scenario):
     return particles
 
 
-def projection(particles, i_VP, xc=0, yc=0., zc=0.): # yc=d_y/2., zc=d_z/2.):
-    # (xc, yc, zc) = coordonnees du centre du plan de reference
+def projection(particles, i_VP, xc=0, yc=0., zc=0.): # yc=d_y/2., zc=d_z/2.):#
+    # (xc, yc, zc) = coordonnees en metres du point (a gauche, en bas) du plan de reference
 
     # TODO remove particles that are outside the depth range
 
     # convert the position of each particle to a el, az coordinate projected on the reference plane
-    az = ((zc-particles[2,:])*(xc-x_VPs[i_VP])-(zc -z_VPs[i_VP])*(xc-particles[0,:]))/(x_VPs[i_VP]-particles[0,:])
-    el = ((yc-particles[1,:])*(xc-x_VPs[i_VP])-(yc -y_VPs[i_VP])*(xc-particles[0,:]))/(x_VPs[i_VP]-particles[0,:])
+    x, y, z = particles[0,:], particles[1,:], particles[2,:]
+    az = ((yc-y)*(xc-x_VPs[i_VP])-(yc-y_VPs[i_VP])*(xc-x))/(x_VPs[i_VP]-x)
+    el = ((zc-z)*(xc-x_VPs[i_VP])-(zc-z_VPs[i_VP])*(xc-x))/(x_VPs[i_VP]-x)
 #    # remove those that are outside the VP range
 #    az = az[0 < az < d_y]
 #    el = el[0 < el < d_z]
@@ -107,7 +113,7 @@ def projection(particles, i_VP, xc=0, yc=0., zc=0.): # yc=d_y/2., zc=d_z/2.):
     az, el = np.floor(az*N_Y/d_y), np.floor(el*N_Z/d_z)
     image = np.ones((N_Z,N_Y,4), dtype=np.float32)
     for i in range(N):
-        if (0 <  az[i] < N_Y) and (0<el[i]<N_Z):
+        if (0 <  az[i] < N_Y) and (0 < el[i] < N_Z):
             image[el[i], az[i], :] = 0.
     return image
 
