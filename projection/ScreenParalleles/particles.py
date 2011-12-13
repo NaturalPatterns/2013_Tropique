@@ -30,9 +30,10 @@ scenario = 'calibration'
 
 N = 1024
 #N = 16
-particles = np.zeros((4, N), dtype=np.float32)
+particles = np.zeros((6, N), dtype=np.float32)
 particles[0,:] = np.random.rand(N) * N_X
 particles[1,:] = np.random.rand(N) * N_Y
+particles[2,:] = np.random.rand(N) * N_Z
 particles[2:4,:] = np.random.randn(2,N) * .01 # speed is measured in screen size per second
 #particles[2,:] = particles[1,:]
 #particles[3,:] = -particles[0,:]
