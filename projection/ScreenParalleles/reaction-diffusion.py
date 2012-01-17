@@ -81,8 +81,8 @@ if __name__ == '__main__':
 
     # Parameters
     # ----------
-    scale = 5
-    width, height = screen.width//scale,screen.height//scale
+    scale = 1
+    width, height = screen.width//scale, screen.height//scale
     dt = 1.0
     dd = 1.5
     parameters = {
@@ -111,7 +111,7 @@ if __name__ == '__main__':
 
 
     win_1 = pyglet.window.Window(screen=screens[0], fullscreen=True)
-    if n_screens>1:
+    if n_screens > 1:
         win_2 = pyglet.window.Window(screen=screens[1], fullscreen=True)
         win_3 = pyglet.window.Window(screen=screens[2], fullscreen=True)
     else:
@@ -120,8 +120,8 @@ if __name__ == '__main__':
 
     # texture_p holds parameters
     # --------------------------
-    P = np.zeros((height,width,4), dtype=np.float32)
-    P[:,:] = parameters['Unstable']
+    P = np.zeros((height, width, 4), dtype=np.float32)
+    P[:, :] = parameters['Unstable']
     data = P.ctypes.data
     texture_p = pyglet.image.Texture.create_for_size(
         gl.GL_TEXTURE_2D, width, height, gl.GL_RGBA32F_ARB)
@@ -132,8 +132,8 @@ if __name__ == '__main__':
 
     # texture_uv holds U & V values (red and green channels)
     # ------------------------------------------------------
-    UV = np.zeros((height,width,4), dtype=np.float32)
-    UV[:,:,0] = 1.0
+    UV = np.zeros((height, width, 4), dtype=np.float32)
+    UV[:, :, 0] = 1.0
     r = 32
     UV[height/2-r:height/2+r, width/2-r:width/2+r, 0] = 0.50
     UV[height/2-r:height/2+r, width/2-r:width/2+r, 1] = 0.25
