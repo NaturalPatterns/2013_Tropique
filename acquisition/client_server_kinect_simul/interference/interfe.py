@@ -182,6 +182,7 @@ imgOut = cv.CreateImage((640,480), cv.IPL_DEPTH_8U,3)
 PySocket = socket (AF_INET,SOCK_DGRAM)
 PySocket.bind (('localhost',3001))
 PySocket.settimeout(0.001)
+PySocket.setblocking(0)
 client = OSC.OSCClient()
 client.connect( ('127.0.0.1', 9000) ) # note that the argument is a tupple and not two arguments
 

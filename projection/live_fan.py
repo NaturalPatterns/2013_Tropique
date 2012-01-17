@@ -10,8 +10,8 @@ import signal, sys
 #description res
 #host = '127.0.0.1'
 #host = '192.168.1.4'
-host = '10.42.43.50'
-port = 6007
+host = ''
+port = 5003
 #port = 9999
 buf = 1024
 
@@ -82,11 +82,12 @@ def main():
     while True:
         try :
             dat = s.recvfrom(1024)
-            # @print dat
+            print dat
         except:
             print ("nodata")
         else :
             dX_ , dY_  = dat[0].rsplit(',')
+	    print dX_, dY_
             dX_ , dY_ = ( 1. -  float(dX_)/480.) * 2. -1.,  ( 1. -  float(dY_)/640.) * 2. -1.
 #            if dX_ >   .99*4.5: 
 #                print('confused!')
