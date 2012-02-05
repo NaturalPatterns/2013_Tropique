@@ -26,7 +26,7 @@ N_Y, N_Z = int(screen.width//downscale), int(screen.height//downscale) # size of
 # Scenarios
 # ---------
 scenarios = ['calibration', 'calibration-grille', 'rotating-circle']#, 'flock', 'navier-stokes']
-i_scenario = 0 # initial scenario chosen
+i_scenario = 1 # initial scenario chosen
 t_scenario = 4 # time to switch scenarios
 #t_scenario = 4e99 # leave uncommented to avoid changing
 
