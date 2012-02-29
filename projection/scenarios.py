@@ -28,9 +28,11 @@ z_VPs = [d_z/2, d_z/2, d_z/2] # en metres; on a place les VPs a la hauteur du ce
 class Scenario(object):
     def __init__(self, N, scenario='calibration', center=np.array([d_x, d_y/2, d_z/2])):
         self.N = N
+        self.speed_0 = 0.1 # average speed in m/s
         self.particles = np.zeros((6, N), dtype=np.float32) # x, y, z, u, v, w
         self.particles[0, :], self.particles[1,:], self.particles[2,:] = 0., np.random.randn(self.N)*d_y/16+d_y/2, np.random.randn(self.N)*d_y/16 + d_z/2
 #        self.particles[0, :], self.particles[1,:], self.particles[2,:] = 0., np.random.rand(self.N)*d_y, np.random.randn(self.N)*d_z
+        self.particles[3:6, :] = np.random.randn(3, self.N)*self.speed_0
         # x, l’axe long, y l’axe transversal, z la hauteur
 #        self.particles[0, :] = np.random.rand(N) * d_x
 #        self.particles[1, :] = np.random.rand(N) * d_y
@@ -90,6 +92,10 @@ class Scenario(object):
             self.particles[2, :] = d_z/2 + radius * np.cos(angle)
     
         elif self.scenario == 'flock':
+            dt =  (self.t - self.t_last)            
+            y, z = self.particles[1, :], self.particles[2,:]
+            distance = np.sqrt((y[:, np.newaxis]-y.T)**2 + (z[:, np.newaxis]-z.T)**2) # en metres
+            
             # règle basique d'évitement
             for i in range(self.N):
                 distance_moy = np.sqrt((self.particles[0,:] - self.particles[0, i])**2 + (self.particles[1,:] - self.particles[0, i])**2).mean()
@@ -116,7 +122,7 @@ class Scenario(object):
         elif self.scenario == 'gray-scott':
 
             sigma, distance_m = .05, .2 # how fast the whole disk moves in Hz
-            diff, diff_noise, speed_0 = .03, 0.002, 0.1 # diffusion speed
+            diff, diff_noise = .03, 0.002 # diffusion speed
 
             y, z = self.particles[1, :], self.particles[2,:]
             distance = np.sqrt((y[:, np.newaxis]-y.T)**2 + (z[:, np.newaxis]-z.T)**2) # en metres
@@ -124,7 +130,7 @@ class Scenario(object):
             speed = (distance-distance_m)*(np.exp(-(distance-distance_m)**2/2/sigma**2))
 #            speed = (distance-distance_m)*(np.exp(-np.abs(distance-distance_m)/sigma))
             speed /= np.sqrt(speed**2).mean() 
-            speed *= speed_0
+            speed *= self.speed_0
 #            print speed.mean()*(self.t - self.t_last), (self.t - self.t_last)
 #            print y.mean(), z.mean(), y.std(), z.std()
             dt =  (self.t - self.t_last)

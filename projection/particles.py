@@ -49,7 +49,7 @@ if N_screen>1:
     win_2 = pyglet.window.Window(screen=screens[1], fullscreen=True)
     if N_screen>2: win_3 = pyglet.window.Window(screen=screens[2], fullscreen=True)
 else:
-    win_1 = pyglet.window.Window(screen=screens[0], resizable=True, fullscreen=False)
+    win_1 = pyglet.window.Window(screen=screens[0], resizable=True, width=N_Y, height=N_Z, fullscreen=False)
     print 'Running in single window mode '
 
 #dt = 1.
