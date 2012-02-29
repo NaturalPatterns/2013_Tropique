@@ -10,8 +10,8 @@ t = time.time()
 
 
 #HACK
-N_Y, N_Z = 960, 600
-
+#N_Y, N_Z = 1240, 1024
+N_Y, N_Z = 960, 600 # enigma
 # Projection information
 # ----------------------
 f_async = 0. # if we do an asynchronnous masking of particles set it to some percentage > 0. / full sparseness with 1.
@@ -109,7 +109,9 @@ class Scenario(object):
     
     #    self.particles[0,:] = np.mod(self.particles[0,:], N_X)
     #    self.particles[1,:] = np.mod(self.particles[1,:], N_Y)
-        
+    
+    
+    # fonco utilisée en version BITMAP à virer quand on pasera en pure openGL        
     def projection(self, i_VP, channel=None, xc=0, yc=0., zc=0., f_async=f_async): # yc=d_y/2., zc=d_z/2.):#
         # (xc, yc, zc) = coordonnees en metres du point (a gauche, en bas) du plan de reference
     
