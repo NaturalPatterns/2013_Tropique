@@ -115,28 +115,32 @@ class Scenario(object):
 
         elif self.scenario == 'gray-scott':
 
-            sigma, distance_m = .03, .04 # how fast the whole disk moves in Hz
-            diff, diff_noise = .01, 0.005 # diffusion speed
+            sigma, distance_m = .05, .2 # how fast the whole disk moves in Hz
+            diff, diff_noise, speed_0 = .03, 0.002, 0.1 # diffusion speed
 
             y, z = self.particles[1, :], self.particles[2,:]
-            distance = np.sqrt((y[:, np.newaxis]-y.T)**2 + (z[:, np.newaxis]-z.T)**2)#.mean(axis=0) # en metres
+            distance = np.sqrt((y[:, np.newaxis]-y.T)**2 + (z[:, np.newaxis]-z.T)**2) # en metres
 #            print distance, distance.mean()
-#            speed = np.exp(-(distance-sigma_inh)**2/2/sigma_exc**2)
-#            speed = ((1 - np.exp(-(distance-distance_m)**2/2/sigma**2))*np.exp(-(distance/distance_inh)))
-            speed = (distance-distance_m)*(np.exp(-(distance-distance_m)**2/2/sigma**2))#.mean(axis=0)
-#            speed = (((distance>distance_m)+(distance<distance_inh))*np.exp(-(distance/distance_inh))
-#            speed = (((distance>distance_m)*(distance<distance_inh)))
-            speed /= speed.mean() 
-            speed *= diff
-#            print speed.mean()*(self.t - self.t_last)
+            speed = (distance-distance_m)*(np.exp(-(distance-distance_m)**2/2/sigma**2))
+#            speed = (distance-distance_m)*(np.exp(-np.abs(distance-distance_m)/sigma))
+            speed /= np.sqrt(speed**2).mean() 
+            speed *= speed_0
+#            print speed.mean()*(self.t - self.t_last), (self.t - self.t_last)
 #            print y.mean(), z.mean(), y.std(), z.std()
-
+            dt =  (self.t - self.t_last)
             self.particles[0, :] = 0. # on the refrerence plane
-            self.particles[1, :] += ((y[:, np.newaxis]-y.T) * speed).mean(axis=0) * (self.t - self.t_last)
-            self.particles[2, :] += ((z[:, np.newaxis]-z.T) * speed).mean(axis=0) * (self.t - self.t_last)
+            
+            speed_y = ((y[:, np.newaxis]-y.T) * speed).mean(axis=1)
+            speed_z = ((z[:, np.newaxis]-z.T) * speed).mean(axis=1)
 
-            self.particles[1, :] += diff_noise * np.random.randn(self.N) * (self.t - self.t_last)
-            self.particles[2, :] += diff_noise * np.random.randn(self.N) * (self.t - self.t_last)
+            self.particles[4, :] += diff * (speed_y - self.particles[4, :])
+            self.particles[5, :] += diff * (speed_z - self.particles[5, :])
+
+            self.particles[4, :] += diff_noise * np.random.randn(self.N)
+            self.particles[5, :] += diff_noise * np.random.randn(self.N)
+            
+            self.particles[1, :] += self.particles[4, :] * dt
+            self.particles[2, :] += self.particles[5, :] * dt
 
             self.particles[1, :] = np.mod(self.particles[1, :], d_y)
             self.particles[2, :] = np.mod(self.particles[2, :], d_z)

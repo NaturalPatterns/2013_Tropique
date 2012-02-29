@@ -31,7 +31,7 @@ print 'HACK ', N_Y, N_Z
 # ---------
 scenarios = ['gray-scott'] # ['calibration', 'calibration-grille', 'rotating-circle']#, 'flock', 'navier-stokes']
 i_scenario = 0 # initial scenario chosen
-t_scenario = 4 # time to switch scenarios
+t_scenario = 10 # time to switch scenarios
 #t_scenario = 4e99 # leave uncommented to avoid changing
 
 N = 2048
@@ -43,11 +43,13 @@ t_last = s.t # last time we changed scenario
 
 # Screen information
 # ------------------
-win_1 = pyglet.window.Window(screen=screens[0], fullscreen=True)
+
 if N_screen>1: 
+    win_1 = pyglet.window.Window(screen=screens[0], fullscreen=True)
     win_2 = pyglet.window.Window(screen=screens[1], fullscreen=True)
     if N_screen>2: win_3 = pyglet.window.Window(screen=screens[2], fullscreen=True)
 else:
+    win_1 = pyglet.window.Window(screen=screens[0], resizable=True, fullscreen=False)
     print 'Running in single window mode '
 
 #dt = 1.
