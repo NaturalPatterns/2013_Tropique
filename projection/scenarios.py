@@ -12,6 +12,7 @@ t = time.time()
 #HACK
 #N_Y, N_Z = 1240, 1024
 N_Y, N_Z = 960, 600 # enigma
+#N_Y, N_Z = 480, 300 # enigma
 # Projection information
 # ----------------------
 f_async = 0. # if we do an asynchronnous masking of particles set it to some percentage > 0. / full sparseness with 1.
@@ -27,7 +28,9 @@ z_VPs = [d_z/2, d_z/2, d_z/2] # en metres; on a place les VPs a la hauteur du ce
 class Scenario(object):
     def __init__(self, N, scenario='calibration', center=np.array([d_x, d_y/2, d_z/2])):
         self.N = N
-        self.particles = np.zeros((6, N), dtype=np.float32)
+        self.particles = np.zeros((6, N), dtype=np.float32) # x, y, z, u, v, w
+        self.particles[0, :], self.particles[1,:], self.particles[2,:] = 0., np.random.randn(self.N)*d_y/16+d_y/2, np.random.randn(self.N)*d_y/16 + d_z/2
+#        self.particles[0, :], self.particles[1,:], self.particles[2,:] = 0., np.random.rand(self.N)*d_y, np.random.randn(self.N)*d_z
         # x, l’axe long, y l’axe transversal, z la hauteur
 #        self.particles[0, :] = np.random.rand(N) * d_x
 #        self.particles[1, :] = np.random.rand(N) * d_y
@@ -109,7 +112,35 @@ class Scenario(object):
     
     #    self.particles[0,:] = np.mod(self.particles[0,:], N_X)
     #    self.particles[1,:] = np.mod(self.particles[1,:], N_Y)
-    
+
+        elif self.scenario == 'gray-scott':
+
+            sigma, distance_m = .03, .04 # how fast the whole disk moves in Hz
+            diff, diff_noise = .01, 0.005 # diffusion speed
+
+            y, z = self.particles[1, :], self.particles[2,:]
+            distance = np.sqrt((y[:, np.newaxis]-y.T)**2 + (z[:, np.newaxis]-z.T)**2)#.mean(axis=0) # en metres
+#            print distance, distance.mean()
+#            speed = np.exp(-(distance-sigma_inh)**2/2/sigma_exc**2)
+#            speed = ((1 - np.exp(-(distance-distance_m)**2/2/sigma**2))*np.exp(-(distance/distance_inh)))
+            speed = (distance-distance_m)*(np.exp(-(distance-distance_m)**2/2/sigma**2))#.mean(axis=0)
+#            speed = (((distance>distance_m)+(distance<distance_inh))*np.exp(-(distance/distance_inh))
+#            speed = (((distance>distance_m)*(distance<distance_inh)))
+            speed /= speed.mean() 
+            speed *= diff
+#            print speed.mean()*(self.t - self.t_last)
+#            print y.mean(), z.mean(), y.std(), z.std()
+
+            self.particles[0, :] = 0. # on the refrerence plane
+            self.particles[1, :] += ((y[:, np.newaxis]-y.T) * speed).mean(axis=0) * (self.t - self.t_last)
+            self.particles[2, :] += ((z[:, np.newaxis]-z.T) * speed).mean(axis=0) * (self.t - self.t_last)
+
+            self.particles[1, :] += diff_noise * np.random.randn(self.N) * (self.t - self.t_last)
+            self.particles[2, :] += diff_noise * np.random.randn(self.N) * (self.t - self.t_last)
+
+            self.particles[1, :] = np.mod(self.particles[1, :], d_y)
+            self.particles[2, :] = np.mod(self.particles[2, :], d_z)
+        
     
     # fonco utilisée en version BITMAP à virer quand on pasera en pure openGL        
     def projection(self, i_VP, channel=None, xc=0, yc=0., zc=0., f_async=f_async): # yc=d_y/2., zc=d_z/2.):#

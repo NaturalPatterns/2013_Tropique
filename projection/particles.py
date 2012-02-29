@@ -25,17 +25,17 @@ downscale = 2 # to debug
 # downscale = 1 # the real stuff / beware the segmentation fault
 # x, l’axe long, y l’axe transversal, z la hauteur
 N_Y, N_Z = int(screen.width//downscale), int(screen.height//downscale) # size of the simulation grid
-print N_Y, N_Z
+print 'HACK ', N_Y, N_Z
 # ---------
 # Scenarios
 # ---------
-scenarios = ['calibration', 'calibration-grille', 'rotating-circle']#, 'flock', 'navier-stokes']
-i_scenario = 1 # initial scenario chosen
+scenarios = ['gray-scott'] # ['calibration', 'calibration-grille', 'rotating-circle']#, 'flock', 'navier-stokes']
+i_scenario = 0 # initial scenario chosen
 t_scenario = 4 # time to switch scenarios
 #t_scenario = 4e99 # leave uncommented to avoid changing
 
 N = 2048
-N = 256
+N = 512
 #N = 16
 from scenarios import Scenario
 s = Scenario(N, scenarios[i_scenario])
