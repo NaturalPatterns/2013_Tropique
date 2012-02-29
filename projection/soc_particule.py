@@ -15,39 +15,105 @@ platform = pyglet.window.get_platform()
 display  = platform.get_default_display()
 screens  = display.get_screens()
 screen   = screens[0]
+N_screen = len(screens) # number of screens
+N_screen = 1 # uncomment to force display on one screen only
+#N_screen = 2 # uncomment to force display on one screen only
+if N_screen<len(screens): screens = screens[:N_screen]
 # Parameters
 # ----------
 downscale = 2 # to debug
-# downscale = 1.7 # to debug
-# downscale = 1 # the real stuff / beware the segmentation fault
+#downscale = 1 # the real stuff / beware the segmentation fault
 # x, l’axe long, y l’axe transversal, z la hauteur
-N_Y, N_Z = int(screen.width//downscale), int(screen.height//downscale) # size of the simulation grid
+N_Y, N_Z = screen.width//downscale, screen.height//downscale # size of the simulation grid
 # ---------
 # Scenarios
 # ---------
-scenarios = ['calibration', 'calibration-grille', 'rotating-circle']#, 'flock', 'navier-stokes']
-i_scenario = 1 # initial scenario chosen
-t_scenario = 4 # time to switch scenarios
-#t_scenario = 4e99 # leave uncommented to avoid changing
+#scenario = 'calibration'
+#scenario = 'calibration-grille'
+scenario = 'rotating-circle'
+#scenario = 'flock'
+#scenario = 'navier-stokes'
+
+#def socket
+import socket 
+import time
+t = time.time()
+UDP_IP=""
+UDP_PORT=3003
+sock = socket.socket( socket.AF_INET, # Internet
+                      socket.SOCK_DGRAM ) # UDP
+sock.bind( (UDP_IP,UDP_PORT) )
+#sock.settimeout(0)
+sock.setblocking(0)
 
 N = 2048
 #N = 1024
 #N = 16
 from scenarios import Scenario
-s = Scenario(N, scenarios[i_scenario])
-t_last = s.t # last time we changed scenario
+s = Scenario(N, scenario)
+#
+#N = 1024 #nbre totale de points
+##N = 4096
+#
+#particles = np.zeros((6, N), dtype=np.float32)
+## x, l’axe long, y l’axe transversal, z la hauteur
+#particles[0,:] = np.random.rand(N) * d_x
+#particles[1,:] = np.random.rand(N) * d_y
+#particles[2,:] = np.random.rand(N) * d_z
+#particles[3:,:] = np.random.randn(3,N) * .01 # speed is measured in screen size per second
+##particles[2,:] = particles[1,:]
+##particles[3,:] = -particles[0,:]
+global last_t
+last_t = 1
+
+global posx , posy , posz
+posx=0
+posy=0
+posz=0
+
+def read_sock():
+    try :	
+        Donnee, Client = sock.recvfrom (1024)
+    except (KeyboardInterrupt):
+        raise
+    except:
+        detect = 0
+    else :
+        #print"data =" ,Donnee 
+	#Donnee = ((angle + x + y + "o")*nbr_player)+";"
+	datasplit = Donnee.split(";")
+	#print "datasplit =" , datasplit
+	store_blob = [[ int(each2) for each2 in each.split(",") ] for each in datasplit]
+	#print "ras"
+
+	return store_blob
+
+def read_pos():
+    posx, posy = np.nan, np.nan
+    try :
+        a = read_sock()
+    except:
+        rien =0
+    else:
+        try:
+            posx=a[0][0]
+            posy=a[0][1]
+        except:
+            rien =0
+        else:
+            rien = 1
+    return ((float(posx))/90.0) + 2.1, ((float(posy))/90.0) + 2.1
+
 
 # Screen information
 # ------------------
-n_screens = len(screens)
 win_1 = pyglet.window.Window(screen=screens[0], fullscreen=True)
-if n_screens>1:
-    win_2 = pyglet.window.Window(screen=screens[1], fullscreen=True)
-    win_3 = pyglet.window.Window(screen=screens[2], fullscreen=True)
+if N_screen>1: win_2 = pyglet.window.Window(screen=screens[1], fullscreen=True)
+    if N_screen>2: win_3 = pyglet.window.Window(screen=screens[2], fullscreen=True)
 else:
     print 'Running in single window mode '
 
-#dt = 1.
+dt = 1.
 
 image = np.ones((N_Z,N_Y,4), dtype=np.float32)
 data = image.ctypes.data
@@ -79,12 +145,13 @@ color_shader.bind()
 color_shader.uniformi('texture', 0)
 color_shader.unbind()
 
+switch_rgb = (scenario == 'calibration') or (scenario == 'calibration-grille')
 
 win_1.set_visible(True)
 @win_1.event
 def on_draw():
     global s, i_scenario, t_last
-    switch_rgb = (s.scenario == 'calibration') or (s.scenario == 'calibration-grille')
+
     if switch_rgb: 
         gl.glColor3f(1.0, 0., 0.)
     else:
@@ -92,12 +159,11 @@ def on_draw():
     gl.glClearColor(1.0,1.0,1.0,1.0)
     win_1.clear()
     s.do_scenario()
-    if (s.t - t_last) > t_scenario: 
-        i_scenario +=1
-        i_scenario %= len(scenarios)
-        s.scenario = scenarios[i_scenario]
-        print 'switching to ', scenarios[i_scenario]
-        t_last = s.t
+
+    # pour juju: ici on capte les donnees et on les passe au scenario
+    x, y = read_pos()
+    if not(x==np.nan):
+        s.center = np.array([x, y, d_z/2])
 
     data = s.projection(0).ctypes.data
     gl.glTexImage2D(texture_data.target, texture_data.level, gl.GL_RGBA32F_ARB,
@@ -110,7 +176,7 @@ def on_draw():
     color_shader.bind()
     texture_data.blit(x=0.0, y=0.0, width=1.0, height=1.0)
 
-if n_screens>1:
+if N_screen>1:
     win_2.set_visible(True)
     @win_2.event
     def on_draw():
@@ -128,7 +194,7 @@ if n_screens>1:
         color_shader.bind()
         texture_data.blit(x=0.0, y=0.0, width=1.0, height=1.0)
 
-if n_screens>2:
+if N_screen>2:
     win_3.set_visible(True)
     @win_3.event
     def on_draw():
