@@ -16,7 +16,7 @@ display  = platform.get_default_display()
 screens  = display.get_screens()
 screen   = screens[0]
 N_screen = len(screens) # number of screens
-N_screen = 1 # uncomment to force display on one screen only
+#N_screen = 1 # uncomment to force display on one screen only
 #N_screen = 2 # uncomment to force display on one screen only
 if N_screen<len(screens): screens = screens[:N_screen]
 # Parameters
@@ -25,7 +25,7 @@ downscale = 2 # to debug
 # downscale = 1 # the real stuff / beware the segmentation fault
 # x, l’axe long, y l’axe transversal, z la hauteur
 N_Y, N_Z = int(screen.width//downscale), int(screen.height//downscale) # size of the simulation grid
-print 'HACK ', N_Y, N_Z
+#print 'HACK ', N_Y, N_Z
 # ---------
 # Scenarios
 # ---------
@@ -83,13 +83,13 @@ color_shader    = Shader(vertex_shader, fragment_shader)
 color_shader.bind()
 color_shader.uniformi('texture', 0)
 color_shader.unbind()
-
+switch_rgb = (s.scenario == 'calibration') or (s.scenario == 'calibration-grille')
 
 win_1.set_visible(True)
 @win_1.event
 def on_draw():
-    global s, i_scenario, t_last
-    switch_rgb = (s.scenario == 'calibration') or (s.scenario == 'calibration-grille')
+    global s, i_scenario, t_last, N_Y, N_Z
+    
     if switch_rgb: 
         gl.glColor3f(1.0, 0., 0.)
     else:
@@ -104,7 +104,7 @@ def on_draw():
         print 'switching to ', scenarios[i_scenario]
         t_last = s.t
 
-    data = s.projection(0).ctypes.data
+    data = s.projection(0, N_Y=N_Y, N_Z=N_Z).ctypes.data
     gl.glTexImage2D(texture_data.target, texture_data.level, gl.GL_RGBA32F_ARB,
                     N_Y, N_Z, 0, gl.GL_RGBA, gl.GL_FLOAT, data)
     gl.glViewport(0, 0, win_1.width, win_1.height)
@@ -122,7 +122,7 @@ if N_screen>1:
         gl.glClearColor(1.0,1.0,1.0,1.0)
         win_2.clear()
         if switch_rgb: gl.glColor3f(0., 1.0, 0.)
-        data = s.projection(1).ctypes.data
+        data = s.projection(1, N_Y=N_Y, N_Z=N_Z).ctypes.data
         gl.glTexImage2D(texture_data.target, texture_data.level, gl.GL_RGBA32F_ARB,
                         N_Y, N_Z, 0, gl.GL_RGBA, gl.GL_FLOAT, data)
         gl.glViewport(0, 0, win_2.width, win_2.height)
@@ -140,7 +140,7 @@ if N_screen>2:
         gl.glClearColor(1.0,1.0,1.0,1.0)
         win_3.clear()
         if switch_rgb: gl.glColor3f(0., 0., 1.0)
-        data = s.projection(2).ctypes.data
+        data = s.projection(2, N_Y=N_Y, N_Z=N_Z).ctypes.data
         gl.glTexImage2D(texture_data.target, texture_data.level, gl.GL_RGBA32F_ARB,
                         N_Y, N_Z, 0, gl.GL_RGBA, gl.GL_FLOAT, data)
         gl.glViewport(0, 0, win_3.width, win_3.height)

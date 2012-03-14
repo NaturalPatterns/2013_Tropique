@@ -11,7 +11,8 @@ t = time.time()
 
 #HACK
 #N_Y, N_Z = 1240, 1024
-N_Y, N_Z = 960, 600 # enigma
+#N_Y, N_Z = 960, 600 # enigma
+N_Y, N_Z = 960, 540 # monolithe
 #N_Y, N_Z = 480, 300 # enigma
 # Projection information
 # ----------------------
@@ -90,39 +91,11 @@ class Scenario(object):
             self.particles[0, :] = d_x/4 + radius * np.sin(angle) * np.sin(2*np.pi*frequency_rot*self.t)
             self.particles[1, :] = d_y/2 + radius * np.sin(angle) * np.cos(2*np.pi*frequency_rot*self.t)
             self.particles[2, :] = d_z/2 + radius * np.cos(angle)
-    
-        elif self.scenario == 'flock':
-            dt =  (self.t - self.t_last)            
-            y, z = self.particles[1, :], self.particles[2,:]
-            distance = np.sqrt((y[:, np.newaxis]-y.T)**2 + (z[:, np.newaxis]-z.T)**2) # en metres
-            
-            # règle basique d'évitement
-            for i in range(self.N):
-                distance_moy = np.sqrt((self.particles[0,:] - self.particles[0, i])**2 + (self.particles[1,:] - self.particles[0, i])**2).mean()
-                self.particles[2:4, i] += np.random.randn(2) *.001 * distance_moy
-        #        self.particles[2:4, i] *= np.exp(- distance / 5. )
-        #
-            # règle basique de clustering des vitesses de particules proches
-            for i in range(self.N):
-                distance = np.sqrt((self.particles[0,:] - self.particles[0, i])**2 + (self.particles[1,:] - self.particles[0, i])**2)
-                weights = np.exp(- distance**2 /2 / .1**2 )
-                weights /= weights.sum()
-        #        self.particles[2:4, i] *= np.random.randn(2) *.001 * distance
-        #        self.particles[2:4,:] *= .99
-                self.particles[2:4, i] += .01 * (self.particles[2:4, i] - (self.particles[2:4, :] * weights).sum() )
-    
-#            self.particles[0:2, :] += (t - t_last ) *  self.particles[2:4,:]
-            self.particles[2:4, :] += np.random.randn(2,self.N) *.0001
-            self.particles[2:4, :] *= .99
-    
-    
-    #    self.particles[0,:] = np.mod(self.particles[0,:], N_X)
-    #    self.particles[1,:] = np.mod(self.particles[1,:], N_Y)
 
         elif self.scenario == 'gray-scott':
 
             sigma, distance_m = .05, .2 # how fast the whole disk moves in Hz
-            diff, diff_noise = .03, 0.002 # diffusion speed
+            diff, diff_noise = .02, 0.005 # diffusion speed
 
             y, z = self.particles[1, :], self.particles[2,:]
             distance = np.sqrt((y[:, np.newaxis]-y.T)**2 + (z[:, np.newaxis]-z.T)**2) # en metres
@@ -152,8 +125,8 @@ class Scenario(object):
             self.particles[2, :] = np.mod(self.particles[2, :], d_z)
         
     
-    # fonco utilisée en version BITMAP à virer quand on pasera en pure openGL        
-    def projection(self, i_VP, channel=None, xc=0, yc=0., zc=0., f_async=f_async): # yc=d_y/2., zc=d_z/2.):#
+    # fonction utilisée en version BITMAP à virer quand on pasera en pure openGL        
+    def projection(self, i_VP, channel=None, xc=0, yc=0., zc=0., f_async=f_async, N_Y=N_Y, N_Z=N_Z): # yc=d_y/2., zc=d_z/2.):#
         # (xc, yc, zc) = coordonnees en metres du point (a gauche, en bas) du plan de reference
     
         # TODO remove particles that are outside the depth range
