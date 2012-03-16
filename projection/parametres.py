@@ -37,13 +37,13 @@ VPs = [
         {'address':'127.0.0.1', 'port': 50034,
             'x':d_x, 'y':.5*d_y, 'z': 1.50, # au centre, à  1m50 de haut
             'cx':0., 'cy':d_y/2, 'cz': d_z/2, # on regarde le centre du plan de reference
-            'foc': 30. },
+            'foc': 30., 'pc_min': 0.01, 'pc_max': 10000 },
         {'address':'127.0.0.1', 'port': 50035,
             'x':d_x, 'y':.1*d_y, 'z': 1.50, # a droite, à  1m50 de haut
             'cx':0., 'cy':d_y/2, 'cz': d_z/2, # on regarde le centre du plan de reference
-            'foc': 30.  },
+            'foc': 30., 'pc_min': 0.01, 'pc_max': 10000  },
         {'address':'127.0.0.1', 'port': 50036,
             'x':d_x, 'y':.9*d_y, 'z': 1.50, # a gauche, à  1m50 de haut
             'cx':0., 'cy':d_y/2, 'cz': d_z/2, # on regarde le centre du plan de reference
-            'foc': 30.  },
+            'foc': 30., 'pc_min': 0.01, 'pc_max': 10000  },
         ]

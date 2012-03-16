@@ -33,15 +33,14 @@ N_Y, N_Z = int(screen.width//downscale), int(screen.height//downscale) # size of
 # ---------
 # Scenarios
 # ---------
-scenario = ['rotating-circle']#, 
-scenario = ['calibration']#
-scenario = ['gray-scott']#
-scenario = ['calibration-grille']
+# scenario = 'rotating-circle', 
+scenario = 'calibration'#
+# scenario = 'gray-scott'#
+# scenario = 'calibration-grille'
 N = 500
 # N = 1024
 from scenarios import Scenario
-s = Scenario(N, scenario, VPs)
-t_last = s.t # last time we changed scenario
+s = Scenario(N, scenario, volume, VPs)
 
 # Screen information
 # ------------------
@@ -57,7 +56,6 @@ def on_resize(width, height):
     gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_NICEST)
     gl.glDisable(gl.GL_DEPTH_TEST)
 
-switch_rgb = (s.scenario == 'calibration') or (s.scenario == 'calibration-grille')
 
 for i_win, win in enumerate(wins):
     win.on_resize = on_resize
@@ -65,14 +63,14 @@ for i_win, win in enumerate(wins):
 
     @win.event
     def on_draw():
-        global s, N_Y, N_Z
+        global s
         s.do_scenario()
         win.clear()
         gl.glColor3f(1.0, 1.0, 1.0)
         gl.glMatrixMode(gl.GL_MODELVIEW)
         gl.glLoadIdentity()
-        gl.gluPerspective(VPs[i_win]['foc'], 1.0*win.width/win.height, 0.01, 1000.0)
-        c_x, c_y, c_z = s.center
+        gl.gluPerspective(VPs[i_win]['foc'], 1.0*win.width/win.height, VPs[i_win]['pc_min'], VPs[i_win]['pc_max'])
+
         gluLookAt(VPs[i_win]['x'], VPs[i_win]['y'], VPs[i_win]['z'],
                   VPs[i_win]['cx'], VPs[i_win]['cy'], VPs[i_win]['cz'],
                   0., 0, 1.0)
