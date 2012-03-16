@@ -92,7 +92,7 @@ class Scenario(object):
 #            print y.mean(), z.mean(), y.std(), z.std()
             dt =  (self.t - self.t_last)
             self.particles[0, :] = 0. # on the refrerence plane
-            
+          
             speed_y = (Dy * speed).mean(axis=1)
             speed_z = (Dz * speed).mean(axis=1)
 
@@ -108,30 +108,3 @@ class Scenario(object):
             self.particles[1, :] = np.mod(self.particles[1, :], d_y)
             self.particles[2, :] = np.mod(self.particles[2, :], d_z)
         
-    
-    # fonction utilisée en version BITMAP à virer quand on pasera en pure openGL        
-#    def projection(self, i_VP, channel=None, xc=0, yc=0., zc=0., f_async=f_async, N_Y=N_Y, N_Z=N_Z): # yc=d_y/2., zc=d_z/2.):#
-        # (xc, yc, zc) = coordonnees en metres du point (a gauche, en bas) du plan de reference
-    
-        # TODO remove particles that are outside the depth range
-#    
-#        # convert the position of each particle to a el, az coordinate projected on the reference plane
-#        x, y, z = self.particles[0, :], self.particles[1, :], self.particles[2, :]
-#        az = ((yc-y)*(xc-x_VPs[i_VP])-(yc-y_VPs[i_VP])*(xc-x))/(x_VPs[i_VP]-x)
-#        el = ((zc-z)*(xc-x_VPs[i_VP])-(zc-z_VPs[i_VP])*(xc-x))/(x_VPs[i_VP]-x)
-##        # remove those that are outside the VP range
-##        az = az[0 < az < d_y]
-##        el = el[0 < el < d_z]
-#        # convert to integers
-#        az, el = np.floor(az*N_Y/d_y), np.floor(el*N_Z/d_z)
-#        
-#        
-##        async_do = np.arange(self.N)[np.random.rand(self.N) > f_async]
-#        #rgba = [0, 1, 2, 3]
-#        #if not(channel==None): rgba.remove(channel)
-#        image = np.ones((N_Z, N_Y, 4), dtype=np.float32)
-#        for i in xrange(self.N): #async_do:
-#            if (0 <  az[i] < N_Y) and (0 < el[i] < N_Z):
-#                image[el[i], az[i], 0] = 0.    
-#        #return image
-#        return self.particles[0:3, :]
