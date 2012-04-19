@@ -144,7 +144,7 @@ for i_win, win in enumerate(wins):
           0., 0, 1.0)
 #    win.on_draw = on_draw
 
-from scenarios_line import Scenario
+from scenarios import Scenario
 s = Scenario(p['N'], scenario, volume, VPs, p)
 
 global mytest
