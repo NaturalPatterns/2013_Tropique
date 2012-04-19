@@ -16,7 +16,7 @@ downscale = 1 # the real stuff / beware the segmentation fault
 # ---------
 # Scenarios
 # ---------
-#scenario = 'calibration'
+scenario = 'calibration'
 #scenario = 'fan'
 #scenario = '2fan'
 #scenario = 'rotating-circle'
@@ -39,7 +39,7 @@ for i, screen in enumerate(screens):
     print 'Screen %d: %dx%d at (%d,%d)' % (i,screen.width, screen.height, screen.x, screen.y)
 #screen   = screens[0]
 N_screen = len(screens) # number of screens
-#N_screen = 1 # uncomment to force display on one screen only
+N_screen = 1 # uncomment to force display on one screen only
 #N_screen = 2 # uncomment to force display on two screens at most only
 if N_screen < len(screens): screens = screens[:N_screen]
 
@@ -102,7 +102,7 @@ from pyglet.window import Window
 wins = []
 for i_screen, screen in enumerate(screens):
     if ((N_screen==1) and (i_screen==0)) or ((N_screen>1) and (i_screen>0)): 
-        print ((N_screen==1) and (i_screen==0))
+#        print ((N_screen==1) and (i_screen==0))
         wins.append(Window(screen=screens[i_screen], fullscreen=not((N_screen==1) and (i_screen==0)), resizable=((N_screen==1) and (i_screen==0)) ))#((N_screen==1) and (i_screen==0))))
 #        print('OpenGL version:', wins[i_screen].context.get_info().get_version())
 #        print('OpenGL 3.2 support:', wins[i_screen].context.get_info().have_version(3, 2))
@@ -170,13 +170,14 @@ try:
     def update(val):
         for i_key, key in enumerate(s.p.keys()):        
             s.p[key]= value[i_key].val    
-            print key, s.p[key], value[i_key].val    
+            print key, s.p[key], value[i_key].val
+        draw()
     for i_key, key in enumerate(s.p.keys()): value[i_key].on_changed(update)
     
-    pylab.show() # il faupylab.ion()
+    pylab.show() # il faut pylab.ion() pour pas avoir de blocage
     
 except Exception, e:
-    print('Could not import pylab! Error = ', e)
+    print('problem while importing sliders ! Error = ', e)
 
 all_player = None
 ##if DEBUG: fps_display = pyglet.clock.ClockDisplay(color=(1., 1., 1., 1.))
@@ -188,7 +189,7 @@ def on_draw():
 #    global mypos
 #    #    mypos = [s.center[0], s.center[1], s.center[2]]
 #    mypos =[s.center[0], s.center[1] * (1 - .5*cos(2*pi*s.t/5.)), s.center[2]]
-#    s.do_scenario(position=mypos)
+    s.do_scenario(position=mypos)
     global mytest
     if do_sock:
         send_sock.sendto("1", (send_UDP_IP, send_UDP_PORT) )
@@ -218,7 +219,7 @@ def on_draw():
     #    gl.glColor3f(1.0, 0., 0.)
     #    gl.glPointSize (10)
     
-#    pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
+    pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
     if do_sock:
         if not(all_player==None):
             for i_player, player in enumerate(all_player)  :
