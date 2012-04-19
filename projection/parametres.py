@@ -59,10 +59,11 @@ VPs = [
 # parametres du champ
 p = {'N':32, 
      'sigma':  .1, 'distance_m': .75,
-     'G_global':  8.e-1, 'G_rot':  8.e-1, 'G_centre':  1.e-2, 'eps':  1.e-3,
+     'G_global':  2., 'G_rot':  2., 'G_centre':  1., 
+     'eps':  1.e-3, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring':  1.e1, 'l_seg': 1., # dureté et longueur des segments
      'damp': 0.95,  # facteur de damping / absorbe l'énergie
-     'speed_0': 0.95, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_0': 0.1, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      } 
 
 
