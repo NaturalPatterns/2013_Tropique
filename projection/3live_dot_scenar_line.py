@@ -33,7 +33,7 @@ def read_sock():
     except:
        pass # detect = 0
     else :
-#        print"data =" ,Donnee , Client
+        print"data =" ,Donnee , Client
         #Donnee = ( x + y + z +";")*nbr_player)
         datasplit = Donnee.split(";")
 #	print "datasplit =" , datasplit
@@ -42,7 +42,7 @@ def read_sock():
             store_blob[0][1]+=200
             store_blob[0][2]+=200
             para_data = store_blob[0][3:]
-#            print "the paradata are",para_data
+            print "the paradata are",para_data
 
         else: 
             store_blob = [[ int(each2) for each2 in each.split(",") ] for each in datasplit]
@@ -85,16 +85,16 @@ N_Y, N_Z = int(screen.width//downscale), int(screen.height//downscale) # size of
 #scenario = 'rotating-circle' 
 #scenario = 'calibration'
 #scenario = 'gray-scott'#
-scenario = 'calibration-grille'
+#scenario = 'calibration-grille'
 
-#scenario = 'fan'
+scenario = 'fan'
 
-#scenario = 'calibration'
-#scenario = 'fan'
-#scenario = '2fan'
+scenario = 'calibration'
+scenario = 'fan'
+scenario = '2fan'
 #scenario = 'rotating-circle'
 #scenario = 'euler'#
-#scenario = 'leapfrog'#
+scenario = 'leapfrog'#
 N = 32
 N = 8
 N = 128
@@ -157,18 +157,16 @@ def on_draw():
     send_sock.sendto("1", (send_UDP_IP, send_UDP_PORT) )
     all_player = read_sock()
 #    all_player=[[100,200,200]]
-
     if (all_player != None) :
         nbrplayer=0
     try :
-
         for player in all_player :
+#            print player
 #            gl.glLineWidth((player[5]/10)+1)
+#            mytest[nbrplayer].do_scenario([float(player[0])/100.0,float(player[1])/100.0,float(player[2])/100.0 ], player[3], player[4]+1, (float(player[6])/100.0), (float (player [7]) / 1) / float(player[6]) ,(float(player[8])/100.0) )
+            mytest[nbrplayer].do_scenario()
 
-            mytest[nbrplayer].do_scenario([float(player[0])/100.0,float(player[1])/100.0,float(player[2])/100.0 ])
             nbrplayer+=1
-            print "koko"
-
             print "player n°",nbrplayer,float(player[0])/100.0,float(player[1])/100.0,float(player[2])/100.0 
     except :
         pass
@@ -187,7 +185,7 @@ def on_draw():
 #        pyglet.graphics.draw(mytest[a].N, gl.GL_POINTS, ('v3f', mytest[a].particles[0:3, :].T.ravel().tolist()))    
 #        pyglet.graphics.draw(mytest[a].N, gl.GL_LINES, ('v3f', mytest[a].particles[0:3, :].T.ravel().tolist()))    
         pyglet.graphics.draw(2*mytest[a].N, gl.GL_LINES, ('v3f', mytest[a].particles[0:6, :].T.ravel().tolist()))
-    pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
+#    pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
 
         
 
@@ -209,7 +207,7 @@ if N_screen>1:
 #            pyglet.graphics.draw(mytest[a].N, gl.GL_POINTS, ('v3f', mytest[a].particles[0:3, :].T.ravel().tolist()))        
 #            pyglet.graphics.draw(mytest[a].N, gl.GL_LINES, ('v3f', mytest[a].particles[0:3, :].T.ravel().tolist()))    
             pyglet.graphics.draw(2*mytest[a].N, gl.GL_LINES, ('v3f', mytest[a].particles[0:6, :].T.ravel().tolist()))
-        pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
+#        pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
 
 
 if N_screen>2:
@@ -230,7 +228,7 @@ if N_screen>2:
 #            pyglet.graphics.draw(mytest[a].N, gl.GL_POINTS, ('v3f', mytest[a].particles[0:3, :].T.ravel().tolist()))
 #            pyglet.graphics.draw(mytest[a].N, gl.GL_LINES, ('v3f', mytest[a].particles[0:3, :].T.ravel().tolist()))    
             pyglet.graphics.draw(2*mytest[a].N, gl.GL_LINES, ('v3f', mytest[a].particles[0:6, :].T.ravel().tolist()))
-        pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
+#        pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
 
 
 #win_3=wins[3]
