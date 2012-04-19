@@ -24,6 +24,7 @@ from numpy import arctan2, pi
 largeur_ecran = 1.21 # fermé à fond
 distance_ecran = 2.82
 foc = 2 * arctan2(largeur_ecran/2, distance_ecran) * 180 / pi # 
+#foc = 45.
 # taille du plan de reference
 d_y, d_z = 4.54, 4.54*3/4
 # distance des VPs du plan de reference
@@ -54,3 +55,15 @@ VPs = [
             'cx':0., 'cy':d_y/2, 'cz': d_z/2, # on regarde le centre du plan de reference
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
         ]
+
+# parametres du champ
+p = {'N':32, 
+     'sigma':  .1, 'distance_m': .75,
+     'G_global':  8.e-1, 'G_rot':  8.e-1, 'G_centre':  1.e-2, 'eps':  1.e-3,
+     'G_spring':  1.e1, 'l_seg': 1., # dureté et longueur des segments
+     'damp': 0.95, # facteur de damping / absorbe l'énergie
+     } 
+
+
+if __name__ == "__main__":
+    import line
