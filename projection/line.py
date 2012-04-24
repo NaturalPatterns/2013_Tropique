@@ -4,6 +4,12 @@
 Particle-like simulations using pyglet and a ugly bitmat
 
 """
+
+#import sys
+#window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
+
+
+
 DEBUG = False
 #DEBUG = True
 
@@ -216,7 +222,7 @@ def on_draw():
         positions = []
 #        positions = [[s.center[0], s.center[1], s.center[2]]] # une personne fixe
         T = 20.
-        positions.append([s.center[0], s.center[1] * (1 - .5*cos(2*pi*s.t/T)), 1.5*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
+        positions.append([s.center[0], s.center[1] * (1 - .5*cos(2*pi*s.t/T)), 1.2*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
 #         positions.append([s.center[0], s.center[1] * (1 + .5*cos(2*pi*s.t/T)), 0.5*s.center[2]]) # une autre personne dans un mouvement en phase
 #    print positions
     s.do_scenario(positions=positions)

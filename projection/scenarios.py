@@ -72,7 +72,7 @@ class Scenario:
                 sinAB_OC /= np.sqrt(np.sum(AB[1:]**2, axis=0)) + self.p['eps']
                 sinAB_OC /= np.sqrt(np.sum(OC[1:]**2, axis=0)) + self.p['eps']
     #            print AB.shape, np.hstack((AB[1,:],-AB[0,:])).shape
-                rotation =sinAB_OC * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / (np.sum(AB**2, axis=0) + self.p['eps']**2) ** (n/2.)
+                rotation = sinAB_OC * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / (np.sum(AB**2, axis=0) + self.p['eps']**2) ** (n/2.)
                 force[0:3, :] += self.p['G_rot'] * rotation
                 force[3:6, :] -= self.p['G_rot'] * rotation
 
@@ -158,19 +158,19 @@ class Scenario:
 #             self.particles = 1000*np.ones((6, self.N)) # segments outside 
             frequency_plane = .005 # how fast the whole disk moves in Hz
             length = .5 # length of each AB
-            elevation = 65. * np.pi / 180.  # elevation (in radians) of viual angle for the points of convergence defiing the cristal's circle
-            radius = 2. # convergence happens on a circle defined as the section of sphere of radius=radius and the elevation
+            mean_elevation, frequency_elevation, std_elevation = 90. * np.pi / 180., 0.3, 45. * np.pi / 180.  # elevation (in radians) of viual angle for the points of convergence defiing the cristal's circle
+            radius = 1.5 # convergence happens on a circle defined as the section of sphere of radius=radius and the elevation
 
             N_dots = self.N # np.min(16, self.N) # number of segments
             angle = 2 * np.pi * frequency_plane * self.t + np.linspace(0, 2 * np.pi, N_dots)
-
+            elevation = mean_elevation + std_elevation * np.sin(2 * np.pi * frequency_elevation * self.t)
 
             self.particles[0, :N_dots] = radius*np.cos(elevation)
-            self.particles[1, :N_dots] = radius*np.cos(elevation) * np.sin(angle)
-            self.particles[2, :N_dots] = radius*np.cos(elevation) * np.cos(angle)
+            self.particles[1, :N_dots] = radius*np.sin(elevation) * np.sin(angle)
+            self.particles[2, :N_dots] = radius*np.sin(elevation) * np.cos(angle)
             self.particles[3, :N_dots] = (radius+length)*np.cos(elevation)
-            self.particles[4, :N_dots] = (radius+length)*np.cos(elevation) * np.sin(angle)
-            self.particles[5, :N_dots] = (radius+length)*np.cos(elevation) * np.cos(angle)
+            self.particles[4, :N_dots] = (radius+length)*np.sin(elevation) * np.sin(angle)
+            self.particles[5, :N_dots] = (radius+length)*np.sin(elevation) * np.cos(angle)
             self.particles[0:3, :] += np.array(positions[0])[:, np.newaxis]
             self.particles[3:6, :] += np.array(positions[0])[:, np.newaxis]
 
@@ -266,9 +266,10 @@ class Scenario:
             self.particles[3:6, :] += np.array(positions[0])[:, np.newaxis]
 
         #  permet de ne pas sortir du volume (todo: créer un champ répulsif aux murs...)
-        for i in range(6):
-            self.particles[i, (self.particles[i, :] > self.volume[i%3]) ] = self.volume[i%3]
-            self.particles[i, (self.particles[i, :] < 0.) ] = 0.
+        if (self.scenario == 'champ'):
+            for i in range(6):
+                self.particles[i, (self.particles[i, :] > self.volume[i % 3]) ] = self.volume[i % 3]
+                self.particles[i, (self.particles[i, :] < 0.) ] = 0.
 
 
 
