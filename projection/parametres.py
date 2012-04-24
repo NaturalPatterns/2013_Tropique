@@ -24,7 +24,7 @@ from numpy import arctan2, pi
 largeur_ecran = 1.21 # fermé à fond
 distance_ecran = 2.82
 foc = 2 * arctan2(largeur_ecran/2, distance_ecran) * 180 / pi # 
-#foc = 45.
+#foc = 38.
 # taille du plan de reference
 d_y, d_z = 4.54, 4.54*3/4
 # distance des VPs du plan de reference
@@ -57,14 +57,18 @@ VPs = [
         ]
 
 # parametres du champ
-p = {'N':32, 
-     'sigma':  .1, 'distance_m': .75,
-     'G_global':  2., 'G_rot':  2., 'G_centre':  1., 
-     'eps':  1.e-3, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
-     'G_spring':  1.e1, 'l_seg': 1., # dureté et longueur des segments
-     'damp': 0.95,  # facteur de damping / absorbe l'énergie
+p = {'N':128,
+     'distance_m': .2, # distance tabou
+     'G_global': 3., # attraction globale vers les centres des positions
+     'G_rot': 10.0,
+     'G_centre': .10, # contante d'attraction entre les paticules
+     'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
+     'G_gravite': .1, # force de gravité vers le bas de la piece
+     'G_spring': 10., 'l_seg': .2, # dureté et longueur des segments
+     'damp': 1.,  # facteur de damping / absorbe l'énergie
      'speed_0': 0.1, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
-     } 
+      'kurt' : 4, # 2 is normal gravity, more gets more local
+     }
 
 
 if __name__ == "__main__":
