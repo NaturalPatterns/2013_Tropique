@@ -57,7 +57,7 @@ VPs = [
         ]
 
 # parametres du champ
-p = {'N':128,
+p = {'N':16,
      'distance_m': .2, # distance tabou
      'G_global': 3., # attraction globale vers les centres des positions
      'G_rot': 10.0,

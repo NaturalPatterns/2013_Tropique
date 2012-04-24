@@ -22,6 +22,7 @@ scenario = 'calibration'
 #scenario = 'rotating-circle'
 #scenario = 'euler'#
 scenario = 'leapfrog'#
+scenario = 'cristal'
 
 # Screen information
 # ------------------
@@ -36,37 +37,37 @@ print "display" , display
 screens = display.get_screens()
 print "screens" , screens
 for i, screen in enumerate(screens):
-    print 'Screen %d: %dx%d at (%d,%d)' % (i,screen.width, screen.height, screen.x, screen.y)
+    print 'Screen %d: %dx%d at (%d,%d)' % (i, screen.width, screen.height, screen.x, screen.y)
 #screen   = screens[0]
 N_screen = len(screens) # number of screens
 N_screen = 1 # uncomment to force display on one screen only
 #N_screen = 2 # uncomment to force display on two screens at most only
 if N_screen < len(screens): screens = screens[:N_screen]
 
-if (N_screen>1): do_sock=True
-else: do_sock=False
+if (N_screen > 2): do_sock = True
+else: do_sock = False
 #do_sock=True
 
 if do_sock:
-    import socket 
-    UDP_IP=""
-    UDP_PORT=3003
+    import socket
+    UDP_IP = ""
+    UDP_PORT = 3003
     print "UDP my port:", UDP_PORT
-    sock = socket.socket( socket.AF_INET,socket.SOCK_DGRAM ) # UDP
-    sock.bind( (UDP_IP,UDP_PORT) )
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM ) # UDP
+    sock.bind((UDP_IP, UDP_PORT) )
     #sock.settimeout(0)
     sock.setblocking(0)
-    send_UDP_IP="10.42.43.20"
-    send_UDP_PORT=3005
+    send_UDP_IP = "10.42.43.20"
+    send_UDP_PORT = 3005
     print "UDP target IP:", send_UDP_IP
     print "UDP target port:", send_UDP_PORT
-    send_sock = socket.socket( socket.AF_INET,socket.SOCK_DGRAM ) # UDP
+    send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM ) # UDP
     global para_data
-    para_data=[1 , 10, 50, 350, 5 ] # TODO : decrire a quoi ca correspond?
-    
+    para_data = [1 , 10, 50, 350, 5 ] # TODO : decrire a quoi ca correspond?
+
     def read_sock():
         global para_data
-        try :	
+        try :
             Donnee, Client = sock.recvfrom (128)
         except (KeyboardInterrupt):
             raise
@@ -77,23 +78,23 @@ if do_sock:
             #Donnee = ( x + y + z +";")*nbr_player)
             datasplit = Donnee.split(";")
     #	print "datasplit =" , datasplit
-            if (Client[0] == "10.42.43.1"): 
-                store_blob = [[ int(each2) for each2 in each.split(" ") ] for each in datasplit[:len(datasplit)-1]]
-                store_blob[0][1]+=200
-                store_blob[0][2]+=200
+            if (Client[0] == "10.42.43.1"):
+                store_blob = [[int(each2) for each2 in each.split(" ") ] for each in datasplit[:len(datasplit)-1]]
+                store_blob[0][1] += 200
+                store_blob[0][2] += 200
                 para_data = store_blob[0][3:]
 #                print "the paradata are",para_data
-    
-            else: 
-                store_blob = [[ int(each2) for each2 in each.split(",") ] for each in datasplit]
+
+            else:
+                store_blob = [[int(each2) for each2 in each.split(",") ] for each in datasplit]
                 for all in store_blob:
-                    all+=para_data
-    
+                    all += para_data
+
     #	store_blob = [ int(each2) for each2 in datasplit[0].split(" ") ]
             return store_blob
 
 else:
-    positions = None    
+    positions = None
 
 
 # Window information
@@ -101,14 +102,21 @@ else:
 from pyglet.window import Window
 wins = []
 for i_screen, screen in enumerate(screens):
-    if ((N_screen==1) and (i_screen==0)) or ((N_screen>1) and (i_screen>0)): 
-#        print ((N_screen==1) and (i_screen==0))
-        wins.append(Window(screen=screens[i_screen], fullscreen=not((N_screen==1) and (i_screen==0)), resizable=((N_screen==1) and (i_screen==0)) ))#((N_screen==1) and (i_screen==0))))
+    wins.append(Window(screen=screens[i_screen], fullscreen=False, resizable=True) )
+
+#     if ((N_screen == 1) and (i_screen == 0)) or ((N_screen > 1) and (i_screen > 0)):
+# #        print ((N_screen==1) and (i_screen==0))
+#         wins.append(Window(screen=screens[i_screen], fullscreen=not((N_screen == 1) and (i_screen == 0)), resizable=((N_screen == 1) and (i_screen == 0)) ))
+
+        #((N_screen==1) and (i_screen==0))))
 #        print('OpenGL version:', wins[i_screen].context.get_info().get_version())
 #        print('OpenGL 3.2 support:', wins[i_screen].context.get_info().have_version(3, 2))
 #        icon1 = pyglet.image.load('16x16.png')
 #        icon2 = pyglet.image.load('32x32.png')
 #        window.set_icon(icon1, icon2)
+
+print wins
+
 import pyglet.gl as gl
 from pyglet.gl.glu import gluLookAt
 
@@ -168,13 +176,13 @@ try:
         ax.append(fig.add_axes([0.15, 0.05+i_key/(n_key-1)*.9, 0.6, 0.05], axisbg='lightgoldenrodyellow'))
         value.append(Slider(ax[i_key], key, 0., s.p[key]*10, valinit=s.p[key]))
     def update(val):
-        for i_key, key in enumerate(s.p.keys()):        
-            s.p[key]= value[i_key].val    
+        for i_key, key in enumerate(s.p.keys()):
+            s.p[key]= value[i_key].val
             # print key, s.p[key], value[i_key].val
     for i_key, key in enumerate(s.p.keys()): value[i_key].on_changed(update)
-    
+
     fig.show(block=False) # il faut pylab.ion() pour pas avoir de blocage
-    
+
 except Exception, e:
     print('problem while importing sliders ! Error = ', e)
 
@@ -209,7 +217,7 @@ def on_draw():
 #        positions = [[s.center[0], s.center[1], s.center[2]]] # une personne fixe
         T = 20.
         positions.append([s.center[0], s.center[1] * (1 - .5*cos(2*pi*s.t/T)), 1.5*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
-        positions.append([s.center[0], s.center[1] * (1 + .5*cos(2*pi*s.t/T)), 0.5*s.center[2]]) # une autre personne dans un mouvement en phase
+#         positions.append([s.center[0], s.center[1] * (1 + .5*cos(2*pi*s.t/T)), 0.5*s.center[2]]) # une autre personne dans un mouvement en phase
 #    print positions
     s.do_scenario(positions=positions)
     
