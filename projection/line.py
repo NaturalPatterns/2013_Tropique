@@ -62,7 +62,7 @@ if do_sock:
     print "UDP target port:", send_UDP_PORT
     send_sock = socket.socket( socket.AF_INET,socket.SOCK_DGRAM ) # UDP
     global para_data
-    para_data=[1 , 10, 50, 350, 5 ]
+    para_data=[1 , 10, 50, 350, 5 ] # TODO : decrire a quoi ca correspond?
     
     def read_sock():
         global para_data
@@ -93,7 +93,7 @@ if do_sock:
             return store_blob
 
 else:
-    mypos = None    
+    positions = None    
 
 
 # Window information
@@ -147,17 +147,17 @@ for i_win, win in enumerate(wins):
 from scenarios import Scenario
 s = Scenario(p['N'], scenario, volume, VPs, p)
 
-global mytest
-mytest=[]
-for testplay in range (9):
-    mytest.append(Scenario(p['N'], scenario, volume, VPs, p))
-
+#global mytest
+#mytest=[]
+#for testplay in range (9):
+#    mytest.append(Scenario(p['N'], scenario, volume, VPs, p))
 
 try:
+    caca
     import pylab
-    pylab.ion()
     fig = pylab.figure(1)
 #    AX = fig.add_subplot(111)
+    pylab.ion()
     # turn interactive mode on for dynamic updates.  If you aren't in interactive mode, you'll need to use a GUI event handler/timer.
     from matplotlib.widgets import Slider
     ax, value = [], []
@@ -170,44 +170,48 @@ try:
     def update(val):
         for i_key, key in enumerate(s.p.keys()):        
             s.p[key]= value[i_key].val    
-            print key, s.p[key], value[i_key].val
-        draw()
+            # print key, s.p[key], value[i_key].val
     for i_key, key in enumerate(s.p.keys()): value[i_key].on_changed(update)
     
-    pylab.show() # il faut pylab.ion() pour pas avoir de blocage
+    fig.show(block=False) # il faut pylab.ion() pour pas avoir de blocage
     
 except Exception, e:
     print('problem while importing sliders ! Error = ', e)
 
-all_player = None
 ##if DEBUG: fps_display = pyglet.clock.ClockDisplay(color=(1., 1., 1., 1.))
 from numpy import cos, pi
 win_0=wins[0]
 @win_0.event
 def on_draw():
-    global s, all_player
-#    global mypos
-#    #    mypos = [s.center[0], s.center[1], s.center[2]]
-#    mypos =[s.center[0], s.center[1] * (1 - .5*cos(2*pi*s.t/5.)), s.center[2]]
-    s.do_scenario(position=mypos)
-    global mytest
+    global s
+    
     if do_sock:
         send_sock.sendto("1", (send_UDP_IP, send_UDP_PORT) )
-        all_player_ = read_sock()
-    #    all_player=[[100,200,200]]
-    #        print 'all1&_player =', all_player
-        if not(all_player_==None):
-            all_player = all_player_
-#        try :
-            if not(all_player==None):
-                for i_player, player in enumerate(all_player) :
-                    #            print player
-                    #                gl.glLineWidth((player[5]/10)+1)
-                    mytest[i_player].do_scenario(position=[float(player[0])/100.0,float(player[1])/100.0,float(player[2])/100.0])
-                    print "player n°",i_player, ':', float(player[0])/100.0,float(player[1])/100.0,float(player[2])/100.0 
-#        except :
-#            pass
-
+        positions = read_sock() # TODO: c'est bien une liste de coordonnées [x, y, z] ?
+        
+        # TODO: ces hacks permettent d'éviter un trou dans la captation: mais ça doit aller dans les scripts de captation justement...
+#    #    all_player=[[100,200,200]]
+#    #        print 'all1&_player =', all_player
+#        if not(all_player_==None):
+#            all_player = all_player_
+##        try :
+#            if not(all_player==None):
+#                for i_player, player in enumerate(all_player) :
+#                    #            print player
+#                    #                gl.glLineWidth((player[5]/10)+1)
+#                    mytest[i_player].do_scenario(positions=[float(player[0])/100.0,float(player[1])/100.0,float(player[2])/100.0])
+#                    print "player n°",i_player, ':', float(player[0])/100.0,float(player[1])/100.0,float(player[2])/100.0 
+##        except :
+##            pass
+    else:
+        # HACK pour simuler ROGER:
+        positions = []
+#        positions = [[s.center[0], s.center[1], s.center[2]]] # une personne fixe
+        T = 20.
+        positions.append([s.center[0], s.center[1] * (1 - .5*cos(2*pi*s.t/T)), 1.5*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
+        positions.append([s.center[0], s.center[1] * (1 + .5*cos(2*pi*s.t/T)), 0.5*s.center[2]]) # une autre personne dans un mouvement en phase
+#    print positions
+    s.do_scenario(positions=positions)
     
     win.clear()
     gl.glMatrixMode(gl.GL_MODELVIEW)
@@ -220,12 +224,12 @@ def on_draw():
     #    gl.glPointSize (10)
     
     pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
-    if do_sock:
-        if not(all_player==None):
-            for i_player, player in enumerate(all_player)  :
-                pyglet.graphics.draw(2*mytest[i_player].N, gl.GL_LINES, ('v3f', mytest[i_player].particles[0:6, :].T.ravel().tolist()))
-#        except :
-#            pass
+#    if do_sock:
+#        if not(all_player==None):
+#            for i_player, player in enumerate(all_player)  :
+#                pyglet.graphics.draw(2*mytest[i_player].N, gl.GL_LINES, ('v3f', mytest[i_player].particles[0:6, :].T.ravel().tolist()))
+##        except :
+##            pass
     
 
 #    if DEBUG: fps_display.draw()

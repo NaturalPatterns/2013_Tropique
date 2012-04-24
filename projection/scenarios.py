@@ -14,9 +14,9 @@ class Scenario:
         self.scenario = scenario
         self.volume = volume
         d_x, d_y, d_z = self.volume
-        self.center = np.array([d_x/2, d_y/2, d_z/2]) # central fixation dot on the reference plane
+        self.center = np.array([0., d_y/2, d_z/2]) # central point of the room  / pont focal, pour lequel on optimise kinect et VPs?
         self.roger = np.array([d_x/2, d_y/2, d_z/2]) #  fixation dot  (AKA Roger?)
-        self.origin = np.array([0., 0., 0.]) # origin
+#        self.origin = np.array([0., 0., 0.]) # origin
 
         self.VPs = VPs
         self.p = p
@@ -25,11 +25,11 @@ class Scenario:
 
         self.order = 2
         self.particles = np.zeros((6*self.order, N)) # x, y, z, u, v, w
-        self.particles[0:6, :] = np.random.randn(6, self.N)*d_y/16
+        self.particles[0:6, :] = np.random.randn(6, self.N)*d_y/4
         self.particles[0:3, :] += self.center[:, np.newaxis]
         self.particles[3:6, :] += self.center[:, np.newaxis]
 
-    def champ(self, position):
+    def champ(self, positions):
 
         # HACK: on place tous les segments sur le plan du fond pour avoir une approximation de l'espace perceptuel
         self.particles[0, :] = self.center[0]
@@ -41,36 +41,42 @@ class Scenario:
         ##forces globales
         
         # TODO :  gravité vers le bas pour séparer 2 phases
-        
-        # TODO :  passer en coordonnées perceptuelles / utiliser la position des VPs 
+        force[2, :] -= self.p['G_gravite']
+        force[5, :] -= self.p['G_gravite']
+
         # todo : éviter plaquage le long de bords
         
-        if not(position==None) and not(position==np.nan):
-            position[0] = self.center[0]
-#            position[1] += 1. 
+        if not(positions==None) and not(positions==np.nan):
+            for position in positions:
+                # if self.p['G_global']>0:
+                # TODO :  passer en coordonnées perceptuelles / utiliser la position des VPs 
+#                print self.t, position
+                n = self.p['kurt']
+                position[0] = self.center[0]
+                # point A du segment
+                OA =  self.particles[0:3, :] - np.array(position)[:, np.newaxis]# 3 x N
+                distance = np.sqrt(np.sum(OA**2, axis=0)) # en metres
+                gravity = - OA * (distance**n - self.p['distance_m']**n)/(distance + self.p['eps'])**(n+3) # en metres
+#                gravity = - OA  /(distance + self.p['eps'])**3 # en metres
+                force[0:3, :] += self.p['G_global'] * gravity
 
-            OA =  self.particles[0:3, :] - np.array(position)[:, np.newaxis]# 3 x N
-            distance = np.sqrt(np.sum(OA**2, axis=0)) # en metres
-            gravity = - OA * (distance - self.p['distance_m'])/(distance + self.p['eps'])**4 # en metres
-#            gravity = - self.p['G_global'] *  (D_ij)/(distance + self.p['eps'])**3 # en metres
-#            print gravity.shape, distance.shape, D_ij.shape
-            force[0:3, :] += self.p['G_global'] * gravity
-            OB = self.particles[3:6, :]-np.array(position)[:, np.newaxis]
-            distance = np.sqrt(np.sum(OB**2, axis=0)) # en metres
-            gravity = - OB * (distance - self.p['distance_m'])/(distance + self.p['eps'])**4 # en metres
-#            gravity = - self.p['G_global'] *  (D_ij)/(distance + self.p['eps'])**3 # en metres
-            force[3:6, :] += self.p['G_global'] * gravity
+                # point B du segment
+                OB = self.particles[3:6, :]-np.array(position)[:, np.newaxis]
+                distance = np.sqrt(np.sum(OB**2, axis=0)) # en metres
+                gravity = - OB * (distance**n - self.p['distance_m']**n)/(distance + self.p['eps'])**(n+3) # en metres
+#                gravity = - OB  /(distance + self.p['eps'])**3 # en metres
+                force[3:6, :] += self.p['G_global'] * gravity
+        
+                AB = self.particles[3:6, :] - self.particles[0:3, :]# 3 x N
+                OC = (self.particles[0:3, :]+self.particles[3:6, :])/2-np.array(position)[:, np.newaxis]
+                sinAB_OC = (AB[1, :]*OC[2,:] - AB[2, :]*OC[1,:]) # 1 x N
+                sinAB_OC /= np.sqrt(np.sum(AB[1:]**2, axis=0)) + self.p['eps']
+                sinAB_OC /= np.sqrt(np.sum(OC[1:]**2, axis=0)) + self.p['eps']
+    #            print AB.shape, np.hstack((AB[1,:],-AB[0,:])).shape
+                rotation =  sinAB_OC  * np.vstack((AB[0,:], -AB[2,:], AB[1,:])) / (np.sum(AB**2, axis=0) + self.p['eps']**2) ** (n/2.)
     
-            AB = self.particles[3:6, :] - self.particles[0:3, :]# 3 x N
-            OC = (self.particles[0:3, :]+self.particles[3:6, :])/2-np.array(position)[:, np.newaxis]
-            sinAB_OC = (AB[1, :]*OC[2,:] - AB[2, :]*OC[1,:]) # 1 x N
-            sinAB_OC /= np.sqrt(np.sum(AB[1:]**2, axis=0)) + self.p['eps']
-            sinAB_OC /= np.sqrt(np.sum(OC[1:]**2, axis=0)) + self.p['eps']
-#            print AB.shape, np.hstack((AB[1,:],-AB[0,:])).shape
-            rotation =  sinAB_OC  * np.vstack((AB[0,:], -AB[2,:], AB[1,:])) / np.sqrt(np.sum(AB**2, axis=0))
-
-            force[0:3, :] += self.p['G_rot'] * rotation
-            force[3:6, :] -= self.p['G_rot'] * rotation
+                force[0:3, :] += self.p['G_rot'] * rotation
+                force[3:6, :] -= self.p['G_rot'] * rotation
                 
 
         ## forces entres les particules
@@ -112,25 +118,28 @@ class Scenario:
         force[3:6, :] += self.p['G_spring'] * (distance[np.newaxis, :] - self.p['l_seg']) * AB / (distance[np.newaxis, :] + self.p['eps']) 
         
         # damping        
-        # force -= self.p['damp'] * self.particles[6:12, :]
+        force -= self.p['damp'] * self.particles[6:12, :]/self.dt
 
         # HACK: on place tous les segments sur le plan du fond pour avoir une approximation de l'espace perceptuel
         self.particles[0, :] = self.center[0]
         self.particles[3, :] = self.center[0]
         self.particles[6, :] = 0.
         self.particles[9, :] = 0.
-
+        force[0, :] = 0.
+        force[3, :] = 0.
+        
         force *= self.p['speed_0'] 
         
         return force
             
 
-    def do_scenario(self, position=None):
+    def do_scenario(self, positions=None):
         self.t_last = self.t
         self.t = time.time()
-        dt = (self.t - self.t_last)
+        self.dt = (self.t - self.t_last)
         d_x, d_y, d_z = self.volume
-        
+
+
         if self.scenario == 'calibration':
 #             self.particles = np.zeros((6, self.N))
 
@@ -214,35 +223,40 @@ class Scenario:
             self.particles[3:6, N_dots:] = self.origin[:, np.newaxis] + .0001 # très fin
 
         elif self.scenario == 'leapfrog':
-            self.particles[0:6, :] += self.particles[6:12, :] * dt/2
-            force = self.champ(position=position)
-            self.particles[6:12, :] += force * dt
+            self.particles[0:6, :] += self.particles[6:12, :] * self.dt/2
+            force = self.champ(positions=positions)
+            self.particles[6:12, :] += force * self.dt
             # application de l'acceleration calculée sur les positions
-            self.particles[0:6, :] += self.particles[6:12, :] * dt/2
-
+            self.particles[0:6, :] += self.particles[6:12, :] * self.dt/2
 
         elif self.scenario == 'euler':            
-            force = self.champ(position=position)
-            self.particles[6:12, :] += force * dt
+            force = self.champ(positions=positions)
+            self.particles[6:12, :] += force * self.dt
             # application de l'acceleration calculée sur les positions
-            self.particles[0:6, :] += self.particles[6:12, :] * dt
+            self.particles[0:6, :] += self.particles[6:12, :] * self.dt
 
-            
-        if not(position==None) and not(position==np.nan) and not(self.scenario == 'euler') and not(self.scenario == 'leapfrog'):
+#         # routines on the position
+#         if not(positions==None) and not(positions==np.nan) :
+#             for position in positions:
+#                 for VP in self.VPs:
+#                     # TODO : fonction tabou dans les scenarios: zone d'évitement des bords: passer en coordonnées perceptuelles / utiliser la position des VPs / utiliser la position des VPs 
+#                     A=1
+# 
+
+        if not(positions==None) and not(positions==np.nan) and not(self.scenario == 'euler') and not(self.scenario == 'leapfrog'):
+            # pour la calibration on centrele pattern autour de  premiere personne captée
 #            print('je dois pas passer par là')
-            self.particles[0:3, :] += np.array(position)[:, np.newaxis]
-            self.particles[3:6, :] += np.array(position)[:, np.newaxis]
             self.particles[0:3, :] -= self.center[:, np.newaxis]
             self.particles[3:6, :] -= self.center[:, np.newaxis]
+            self.particles[0:3, :] += np.array(positions[0])[:, np.newaxis]
+            self.particles[3:6, :] += np.array(positions[0])[:, np.newaxis]
 
         #  permet de ne pas sortir du volume (todo: créer un champ répulsif aux murs...)
         for i in range(6): 
             self.particles[i, (self.particles[i, :] > self.volume[i%3]) ] = self.volume[i%3]
             self.particles[i, (self.particles[i, :] < 0.) ] = 0.
 
-
-        # TODO : fonction tabou dans les scenarios: zone d'évitement des bords: passer en coordonnées perceptuelles / utiliser la position des VPs / utiliser la position des VPs 
-
+        
 
 if __name__ == "__main__":
     import line
