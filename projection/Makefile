@@ -1,3 +1,3 @@
-default: line.py parametres.py scenarios.py
-	python line.py
+default: explore.py parametres.py scenarios.py
+	python explore.py
 	#TODO python display.py 1 &
