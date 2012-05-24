@@ -24,10 +24,18 @@ s.connect((HOST, PORT))
 s.sendall('Hello, world')
 
 data = s.recv(2024)
-print 'Received', repr(data)
-print 'Received', repr(data[9:17])
+print 'Received', (data)
+print 'Received', repr(data[10:17])
 passwd = "TROPIC"
-s.sendall(str(gen_md5(str(passwd),repr(data[9:17]))) + "%1POWR ?\r")
+gen = str((data[9:17]))
+print passwd, gen , str(gen) + str(passwd)
+#passwd = "JBMIAProjectorLink"
+#gen="498e4a67"
+
+print str(gen_md5(passwd , gen)) + str("%1NAME ?") + "\r"
+s.send(str(gen_md5(passwd , gen)) + str("%1NAME ?") + "\r") 
+#s.sendall( "2531504f5752203f\r")
+
 data = s.recv(2024)
 print 'Received', repr(data)
 #s.sendall('%1NAME ?\r')
