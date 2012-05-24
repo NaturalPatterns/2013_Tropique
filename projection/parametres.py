@@ -50,18 +50,6 @@ cz = d_z/2
 # leur adresse, port, leurs parametres physiques
 # TODO: ne mettre que les VPs qui sont utilisés
 VPs = [
-#        {'address':'10.42.0.95', 'port': 50035,
-#            'x':d_x, 'y':2.03, 'z': z,
-#            'cx':cx, 'cy':cy, 'cz': cz,
-#            'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
-#        {'address':'192.168.2.2', 'port': 50035,
-#            'x':d_x, 'y':2.03, 'z': z,
-#            'cx':cx, 'cy':cy, 'cz': cz,
-#            'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
-#        {'address':'10.42.0.50', 'port': 50035,
-#            'x':d_x, 'y':2.03, 'z': z,
-#            'cx':cx, 'cy':cy, 'cz': cz,
-#            'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
         {'address':'10.42.0.51', 'port': 50035,
             'x':d_x, 'y':5.26, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
@@ -74,35 +62,32 @@ VPs = [
             'x':d_x, 'y':0., 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
-#        {'address':'10.42.0.1', 'port': 50037,
-#            'x':d_x, 'y':2.03, 'z': z,
-#            'cx':cx, 'cy':cy, 'cz': cz,
-#            'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
         ]
 
 # parametres du champ
 p = {'N':32,
      'distance_m': .8, # distance d'équilibre des segments autour d'une position de player	
-     'G_global': 20., # attraction globale vers les centres des positions
+     'G_global': 15., # attraction globale vers les centres des positions
 #      'G_rot': 1.0,
-      'G_rot': 3.0,
+      'G_rot': 2.,
 #     'G_struct': 15.0,
-#     'distance_tabou': .8, # distance tabou
-     'distance_tabou': 1.4, # distance tabou
+     'distance_tabou': .8, # distance tabou
+#     'distance_tabou': 1.4, # distance tabou
      'G_tabou': 20.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
-#     'G_centre': 1.5, # constante de répulsion entre les particules
-     'G_centre': .9, # constante de répulsion entre les particules
-#     'G_centre': .001, # constante de répulsion entre les particules
+     'G_repulsion': 1.6, # constante de répulsion entre les particules
+#     'G_repulsion': 1.9, # constante de répulsion entre les particules
+#     'G_repulsion': .001, # constante de répulsion entre les particules
      'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_gravite': 0., # force de gravité vers le bas de la piece
-     'G_spring': 20., 'l_seg': 0.3, # dureté et longueur des segments
-#     'damp': .2,  # facteur de damping / absorbe l'énergie
-          'damp': .6,  # facteur de damping / absorbe l'énergie
+#     'G_spring': 20., 'l_seg': 0.3, # dureté et longueur des segments
+     'G_spring': 20., 'l_seg_min': 0.4, 'l_seg_max': 2., # dureté et longueur des segments
+     'damp': .05,  # facteur de damping / absorbe l'énergie / regle la viscosité 
+#      'damp': .6,  # facteur de damping / absorbe l'énergie / regle la viscosité 
 #     'speed_0': .9, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules###
-     'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_0': 3., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
 #     'speed_0': .9, 
-#     'kurt' : .5, # 1 is normal gravity, more gets more local
-     'kurt' : 1, # 1 is normal gravity, more gets more local
+     'kurt' : .5, # 1 is normal gravity, more gets more local
+#     'kurt' : 1, # 1 is normal gravity, more gets more local
      'line_width': 4, # line width of segments
      }
 

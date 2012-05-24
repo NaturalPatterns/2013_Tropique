@@ -92,8 +92,16 @@ class Scenario:
             
         self.p = p
         self.N = N
+        self.l_seg = p['l_seg_min'] * np.ones(N)
 #        self.speed_0 = 0.1 # average speed in m/s
-
+#        self.l_seg = p['l_seg_min']* np.linspace(0, p['l_seg_max']**(1/order), self.N)**order
+        self.l_seg = np.linspace(p['l_seg_min'], p['l_seg_min']*1.5, self.N)
+#        log_scale = 2
+#        self.l_seg = np.logspace(np.log(p['l_seg_min'])/np.log(log_scale),
+#                            np.log(p['l_seg_min']*2)/np.log(log_scale), num=self.N,
+#                            endpoint=True, base=log_scale)
+        self.l_seg[-2:] = p['l_seg_max']         
+#                            np.linspace(np.log(p['l_seg_min'], base=base), p['l_seg_max']**(1/order), self.N)**order
         self.order = 2
         self.particles = np.zeros((6*self.order, N), dtype='f') # x, y, z, u, v, w
 #         self.particles[0:6, :] = np.random.randn(6, self.N)*d_y/4
@@ -101,9 +109,9 @@ class Scenario:
 
 
         self.particles[0:3, :] = self.center[:, np.newaxis] 
-        self.particles[1:3, :] += np.random.randn(2, self.N)*d_y*2
+        self.particles[1:3, :] += np.random.rand(2, self.N)*d_y
 #        self.particles[3:6, :] = self.particles[0:3, :] + np.random.randn(3, self.N)*self.p['l_seg'] 
-        self.particles[4:6, :] = self.particles[1:3, :] + np.random.randn(2, self.N)*self.p['l_seg']
+        self.particles[4:6, :] = self.particles[1:3, :] + self.l_seg # np.random.randn(2, self.N)*self.l_seg
 
     def champ(self, positions):
 
@@ -171,6 +179,7 @@ class Scenario:
 
                     AB = self.particles[3:6, :] - self.particles[0:3, :]# 3 x N
                     rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
+#                    rotation_ = np.sinh((cap_SC-cap_AB)/20.)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
 #                    rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :]*rae2xyz(np.array([1., rae_AB[1]+np.pi/2, rae_AB[2]+np.pi/2]))[:, np.newaxis]
 
                     # only assign on the indices that correspond to the minimal distance
@@ -192,26 +201,26 @@ class Scenario:
         CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
         distance = np.sqrt(np.sum(CC**2, axis=0)) # NxN ; en metres
         gravity = - np.sum(CC/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
-        force[0:3, :] += self.p['G_centre'] * gravity
-        force[3:6, :] += self.p['G_centre'] * gravity
+        force[0:3, :] += self.p['G_repulsion'] * gravity
+        force[3:6, :] += self.p['G_repulsion'] * gravity
         # attraction / repulsion des angles relatifs des segments
         
         # attraction / repulsion des extremites des segments
         AB = self.particles[0:3, :, np.newaxis]-self.particles[0:3, np.newaxis, :]
         distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
         gravity = - np.sum(AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
-        force[0:3, :] += .2*self.p['G_centre'] * gravity
-#        force[3:6, :] += .1*self.p['G_centre'] * gravity
+        force[0:3, :] += .2*self.p['G_repulsion'] * gravity
+#        force[3:6, :] += .1*self.p['G_repulsion'] * gravity
         AB = self.particles[3:6, :, np.newaxis]-self.particles[3:6, np.newaxis, :]
         distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
         gravity = - np.sum(AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
-#        force[0:3, :] += .1*self.p['G_centre'] * gravity
-        force[3:6, :] += .2*self.p['G_centre'] * gravity
+#        force[0:3, :] += .1*self.p['G_repulsion'] * gravity
+        force[3:6, :] += .2*self.p['G_repulsion'] * gravity
         AB = self.particles[0:3, :][:, :, np.newaxis]-self.particles[3:6, :][:, :, np.newaxis]
         distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
         gravity = - np.sum(AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
-        force[0:3, :] += .1*self.p['G_centre'] * gravity
-        force[3:6, :] += .1*self.p['G_centre'] * gravity
+        force[0:3, :] += .1*self.p['G_repulsion'] * gravity
+        force[3:6, :] += .1*self.p['G_repulsion'] * gravity
 
 
 #            rot = np.hstack((AB[1,:],-AB[0,:]))
@@ -257,9 +266,9 @@ class Scenario:
         # ressort
         AB = self.particles[0:3, :]-self.particles[3:6, :] # 3 x N
         distance = np.sqrt(np.sum(AB**2, axis=0)) # en metres
-#        print force.shape, (distance[np.newaxis, :] - l_seg).shape, D_ij.shape, self.particles[6:12, :].shape
-        force[0:3, :] -= self.p['G_spring'] * (distance[np.newaxis, :] - self.p['l_seg']) * AB / (distance[np.newaxis, :] + self.p['eps'])
-        force[3:6, :] += self.p['G_spring'] * (distance[np.newaxis, :] - self.p['l_seg']) * AB / (distance[np.newaxis, :] + self.p['eps'])
+#        print force.shape, (distance[np.newaxis, :] - l_seg).shape, D_ij.shape, self.particles[6:12, :].shape, self.l_seg
+        force[0:3, :] -= self.p['G_spring'] * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
+        force[3:6, :] += self.p['G_spring'] * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
 
         # damping        
         force -= self.p['damp'] * self.particles[6:12, :]/self.dt
