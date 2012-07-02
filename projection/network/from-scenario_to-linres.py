@@ -9,7 +9,7 @@ sys.path.append('..')
 
 import socket
 from network import VP
-vps= VP(None)
+vps= VP("10.42.0.102" , 7005 , 7006)
 import numpy as np
 
 from_IP="10.42.0.101"
@@ -20,7 +20,7 @@ from_send.setblocking(0)
 
 from parametres import VPs, volume, p
 from scenarios import Scenario
-s = Scenario(p['N'], 'leapfrog', volume, VPs, p)
+s = Scenario(p['N'], 'croix', volume, VPs, p)
 test_positions = ([s.center[0], s.center[1] , s.center[2]]) # une personne dans un mouvement circulaire (elipse)
 positions = []
 positions.append([s.center[0], s.center[1] , s.center[2]])
@@ -35,7 +35,8 @@ while True:
     except:
         pass # detect = 0
     else :
-        print "receive"
+        rien = 0
+#        print "receive"
 #    print "hehe"
 
 #    print Donnee
