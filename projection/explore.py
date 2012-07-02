@@ -10,6 +10,9 @@ Exploration mode.
 #import sys
 #window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
 from parametres import VPs, volume, p, kinects
+from scenarios import Scenario
+s = Scenario(p['N'], 'leapfrog', volume, VPs, p)
+#s = Scenario(p['N'], 'leapfrog', volume, [VPs[0]], p)
 
 do_sock = False
 #do_sock=True
@@ -19,13 +22,6 @@ if do_sock:
     k = Kinects(kinects)
 else:
     positions = None
-
-try:
-    caca
-    from parametres import sliders
-    fig = sliders(s.p)
-except Exception, e:
-    print('problem while importing sliders ! Error = ', e)
 
 # Window information
 # ------------------
@@ -40,18 +36,17 @@ print "screens" , screens
 for i, screen in enumerate(screens):
     print 'Screen %d: %dx%d at (%d,%d)' % (i, screen.width, screen.height, screen.x, screen.y)
 #screen   = screens[0]
+N_screen = len(screens) # number of screens
 N_screen = 1# len(screens) # number of screens
 assert N_screen == 1 # we should be running on one screen only
 
-from scenarios import Scenario
-s = Scenario(p['N'], 'leapfrog', volume, VPs, p)
-#s = Scenario(p['N'], 'leapfrog', volume, [VPs[0]], p)
 
 from pyglet.window import Window
-from pyglet import clock
+#from pyglet import clock
 
-win_0 = Window(screen=screens[0], fullscreen=True)#  False, resizable=True)
-
+win_0 = Window(width=screen.width*2/3, height=screen.height*2/3, screen=screens[0], fullscreen=False, resizable=True)
+#win_0 = Window(screen=screens[0], fullscreen=True)#  False, resizable=True)
+win_0.set_location(screen.width/3, screen.height/3)
 import pyglet.gl as gl
 from pyglet.gl.glu import gluLookAt
 import numpy as np
@@ -83,33 +78,29 @@ gluLookAt(VPs[i_win]['x'], VPs[i_win]['y'], VPs[i_win]['z'],
 #win_0.on_draw = on_draw
 # batch = pyglet.graphics.Batch()
 
+
 fps_text = pyglet.clock.ClockDisplay()
+gl.glEnable(gl.GL_LINE_STIPPLE)
+#spin = 0
 
 ##if DEBUG: fps_display = pyglet.clock.ClockDisplay(color=(1., 1., 1., 1.))
 @win_0.event
 def on_draw():
-    global s
+    global s#, spin
 
     if do_sock:
         positions = k.read_sock() # TODO: c'est bien une liste de coordonnées [x, y, z] ?
     else:
-        from numpy import cos, pi, sqrt
-# HACK pour simuler ROGER:
+        # HACK pour simuler ROGER:
+        from numpy import cos, pi
         positions = []
-#        positions = [[s.center[0], s.center[1], s.center[2]]] # une personne fixe
         T = 20. # periode en secondes
         phi = 10/9. #.5*( 1 + sqrt(5) )
-        positions.append([s.center[0], s.center[1] * (1. + 1.2*cos(2*pi*s.t/T)), 1.2*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
-        positions.append([s.center[0], s.center[1] * (1. + 1.2 + .0*cos(2*pi*s.t/T/phi)), 1.2*s.center[2]]) # une autre personne dans un mouvement en phase
-#        positions.append([s.center[0], s.center[1] * (1. + .0*cos(2*pi*s.t/T/phi)), 1.*s.center[2]]) # une autre personne dans un mouvement en phase
-#        positions.append([s.center[0], s.volume[1]*.75, s.volume[2]*.75]) # une personne dans un mouvement circulaire (elipse)
-#        positions.append([s.center[0], s.volume[1]*.25, s.volume[2]*.25]) # une autre personne dans un mouvement en phase
-#    print positions
+        positions.append([s.center[0], s.center[1] * (1. + 1.2*cos(2*pi*s.t/T)), 1.1*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
+        positions.append([s.center[0], s.center[1] * (1. + .0*cos(2*pi*s.t/T/phi)), 1.*s.center[2]]) # une autre personne dans un mouvement en phase
     s.do_scenario(positions=positions)
 
     win_0.clear()
-    gl.glLineWidth (p['line_width'])
-    gl.glColor3f(1.,1.,1.)
     gl.glMatrixMode(gl.GL_MODELVIEW)
     gl.glLoadIdentity()
     gl.gluPerspective(VPs[0]['foc'], 1.0*win_0.width/win_0.height,
@@ -117,13 +108,31 @@ def on_draw():
     gluLookAt(VPs[0]['x'], VPs[0]['y'], VPs[0]['z'],
           VPs[0]['cx'], VPs[0]['cy'], VPs[0]['cz'], 0., 0, 1.0)
 
-    pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
-    
+
+    gl.glLineWidth (p['line_width'])
+    # marque la postion des personnes par un joli carré rouge
     for position in positions:
         gl.glPointSize(10)
         gl.glColor3f(1.,0.,0.)
         pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', position))
         
+    gl.glColor3f(0., 1., 0.)
+#    gl.glEnable(gl.GL_LINE_STIPPLE)
+    pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
+
+    gl.glColor3f(0., 0., 1.)
+    pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', (s.particles[0:6, :] + np.array([0.3, 0., 0., 0.3, 0., 0.])[:, np.newaxis]).T.ravel().tolist()))
+
+#    gl.glLineStipple (1, 0x00FF)  # dashed    
+#    gl.glLineStipple(1, 0x0101)
+    gl.glLineStipple(1, 0x5555)
+#    if spin:
+#        gl.glLineStipple(1, 0x0101)
+#    else:
+#        gl.glLineStipple(1, 0x1010)
+#    spin = 1 - spin
+#    gl.glDisable(gl.GL_LINE_STIPPLE)
+    
 
     fps_text.draw()
 #     batch.draw()
@@ -137,6 +146,13 @@ def callback(dt):
         if DEBUG: print '%f seconds since last callback' % dt , '%f  fps' % pyglet.clock.get_fps()
     except :
         pass
+
+try:
+    caca
+    from parametres import sliders
+    fig = sliders(s.p)
+except Exception, e:
+    print('problem while importing sliders ! Error = ', e)
 
 #dt = 1./40 # interval between 2 captations
 #pyglet.clock.schedule_interval(callback, dt)

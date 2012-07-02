@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Projection information
@@ -18,76 +19,84 @@ Par convention, la position spatiale des VPs par rapport au centre du plan de re
 
 """
 # taille de l'espace
-d_y, d_z = 4.9, 6.22*3/4
-d_x = 12.73 # en metres
+#d_y, d_z = 4.9, 6.22*3/4
+d_y, d_z = 7.3, 6.
+d_x = 18 # en metres
 
 # mesures au telemetre
-z = 1.36 # hauteur des VPs
+z = 1.31# hauteur des VPs
 from numpy import arctan2, pi
 largeur_ecran = 1.75 # ouvert à fond
 distance_ecran = 2.58
-foc = 2 * arctan2(largeur_ecran/2, distance_ecran) * 180 / pi # ref P101L1
+foc_estim = 2 * arctan2(largeur_ecran/2, distance_ecran) * 180 / pi # ref P101L1
 foc = 30.1
-
+#foc = 72
+print("parameres.py nous dit: focale estimée = ", foc_estim, ", focal utilisée = ", foc)
 
 volume = [d_x, d_y, d_z]
 
 kinects = {
         'UDP_IP' : "",
         'UDP_PORT' : 3003,
-        'send_UDP_IP' : "10.42.0.20",
+        'send_UDP_IP' : "10.42.0.1",
         'send_UDP_PORT' : 3005,
         'para_data' : [1 , 10, 50, 350, 5 ],
 }
 
-# et direction d'angle de vue (cx, cy, cz) comme le point de fixation ainsi que le champ de vue (en deg)
+# et direction d'angle de vue (cx, cy, cz) comme le point de fixation ainsi que le champ de vue (en deg) 
 # distance des VPs du plan de reference
 #profondeur du plan de référence
-cx = 0. # d_x - 10.27
+cx = 0.# CX=0 ->on positionne l'écran pour régler la visée au fond de la salle # d_x - 10.27
 cy = d_y/2 # on regarde le centre du plan de reference
-cz = d_z/2
+cz = z # d_z/2
 # une liste des video projs donnant:
 # leur adresse, port, leurs parametres physiques
 # TODO: ne mettre que les VPs qui sont utilisés
 VPs = [
         {'address':'10.42.0.51', 'port': 50035,
-            'x':d_x, 'y':5.26, 'z': z,
+            'x':d_x, 'y':0.5, 'z': z,
+#            'x':d_x, 'y':5.26, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
         {'address':'10.42.0.52', 'port': 50034,
-            'x':d_x, 'y':3.01, 'z': z,
+            'x':d_x, 'y':3.65, 'z': z,
+#            'x':d_x, 'y':4.27, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000 },
         {'address':'10.42.0.53', 'port': 50036,
-            'x':d_x, 'y':0., 'z': z,
+            'x':d_x, 'y':7.3, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
         ]
 
 # parametres du champ
-p = {'N':32,
-     'distance_m': .8, # distance d'équilibre des segments autour d'une position de player	
-     'G_global': 15., # attraction globale vers les centres des positions
+p = {'N': 32,
+#     'distance_m': 1.2, # distance d'équilibre des segments autour d'une position de player	
+     'distance_m': 0.50, # distance d'équilibre des segments autour d'une position de player	
+     'G_global': 40., # attraction globale vers les centres des positions
 #      'G_rot': 1.0,
-      'G_rot': 2.,
+      'G_rot': 15.,
 #     'G_struct': 15.0,
-     'distance_tabou': .8, # distance tabou
+     'distance_tabou': .9, # distance tabou
 #     'distance_tabou': 1.4, # distance tabou
-     'G_tabou': 20.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
-     'G_repulsion': 1.6, # constante de répulsion entre les particules
+     'G_tabou': 41.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
+
+     'G_struct': 10., # force avec laquelle les bouts de segments s'attirent
+     'distance_struct': .2, # distance pour laquelle les bouts de segments s'attirent
+     'G_repulsion': 20., # constante de répulsion entre les particules
 #     'G_repulsion': 1.9, # constante de répulsion entre les particules
 #     'G_repulsion': .001, # constante de répulsion entre les particules
      'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
-     'G_gravite': 0., # force de gravité vers le bas de la piece
+#     'G_gravite': 0., # force de gravité vers le bas de la piece
 #     'G_spring': 20., 'l_seg': 0.3, # dureté et longueur des segments
-     'G_spring': 20., 'l_seg_min': 0.4, 'l_seg_max': 2., # dureté et longueur des segments
-     'damp': .05,  # facteur de damping / absorbe l'énergie / regle la viscosité 
-#      'damp': .6,  # facteur de damping / absorbe l'énergie / regle la viscosité 
+     'G_spring': 30., 'l_seg_min': 0.6, 'l_seg_max': 2., # dureté et longueur des segments
+     'damp': .1,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
+#      'damp': .06,  # facteur de damping / absorbe l'énergie / regle la viscosité 
 #     'speed_0': .9, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules###
-     'speed_0': 3., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_0': 5., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'scale': 20., # facteur global (et redondant avec les G_*) pour régler la saturation dela force
 #     'speed_0': .9, 
-     'kurt' : .5, # 1 is normal gravity, more gets more local
-#     'kurt' : 1, # 1 is normal gravity, more gets more local
+     'kurt' : 1.5, # 1 is normal gravity, higher makes the attraction more local
      'line_width': 4, # line width of segments
      }
 
@@ -104,7 +113,7 @@ def sliders(p):
     import matplotlib as mpl
     mpl.rcParams['interactive'] = True
 #    mpl.rcParams['backend'] = 'Qt4Agg'
-#    mpl.rcParams['backend_fallback'] = True
+    mpl.rcParams['backend_fallback'] = True
     mpl.rcParams['toolbar'] = 'None'
     import pylab
     fig = pylab.figure(1)
@@ -123,7 +132,7 @@ def sliders(p):
     def update(val):
         for i_key, key in enumerate(p.keys()):
             p[key]= value[i_key].val
-            print key, s.p[key], value[i_key].val
+            print key, p[key]#, value[i_key].val
         pylab.draw()
 
     for i_key, key in enumerate(p.keys()): value[i_key].on_changed(update)

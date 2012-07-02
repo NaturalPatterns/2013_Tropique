@@ -8,7 +8,6 @@ Scenarios
 import numpy as np
 import time
 
-
 def arcdistance(rae1, rae2):
     """
     renvoie l'angle sur le grand cercle (en radians)
@@ -80,7 +79,7 @@ class Scenario:
         self.scenario = scenario
         self.volume = volume
         d_x, d_y, d_z = self.volume
-        self.center = np.array([0., d_y/2, d_z/2], dtype='f') # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
+        self.center = np.array([0., d_y/2, VPs[0]['z']], dtype='f') # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
         self.roger = np.array([d_x/2, d_y/2, d_z/2], dtype='f') #  fixation dot  (AKA Roger?)
 #        self.origin = np.array([0., 0., 0.]) # origin
 
@@ -95,12 +94,12 @@ class Scenario:
         self.l_seg = p['l_seg_min'] * np.ones(N)
 #        self.speed_0 = 0.1 # average speed in m/s
 #        self.l_seg = p['l_seg_min']* np.linspace(0, p['l_seg_max']**(1/order), self.N)**order
-        self.l_seg = np.linspace(p['l_seg_min'], p['l_seg_min']*1.5, self.N)
+#        self.l_seg = np.linspace(p['l_seg_min'], p['l_seg_min']*2.5, self.N)
 #        log_scale = 2
 #        self.l_seg = np.logspace(np.log(p['l_seg_min'])/np.log(log_scale),
 #                            np.log(p['l_seg_min']*2)/np.log(log_scale), num=self.N,
 #                            endpoint=True, base=log_scale)
-        self.l_seg[-2:] = p['l_seg_max']         
+#        self.l_seg[-2:] = p['l_seg_max']         
 #                            np.linspace(np.log(p['l_seg_min'], base=base), p['l_seg_max']**(1/order), self.N)**order
         self.order = 2
         self.particles = np.zeros((6*self.order, N), dtype='f') # x, y, z, u, v, w
@@ -109,10 +108,14 @@ class Scenario:
 
 
         self.particles[0:3, :] = self.center[:, np.newaxis] 
-        self.particles[1:3, :] += np.random.rand(2, self.N)*d_y
-#        self.particles[3:6, :] = self.particles[0:3, :] + np.random.randn(3, self.N)*self.p['l_seg'] 
-        self.particles[4:6, :] = self.particles[1:3, :] + self.l_seg # np.random.randn(2, self.N)*self.l_seg
-
+        self.particles[3:6, :] = self.center[:, np.newaxis] 
+#        self.particles[1:3, :] += np.random.rand(2, self.N)*d_y
+        self.particles[1, :] = np.linspace(d_y/4, 3*d_y/4, self.N)
+#        self.particles[4, :] = self.particles[1, :] + self.l_seg # np.random.randn(2, self.N)*self.l_seg
+        self.particles[3:6, :] = self.particles[0:3, :] + np.random.randn(3, self.N)*self.l_seg
+        self.particles[4, :] = self.particles[1, :] + self.l_seg # np.random.randn(2, self.N)*self.l_seg
+#        self.positions_old = 0
+        
     def champ(self, positions):
 
         force = np.zeros((6, self.N)) # one vector per point
@@ -163,9 +166,6 @@ class Scenario:
                     distance_SC = rae_VS[0]*np.sin(arcdis)
                     SC = OC - np.array(position)[:, np.newaxis]
                     SC /= np.sqrt((SC**2).sum(axis=0))
-                    # TODO: rajouter la longueur perceptuelle du segment pour les long seqments
-                    gravity_ = - SC * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+1) # en metres
-
 
                     tabou = - SC * (distance_SC < self.p['distance_tabou']) * (distance_SC**n - self.p['distance_tabou']**n)/(distance_SC + self.p['eps'])**(n+1) # en metres
                     force[0:3, :] += self.p['G_tabou'] * tabou
@@ -173,12 +173,15 @@ class Scenario:
 #                    distance_SC = rae_VS[0]*np.sin(arcdistance(rae_VS, rae_VC))
 #                     SC = OC - np.array(position)[:, np.newaxis]
 
+                    gravity_ = - SC * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+1) # en metres
+
                     # compute desired rotation
                     cap_SC = orientation(rae_VS, rae_VC)
                     cap_AB = orientation(rae_VA, rae_VB)
 
                     AB = self.particles[3:6, :] - self.particles[0:3, :]# 3 x N
-                    rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
+#                    rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
+                    rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2)/(distance_SC + self.p['eps']) #
 #                    rotation_ = np.sinh((cap_SC-cap_AB)/20.)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
 #                    rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :]*rae2xyz(np.array([1., rae_AB[1]+np.pi/2, rae_AB[2]+np.pi/2]))[:, np.newaxis]
 
@@ -208,60 +211,23 @@ class Scenario:
         # attraction / repulsion des extremites des segments
         AB = self.particles[0:3, :, np.newaxis]-self.particles[0:3, np.newaxis, :]
         distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
-        gravity = - np.sum(AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
-        force[0:3, :] += .2*self.p['G_repulsion'] * gravity
-#        force[3:6, :] += .1*self.p['G_repulsion'] * gravity
+        gravity = - np.sum((distance < self.p['distance_struct']) * AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
+        force[0:3, :] += self.p['G_struct'] * gravity
         AB = self.particles[3:6, :, np.newaxis]-self.particles[3:6, np.newaxis, :]
         distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
-        gravity = - np.sum(AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
-#        force[0:3, :] += .1*self.p['G_repulsion'] * gravity
-        force[3:6, :] += .2*self.p['G_repulsion'] * gravity
+        gravity = - np.sum((distance < self.p['distance_struct']) * AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
+        force[3:6, :] += self.p['G_struct'] * gravity
         AB = self.particles[0:3, :][:, :, np.newaxis]-self.particles[3:6, :][:, :, np.newaxis]
         distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
-        gravity = - np.sum(AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
-        force[0:3, :] += .1*self.p['G_repulsion'] * gravity
-        force[3:6, :] += .1*self.p['G_repulsion'] * gravity
+        gravity = - np.sum((distance < self.p['distance_struct']) * AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
+        force[0:3, :] += .5*self.p['G_struct'] * gravity
+        force[3:6, :] += .5*self.p['G_struct'] * gravity
 
-
-#            rot = np.hstack((AB[1,:],-AB[0,:]))
-
-#        # attraction / repulsion des centres des segments
-#        centres = (self.particles[0:3, :]+self.particles[3:6, :])/2
-#        D_ij = centres[:, :, np.newaxis]-centres[:, np.newaxis, :] # 3 x N x N
-#        distance = np.sqrt(np.sum(D_ij**2, axis=0)) # N; en metres
-#        gravity = np.sum(D_ij/(distance.T + self.p['eps'])**3, axis=1)# 3 x N en met#        
-#        force[0:3, :] += self.p['G_centre'] * gravity
-#        force[3:6, :] += self.p['G_centre'] * gravity
-
-#        ## angle relatif entre 2 segments
-#        # on calcul la distance entre les centres
-#        OC = (self.particles[0:3, :]+self.particles[3:6, :])/2 # 3 x N
-#        CC = OC[:, np.newaxis, :] - OC[:, :, np.newaxis] # 3 x N x N
-#        distance = np.sqrt(np.sum(CC**2, axis=0)) # N x N ; en metres (surement moins que 1e6 :-p )
-#        # angle relatif
-#        AB = self.particles[3:6, np.newaxis, :] - self.particles[0:3, np.newaxis, :]# 3 x N x N
-#        # point C (centre) du segment
-#        CD = self.particles[3:6, :, np.newaxis] - self.particles[0:3, :, np.newaxis]# 3 x N x N
 #
-#        # compute desired rotation
-#        sinAB_CD = (AB[1, :, :]*CD[2, :, :] - AB[2, :, :]*CD[1, :, :]) # N x N
-#        sinAB_CD /= np.sqrt(np.sum(AB[1:]**2, axis=0)) + self.p['eps']
-#        sinAB_CD /= np.sqrt(np.sum(CD[1:]**2, axis=0)) + self.p['eps']
-##            print AB.shape, sinAB_CD.shape
-#        rotation = sinAB_CD * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
-#        rotation /= distance  + self.p['eps']
-##        # only assign on the indices that correspond to the minimal distance
-##        ind_assign = (distance < distance_min)
-##        rotation[:, ind_assign] = rotation_[:, ind_assign]
-##        distance_min[ind_assign] = distance[ind_assign]
-#        
-#        force[0:3, :] += self.p['G_struc'] * np.mean(rotation, axis = -1)
-#        force[3:6, :] -= self.p['G_struc'] * np.mean(rotation, axis = -1)
-
-       # TODO :  gravité vers le bas pour séparer 2 phases
-        if not(self.p['G_gravite']==0.):
-            force[2, :] -= self.p['G_gravite']
-            force[5, :] -= self.p['G_gravite']
+#       # TODO :  gravité vers le bas pour séparer 2 phases
+#        if not(self.p['G_gravite']==0.):
+#            force[2, :] -= self.p['G_gravite']
+#            force[5, :] -= self.p['G_gravite']
 
         # ressort
         AB = self.particles[0:3, :]-self.particles[3:6, :] # 3 x N
@@ -272,6 +238,7 @@ class Scenario:
 
         # damping        
         force -= self.p['damp'] * self.particles[6:12, :]/self.dt
+#        force = np.tanh(force/self.p['scale'])
         force *= self.p['speed_0']
         return force
 
@@ -410,18 +377,20 @@ class Scenario:
             self.particles[3:6, N_dots:] = self.origin[:, np.newaxis] + .0001 # très fin
 
         elif self.scenario == 'leapfrog':
+#            distance = np.sqrt((np.array(positions) - self.positions_old)**2).sum()
             #TODO : use simpy
-            self.particles[0:6, :] += self.particles[6:12, :] * self.dt/2
+            self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
             force = self.champ(positions=positions)
             self.particles[6:12, :] += force * self.dt
             # application de l'acceleration calculée sur les positions
-            self.particles[0:6, :] += self.particles[6:12, :] * self.dt/2
+            self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
+#            self.positions_old = np.array(positions)
 
         elif self.scenario == 'euler':
             force = self.champ(positions=positions)
             self.particles[6:12, :] += force * self.dt
             # application de l'acceleration calculée sur les positions
-            self.particles[0:6, :] += self.particles[6:12, :] * self.dt
+            self.particles[:6, :] += self.particles[6:12, :] * self.dt
 
 #         # routines on the position
 #         if not(positions==None) and not(positions==np.nan) :
@@ -440,12 +409,13 @@ class Scenario:
 
 
         # todo : éviter plaquage le long des bords
-#        #  permet de ne pas sortir du volume (todo: créer un champ répulsif aux murs...)
-#        if (self.scenario == 'leapfrog') or (self.scenario == 'euler') :
-#            for i in range(6):
+        #  permet de ne pas sortir du volume (todo: créer un champ répulsif aux murs...)
+        if (self.scenario == 'leapfrog') or (self.scenario == 'euler') :
+            for i in range(6):
 #                self.particles[i, (self.particles[i, :] > self.volume[i % 3]) ] = self.volume[i % 3]
 #                self.particles[i, (self.particles[i, :] < 0.) ] = 0.
-#
+                self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
+                self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
 
 
 if __name__ == "__main__":
