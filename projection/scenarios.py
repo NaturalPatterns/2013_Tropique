@@ -99,7 +99,7 @@ class Scenario:
 #        self.l_seg = np.logspace(np.log(p['l_seg_min'])/np.log(log_scale),
 #                            np.log(p['l_seg_min']*2)/np.log(log_scale), num=self.N,
 #                            endpoint=True, base=log_scale)
-#        self.l_seg[-2:] = p['l_seg_max']         
+        self.l_seg[-2:] = p['l_seg_max']
 #                            np.linspace(np.log(p['l_seg_min'], base=base), p['l_seg_max']**(1/order), self.N)**order
         self.order = 2
         self.particles = np.zeros((6*self.order, N), dtype='f') # x, y, z, u, v, w
@@ -107,8 +107,8 @@ class Scenario:
 #        self.particles = np.random.randn(6*self.order, N)*d_y/4
 
 
-        self.particles[0:3, :] = self.center[:, np.newaxis] 
-        self.particles[3:6, :] = self.center[:, np.newaxis] 
+        self.particles[0:3, :] = self.center[:, np.newaxis]
+        self.particles[3:6, :] = self.center[:, np.newaxis]
 #        self.particles[1:3, :] += np.random.rand(2, self.N)*d_y
         self.particles[1, :] = np.linspace(d_y/4, 3*d_y/4, self.N)
 #        self.particles[4, :] = self.particles[1, :] + self.l_seg # np.random.randn(2, self.N)*self.l_seg
@@ -116,7 +116,7 @@ class Scenario:
         self.particles[4, :] = self.particles[1, :] + self.l_seg # np.random.randn(2, self.N)*self.l_seg
 #        self.positions_old = 0
         
-    def champ(self, positions):
+    def champ(self, positions, events):
 
         force = np.zeros((6, self.N)) # one vector per point
         n = self.p['kurt']
@@ -160,9 +160,9 @@ class Scenario:
                     rae_VS = xyz2azel(np.array(position), OV)
 #                    print arcdistance(rae_VS, rae_VA).shape
                     arcdis = np.min(np.vstack((arcdistance(rae_VS, rae_VA),\
-                                               arcdistance(rae_VS, rae_VB),\
-                                               arcdistance(rae_VS, rae_VC))), axis=0)
-#                    print arcdis.shape
+                            arcdistance(rae_VS, rae_VB),\
+                            arcdistance(rae_VS, rae_VC))), axis=0)
+                    #                    print arcdis.shape
                     distance_SC = rae_VS[0]*np.sin(arcdis)
                     SC = OC - np.array(position)[:, np.newaxis]
                     SC /= np.sqrt((SC**2).sum(axis=0))
@@ -207,7 +207,8 @@ class Scenario:
         force[0:3, :] += self.p['G_repulsion'] * gravity
         force[3:6, :] += self.p['G_repulsion'] * gravity
         # attraction / repulsion des angles relatifs des segments
-        
+
+
         # attraction / repulsion des extremites des segments
         AB = self.particles[0:3, :, np.newaxis]-self.particles[0:3, np.newaxis, :]
         distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
@@ -229,12 +230,20 @@ class Scenario:
 #            force[2, :] -= self.p['G_gravite']
 #            force[5, :] -= self.p['G_gravite']
 
+        if events[1]==0:
+            l_seg = self.l_seg
+            G_spring = self.p['G_spring']
+        else:
+            l_seg = self.l_seg*4.
+            G_spring = 0.1 * self.p['G_spring']
+#            print "relax"
         # ressort
         AB = self.particles[0:3, :]-self.particles[3:6, :] # 3 x N
         distance = np.sqrt(np.sum(AB**2, axis=0)) # en metres
+#            print distance[-2:]
 #        print force.shape, (distance[np.newaxis, :] - l_seg).shape, D_ij.shape, self.particles[6:12, :].shape, self.l_seg
-        force[0:3, :] -= self.p['G_spring'] * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
-        force[3:6, :] += self.p['G_spring'] * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
+        force[0:3, :] -= G_spring * (distance[np.newaxis, :] - l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
+        force[3:6, :] += G_spring * (distance[np.newaxis, :] - l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
 
         # damping        
         force -= self.p['damp'] * self.particles[6:12, :]/self.dt
@@ -242,7 +251,7 @@ class Scenario:
         force *= self.p['speed_0']
         return force
 
-    def do_scenario(self, positions=None):
+    def do_scenario(self, positions=None, events=[0, 0, 0, 0, 0, 0, 0, 0]):
         self.t_last = self.t
         self.t = time.time()
         self.dt = (self.t - self.t_last)
@@ -273,7 +282,7 @@ class Scenario:
 
 
         elif self.scenario == 'calibration':
-#             self.particles = np.zeros((6, self.N))
+            #             self.particles = np.zeros((6, self.N))
 
             longueur_segments, undershoot_z = .05, .5
 #            longueur_segments, undershoot_z = .05, .0
@@ -295,7 +304,7 @@ class Scenario:
             #            print self.particles.mean(axis=1)
 
         elif self.scenario == 'cristal':
-#             self.particles = 1000*np.ones((6, self.N)) # segments outside 
+            #             self.particles = 1000*np.ones((6, self.N)) # segments outside 
             frequency_plane = .005 # how fast the whole disk moves in Hz
             length = .5 # length of each AB
             mean_elevation, frequency_elevation, std_elevation = 90. * np.pi / 180., 0.3, 45. * np.pi / 180.  # elevation (in radians) of viual angle for the points of convergence defiing the cristal's circle
@@ -316,7 +325,7 @@ class Scenario:
 
 
         elif self.scenario == 'fan':
-#             self.particles = np.zeros((6, self.N))
+            #             self.particles = np.zeros((6, self.N))
             frequency_plane = .005 # how fast the disk moves in Hz
             radius_min, radius_max = 2.0, 5.0
             radius, length_ratio = .2 * d_z, 1.4
@@ -337,7 +346,7 @@ class Scenario:
 #            self.particles[3:6, N_dots:] = self.origin[:, np.newaxis] + .0001 # très fin
 
         elif self.scenario == '2fan':
-#             self.particles = np.zeros((6, self.N))
+            #             self.particles = np.zeros((6, self.N))
             frequency_rot, frequency_plane = .1, .05 # how fast the whole disk moves in Hz
             radius, length_ratio = .2 * d_z, 1.4
             N_dots = np.min(16, self.N)
@@ -360,7 +369,7 @@ class Scenario:
             self.particles[3:6, 2*N_dots:] = self.origin[:, np.newaxis] + .001 # très fin
 
         elif self.scenario == 'rotating-circle':
-#             self.particles = np.zeros((6, self.N))
+            #             self.particles = np.zeros((6, self.N))
             frequency_rot, frequency_plane = .1, .05 # how fast the whole disk moves in Hz
             N_dots = np.min(16, self.N)
             radius, length_ratio = .3 * d_z, 2.5
@@ -377,17 +386,17 @@ class Scenario:
             self.particles[3:6, N_dots:] = self.origin[:, np.newaxis] + .0001 # très fin
 
         elif self.scenario == 'leapfrog':
-#            distance = np.sqrt((np.array(positions) - self.positions_old)**2).sum()
+            #            distance = np.sqrt((np.array(positions) - self.positions_old)**2).sum()
             #TODO : use simpy
             self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
-            force = self.champ(positions=positions)
+            force = self.champ(positions=positions, events=events)
             self.particles[6:12, :] += force * self.dt
             # application de l'acceleration calculée sur les positions
             self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
 #            self.positions_old = np.array(positions)
 
         elif self.scenario == 'euler':
-            force = self.champ(positions=positions)
+            force = self.champ(positions=positions, events=events)
             self.particles[6:12, :] += force * self.dt
             # application de l'acceleration calculée sur les positions
             self.particles[:6, :] += self.particles[6:12, :] * self.dt
@@ -412,7 +421,7 @@ class Scenario:
         #  permet de ne pas sortir du volume (todo: créer un champ répulsif aux murs...)
         if (self.scenario == 'leapfrog') or (self.scenario == 'euler') :
             for i in range(6):
-#                self.particles[i, (self.particles[i, :] > self.volume[i % 3]) ] = self.volume[i % 3]
+                #                self.particles[i, (self.particles[i, :] > self.volume[i % 3]) ] = self.volume[i % 3]
 #                self.particles[i, (self.particles[i, :] < 0.) ] = 0.
                 self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
                 self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
