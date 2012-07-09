@@ -83,6 +83,8 @@ fps_text = pyglet.clock.ClockDisplay()
 gl.glEnable(gl.GL_LINE_STIPPLE)
 #spin = 0
 
+events = [0, 0, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
+
 ##if DEBUG: fps_display = pyglet.clock.ClockDisplay(color=(1., 1., 1., 1.))
 @win_0.event
 def on_draw():
@@ -98,7 +100,12 @@ def on_draw():
         phi = 10/9. #.5*( 1 + sqrt(5) )
         positions.append([s.center[0], s.center[1] * (1. + 1.2*cos(2*pi*s.t/T)), 1.1*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
         positions.append([s.center[0], s.center[1] * (1. + .0*cos(2*pi*s.t/T/phi)), 1.*s.center[2]]) # une autre personne dans un mouvement en phase
-    s.do_scenario(positions=positions)
+
+
+    if np.random.rand() > .9: 
+        events[1] = 1 - events[1]
+        print events[1]
+    s.do_scenario(positions=positions, events=events)
 
     win_0.clear()
     gl.glMatrixMode(gl.GL_MODELVIEW)

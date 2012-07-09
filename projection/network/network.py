@@ -39,16 +39,13 @@ class VP:
     #-----def VP.Server
     def server(self, particles):
         try :
-            Donnee, Client = self.server_receiver.recvfrom (8192)
+            Donnee, Client = self.server_receiver.recvfrom (8192)#try to read if someone ask data
         except (KeyboardInterrupt):
             raise
         except:
             pass # detect = 0
         else :
-#            print "ok", Client [0]
-#            str_send = particles[0:6, :].tostring('F')
-#            self.server_send.sendto(str_send, (Client[0], self.client_PORT) ) 
-            self.server_send.sendto(particles, (Client[0], self.client_PORT) ) 
+            self.server_send.sendto(particles, (Client[0], self.client_PORT) ) #answer to the client in case
 
     #-----def  VP.Listen
     def listen(self):

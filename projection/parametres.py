@@ -35,7 +35,12 @@ print("parameres.py nous dit: focale estimée = ", foc_estim, ", focal utilisée
 
 volume = [d_x, d_y, d_z]
 
-kinects = {
+run_thread_network_config = {
+        'port_to_line_res' : 8005,
+        'ip_to_line_res' : "10.42.0.70",
+        }
+
+kinects_network_config = {
         'UDP_IP' : "",
         'UDP_PORT' : 3003,
         'send_UDP_IP' : "10.42.0.1",
