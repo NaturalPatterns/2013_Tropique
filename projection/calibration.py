@@ -43,12 +43,12 @@ scenario = 'croix'
 #sock.setblocking(0)
 
 
-from parametres import VPs, volume, p, kinects
+from parametres import VPs, volume, p, kinects_network_config
 
 from network import Kinects
 do_sock=True
 if do_sock:
-    k = Kinects(kinects)
+    k = Kinects(kinects_network_config)
 else:
     positions = None
 

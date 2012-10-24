@@ -7,19 +7,25 @@ Exploration mode.
 
 """
 
-#import sys
-#window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
-from parametres import VPs, volume, p, kinects
-from scenarios import Scenario
-s = Scenario(p['N'], 'leapfrog', volume, VPs, p)
-#s = Scenario(p['N'], 'leapfrog', volume, [VPs[0]], p)
-
 do_sock = False
 #do_sock=True
+do_fs = False
+i_VP = 0 # VP utilisé comme projecteur
+
+#import sys
+#window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
+from parametres import VPs, volume, p, kinects_network_config
+from scenarios import Scenario
+s = Scenario(p['N'], 'leapfrog', volume, VPs, p)
+#s = Scenario(256, 'odyssey', volume, VPs, p)
+#s = Scenario(256, 'snake', volume, VPs, p)
+#s = Scenario(p['N'], 'rotating-circle', volume, VPs, p)
+#s = Scenario(p['N'], 'leapfrog', volume, [VPs[0]], p)
+
 
 if do_sock:
     from network import Kinects
-    k = Kinects(kinects)
+    k = Kinects(kinects_network_config)
 else:
     positions = None
 
@@ -44,10 +50,14 @@ assert N_screen == 1 # we should be running on one screen only
 from pyglet.window import Window
 #from pyglet import clock
 
-win_0 = Window(width=screen.width*2/3, height=screen.height*2/3, screen=screens[0], fullscreen=False, resizable=True)
-#win_0 = Window(screen=screens[0], fullscreen=True)#  False, resizable=True)
-win_0.set_location(screen.width/3, screen.height/3)
+if do_fs:
+    win_0 = Window(screen=screens[0], fullscreen=True)#  False, resizable=True)
+else:
+    win_0 = Window(width=screen.width*2/3, height=screen.height*2/3, screen=screens[0], fullscreen=False, resizable=True)
+    win_0.set_location(screen.width/3, screen.height/3)
+
 import pyglet.gl as gl
+fps_text = pyglet.clock.ClockDisplay()
 from pyglet.gl.glu import gluLookAt
 import numpy as np
 def on_resize(width, height):
@@ -55,7 +65,7 @@ def on_resize(width, height):
     gl.glEnable(gl.GL_BLEND)
     gl.glShadeModel(gl.GL_SMOOTH)
     gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE)
-    gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_DONT_CARE)# gl.GL_NICEST)#
+    gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_FASTEST)# gl.GL_NICEST)# GL_DONT_CARE)# 
     gl.glDisable(gl.GL_DEPTH_TEST)
     gl.glDisable(gl.GL_LINE_SMOOTH)
     gl.glColor3f(1.0, 1.0, 1.0)
@@ -79,12 +89,28 @@ gluLookAt(VPs[i_win]['x'], VPs[i_win]['y'], VPs[i_win]['z'],
 # batch = pyglet.graphics.Batch()
 
 
-fps_text = pyglet.clock.ClockDisplay()
 gl.glEnable(gl.GL_LINE_STIPPLE)
 #spin = 0
 
+
 events = [0, 0, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
 
+@win_0.event
+def on_key_press(symbol, modifiers):
+    global events    
+    
+    if symbol == pyglet.window.key.SPACE:
+        events = [0, 0, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
+    elif symbol == pyglet.window.key.R:
+        events[0] = 1 - events[0]
+    elif symbol == pyglet.window.key.P:
+        events[1] = 1 - events[1]
+    elif symbol == pyglet.window.key.V:
+        events[2] = 1 - events[2]
+    elif symbol == pyglet.window.key.G:
+        events[4] = 1 - events[4]
+    print events 
+        
 ##if DEBUG: fps_display = pyglet.clock.ClockDisplay(color=(1., 1., 1., 1.))
 @win_0.event
 def on_draw():
@@ -99,21 +125,24 @@ def on_draw():
         T = 20. # periode en secondes
         phi = 10/9. #.5*( 1 + sqrt(5) )
         positions.append([s.center[0], s.center[1] * (1. + 1.2*cos(2*pi*s.t/T)), 1.1*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
-        positions.append([s.center[0], s.center[1] * (1. + .0*cos(2*pi*s.t/T/phi)), 1.*s.center[2]]) # une autre personne dans un mouvement en phase
+#        positions.append([s.center[0], s.center[1] * (1. + .0*cos(2*pi*s.t/T/phi)), 1.*s.center[2]]) # une autre personne dans un mouvement en phase
 
 
-    if np.random.rand() > .9: 
-        events[1] = 1 - events[1]
-        print events[1]
+#    if np.random.rand() > .9: 
+#        events[1] = 1 - events[1]
+#        print events[1]
+#        
     s.do_scenario(positions=positions, events=events)
 
     win_0.clear()
     gl.glMatrixMode(gl.GL_MODELVIEW)
     gl.glLoadIdentity()
-    gl.gluPerspective(VPs[0]['foc'], 1.0*win_0.width/win_0.height,
-                      VPs[0]['pc_min'], VPs[0]['pc_max'])
-    gluLookAt(VPs[0]['x'], VPs[0]['y'], VPs[0]['z'],
-          VPs[0]['cx'], VPs[0]['cy'], VPs[0]['cz'], 0., 0, 1.0)
+    
+    gl.gluPerspective(VPs[i_VP]['foc'], 1.0*win_0.width/win_0.height,
+                      VPs[i_VP]['pc_min'], VPs[i_VP]['pc_max'])
+    gluLookAt(VPs[i_VP]['x'], VPs[i_VP]['y'], VPs[i_VP]['z'],
+              VPs[i_VP]['cx'], VPs[i_VP]['cy'], VPs[i_VP]['cz'],
+              0., 0, 1.0)
 
 
     gl.glLineWidth (p['line_width'])
@@ -123,16 +152,17 @@ def on_draw():
         gl.glColor3f(1.,0.,0.)
         pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', position))
         
-    gl.glColor3f(0., 1., 0.)
+    gl.glColor3f(1., 1., 1.)
+#    gl.glColor3f(0., 1., 0.)
 #    gl.glEnable(gl.GL_LINE_STIPPLE)
     pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
 
-    gl.glColor3f(0., 0., 1.)
-    pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', (s.particles[0:6, :] + np.array([0.3, 0., 0., 0.3, 0., 0.])[:, np.newaxis]).T.ravel().tolist()))
+#    gl.glColor3f(0., 0., 1.)
+#    pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', (s.particles[0:6, :] + np.array([0.3, 0., 0., 0.3, 0., 0.])[:, np.newaxis]).T.ravel().tolist()))
 
 #    gl.glLineStipple (1, 0x00FF)  # dashed    
 #    gl.glLineStipple(1, 0x0101)
-    gl.glLineStipple(1, 0x5555)
+#    gl.glLineStipple(1, 0x5555)
 #    if spin:
 #        gl.glLineStipple(1, 0x0101)
 #    else:
@@ -141,7 +171,7 @@ def on_draw():
 #    gl.glDisable(gl.GL_LINE_STIPPLE)
     
 
-    fps_text.draw()
+#    fps_text.draw()
 #     batch.draw()
 
 
@@ -155,9 +185,43 @@ def callback(dt):
         pass
 
 try:
-    caca
-    from parametres import sliders
-    fig = sliders(s.p)
+    def sliders(p):
+        import matplotlib as mpl
+        mpl.rcParams['interactive'] = True
+#        mpl.rcParams['backend'] = 'macosx'
+        mpl.rcParams['backend_fallback'] = True
+        mpl.rcParams['toolbar'] = 'None'
+        import pylab
+        fig = pylab.figure(1)
+    #    AX = fig.add_subplot(111)
+        pylab.ion()
+        # turn interactive mode on for dynamic updates.  If you aren't in interactive mode, you'll need to use a GUI event handler/timer.
+        from matplotlib.widgets import Slider
+        ax, value = [], []
+        n_key = len(p.keys())*1.
+    #    print s.p.keys()
+        for i_key, key in enumerate(p.keys()):
+    #        print [0.1, 0.05+i_key/(n_key+1)*.9, 0.9, 0.05]
+            ax.append(fig.add_axes([0.15, 0.05+i_key/(n_key-1)*.9, 0.6, 0.05], axisbg='lightgoldenrodyellow'))
+            if p[key] > 0:
+                value.append(Slider(ax[i_key], key, 0., (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
+            else:
+                value.append(Slider(ax[i_key], key,  (p[key] + (p[key]==0)*1.)*10,  -(p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
+    
+        def update(val):
+            for i_key, key in enumerate(p.keys()):
+                p[key]= value[i_key].val
+                print key, p[key]#, value[i_key].val
+            pylab.draw()
+    
+        for i_key, key in enumerate(p.keys()): value[i_key].on_changed(update)
+    
+        pylab.show()#block=False) # il faut pylab.ion() pour pas avoir de blocage
+    
+        return fig
+
+    if s.scenario=='leapfrog' and not(do_fs):
+        fig = sliders(s.p)
 except Exception, e:
     print('problem while importing sliders ! Error = ', e)
 
