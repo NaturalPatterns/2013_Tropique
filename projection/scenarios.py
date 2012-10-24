@@ -80,7 +80,7 @@ class Scenario:
         self.volume = volume
         d_x, d_y, d_z = self.volume
         self.center = np.array([d_x/2, d_y/2, VPs[0]['z']], dtype='f') # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
-        self.roger = np.array([d_x/2, d_y/2, d_z/2], dtype='f') #  fixation dot  (AKA Roger?)
+        self.roger = np.array([d_x/2, d_y/2, 1.68], dtype='f') #  fixation dot  (AKA Roger?)
 #        self.origin = np.array([0., 0., 0.]) # origin
 
         self.VPs = VPs # le dictionnaire avec les characteristiques de tous les VPs

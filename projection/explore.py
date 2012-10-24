@@ -20,9 +20,9 @@ Exploration mode.
 """
 ########################################
 scenario = 'leapfrog' #'rotating-circle'
-do_firstperson, foc_fp, i_VP_fp = False, 45., 1
+do_firstperson, foc_fp, i_VP_fp, int_fp, show_VP = False, 75., 1, 1., False
 i_VP = 0 # VP utilisé comme projecteur
-do_fs = False
+do_fs = True # fullscreen par défaut?
 do_slider = False
 do_sock = False
 #do_sock=True
@@ -82,7 +82,7 @@ import numpy as np
 def on_resize(width, height):
     gl.glViewport(0, 0, width, height)
     gl.glEnable(gl.GL_BLEND)
-    gl.glShadeModel(gl.GL_SMOOTH)
+    gl.glShadeModel(gl.GL_SMOOTH) #
     gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE)
     gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_FASTEST)# gl.GL_NICEST)# GL_DONT_CARE)# 
     gl.glDisable(gl.GL_DEPTH_TEST)
@@ -92,6 +92,7 @@ def on_resize(width, height):
     gl.glDisable(gl.GL_CLIP_PLANE1)
     gl.glDisable(gl.GL_CLIP_PLANE2)
     gl.glDisable(gl.GL_CLIP_PLANE3)
+
 
 
 i_win = 0
@@ -150,10 +151,11 @@ def on_draw():
         # HACK pour simuler ROGER:
         from numpy import cos, pi
         positions = []
-        T = 20. # periode en secondes
+        amp = .2
+        T, T2 = 20., 30 # periode en secondes
         phi = 10/9. #.5*( 1 + sqrt(5) )
-        positions.append([s.center[0], s.center[1] * (1. + 1.2*cos(2*pi*s.t/T)), 1.1*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
-        positions.append([s.center[0], s.center[1] * (1. + .0*cos(2*pi*s.t/T/phi)), 1.*s.center[2]]) # une autre personne dans un mouvement en phase
+        positions.append([s.roger[0], s.roger[1] * (1. + 1.*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
+        positions.append([s.roger[0], s.roger[1] * (1. + .2*cos(2*pi*s.t/T2)), 1.1*s.roger[2]]) # une personne dans un mouvement circulaire (elipse)
 
 
 #    if np.random.rand() > .9: 
@@ -166,6 +168,20 @@ def on_draw():
     gl.glMatrixMode(gl.GL_MODELVIEW)
     gl.glLoadIdentity()
     if do_firstperson:
+#        gl.glEnable(gl.GL_FOG)
+#        gl.fogColor = [0.8,0.8,0.8, 1.]
+#        gl.glEnable(gl.GL_FOG)
+#        gl.fogColor = [0.5, 0.5, 0.5, 1.0]
+#        global fogMode
+#        fogMode = gl.GL_EXP
+#        gl.glFogi (gl.GL_FOG_MODE, fogMode)
+##        gl.glFogfv (gl.GL_FOG_COLOR, gl.fogColor)
+#        gl.glFogf (gl.GL_FOG_DENSITY, 0.05)
+#        gl.glHint (gl.GL_FOG_HINT, gl.GL_DONT_CARE)
+#        gl.glFogf (gl.GL_FOG_START, 1.0)
+#        gl.glFogf (gl.GL_FOG_END, 5.0)
+#        gl.glClearColor(0.5, 0.5, 0.5, 1.0)
+
         gl.gluPerspective(foc_fp, 1.0*win_0.width/win_0.height,
                           VPs[i_VP]['pc_min'], VPs[i_VP]['pc_max'])
         gluLookAt(positions[0][0], positions[0][1], positions[0][2], #VPs[i_VP]['cx'], VPs[i_VP]['y'], VPs[i_VP]['z'],
@@ -173,20 +189,22 @@ def on_draw():
                   0., 0, 1.0)
         # marque la postion de chaque VP par un joli carré vert
         for VP in VPs:
-            gl.glPointSize(10)
-            gl.glColor3f(0., 1., 0.)
-            pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', [VP['x'], VP['y'], VP['z']]))
+            if show_VP:
+                gl.glPointSize(10)
+                gl.glColor3f(0., 1., 0.)
+                pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', [VP['x'], VP['y'], VP['z']]))
 
-            gl.glColor3f(1., 1., 1.)
             VP_ = np.array([[VP['x'], VP['y'], VP['z']]]).T * np.ones((1, s.N))
             p_ = s.particles[0:6, :]
-            colors_ = np.array([[255, 255, 255, 0, 0, 0, 0, 0, 0]]).T * np.ones((1, s.N), dtype=np.int)
-            print np.vstack((VP_, p_)).shape, (np.array([[255, 255, 255, 0, 0, 0, 0, 0, 0]]).T * np.ones((1, s.N))).T.ravel().tolist()
+            #colors_ = np.array([[255, 255, 255, 0, 0, 0, 0, 0, 0]]).T * np.ones((1, s.N), dtype=np.int)
+            colors_ = np.array([int_fp, int_fp, int_fp, 1, 0, 0, 0, 0, 0, 0, 0, 0])[:, np.newaxis] * np.ones((1, s.N))
+            #print colors_.T.ravel().tolist()
             pyglet.graphics.draw(3*s.N, gl.GL_TRIANGLES,
-                                 ('v3f', np.vstack((VP_, p_)).T.ravel().tolist(),
-                                  'c3B', colors_.T.ravel().tolist()))
+                                 ('v3f', np.vstack((VP_, p_)).T.ravel().tolist()),
+                                 ('c4f', colors_.T.ravel().tolist()))
 
     else:
+#        gl.glDisable(gl.GL_FOG)
         gl.gluPerspective(VPs[i_VP]['foc'], 1.0*win_0.width/win_0.height,
                           VPs[i_VP]['pc_min'], VPs[i_VP]['pc_max'])
         gluLookAt(VPs[i_VP]['x'], VPs[i_VP]['y'], VPs[i_VP]['z'],
