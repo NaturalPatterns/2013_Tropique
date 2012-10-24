@@ -8,6 +8,7 @@ Scenarios
 import numpy as np
 import time
 
+
 def arcdistance(rae1, rae2):
     """
     renvoie l'angle sur le grand cercle (en radians)
@@ -79,7 +80,7 @@ class Scenario:
         self.scenario = scenario
         self.volume = volume
         d_x, d_y, d_z = self.volume
-        self.center = np.array([d_x/2, d_y/2, VPs[0]['z']], dtype='f') # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
+        self.center = np.array([0., d_y/2, VPs[0]['z']], dtype='f') # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
         self.roger = np.array([d_x/2, d_y/2, d_z/2], dtype='f') #  fixation dot  (AKA Roger?)
 #        self.origin = np.array([0., 0., 0.]) # origin
 
@@ -99,7 +100,7 @@ class Scenario:
 #        self.l_seg = np.logspace(np.log(p['l_seg_min'])/np.log(log_scale),
 #                            np.log(p['l_seg_min']*2)/np.log(log_scale), num=self.N,
 #                            endpoint=True, base=log_scale)
-        self.l_seg[-2:] = p['l_seg_max']
+#        self.l_seg[-2:] = p['l_seg_max']         
 #                            np.linspace(np.log(p['l_seg_min'], base=base), p['l_seg_max']**(1/order), self.N)**order
         self.order = 2
         self.particles = np.zeros((6*self.order, N), dtype='f') # x, y, z, u, v, w
@@ -107,8 +108,8 @@ class Scenario:
 #        self.particles = np.random.randn(6*self.order, N)*d_y/4
 
 
-        self.particles[0:3, :] = self.center[:, np.newaxis]
-        self.particles[3:6, :] = self.center[:, np.newaxis]
+        self.particles[0:3, :] = self.center[:, np.newaxis] 
+        self.particles[3:6, :] = self.center[:, np.newaxis] 
 #        self.particles[1:3, :] += np.random.rand(2, self.N)*d_y
         self.particles[1, :] = np.linspace(d_y/4, 3*d_y/4, self.N)
 #        self.particles[4, :] = self.particles[1, :] + self.l_seg # np.random.randn(2, self.N)*self.l_seg
@@ -116,7 +117,7 @@ class Scenario:
         self.particles[4, :] = self.particles[1, :] + self.l_seg # np.random.randn(2, self.N)*self.l_seg
 #        self.positions_old = 0
         
-    def champ(self, positions, events):
+    def champ(self, positions):
 
         force = np.zeros((6, self.N)) # one vector per point
         n = self.p['kurt']
@@ -125,10 +126,6 @@ class Scenario:
         # TODO :  les réulsions combinéees avec l'attraction centripete crée un fan puis transition a plusieurs anneaux 
 #       print self.t, position
         # point C (centre) du segment
-        if events[4]==0: # event avec la touche G dans explore.py
-            G_rot = self.p['G_rot']
-        else:
-            G_rot = self.p['G_rot_hot']
         OC = (self.particles[0:3, :]+self.particles[3:6, :])/2
         CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
         for OV in self.vps:
@@ -164,9 +161,9 @@ class Scenario:
                     rae_VS = xyz2azel(np.array(position), OV)
 #                    print arcdistance(rae_VS, rae_VA).shape
                     arcdis = np.min(np.vstack((arcdistance(rae_VS, rae_VA),\
-                            arcdistance(rae_VS, rae_VB),\
-                            arcdistance(rae_VS, rae_VC))), axis=0)
-                    #                    print arcdis.shape
+                                               arcdistance(rae_VS, rae_VB),\
+                                               arcdistance(rae_VS, rae_VC))), axis=0)
+#                    print arcdis.shape
                     distance_SC = rae_VS[0]*np.sin(arcdis)
                     SC = OC - np.array(position)[:, np.newaxis]
                     SC /= np.sqrt((SC**2).sum(axis=0))
@@ -183,12 +180,9 @@ class Scenario:
                     cap_SC = orientation(rae_VS, rae_VC)
                     cap_AB = orientation(rae_VA, rae_VB)
 
-                    # TODO rotatio aussi vers le plan perpendiculaire a l'acteur
                     AB = self.particles[3:6, :] - self.particles[0:3, :]# 3 x N
-#                    print np.sum(AB**2, axis=0)
-                    rotation_ = -np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
-#                    rotation_ = -(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2)/(distance_SC + self.p['eps']) #
-#                    rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2)/(distance_SC + self.p['eps']) #
+#                    rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
+                    rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2)/(distance_SC + self.p['eps']) #
 #                    rotation_ = np.sinh((cap_SC-cap_AB)/20.)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
 #                    rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :]*rae2xyz(np.array([1., rae_AB[1]+np.pi/2, rae_AB[2]+np.pi/2]))[:, np.newaxis]
 
@@ -200,95 +194,56 @@ class Scenario:
 
                 force[0:3, :] += self.p['G_global'] / self.nvps * gravity
                 force[3:6, :] += self.p['G_global'] / self.nvps * gravity
-                force[0:3, :] += G_rot / self.nvps * rotation
-                force[3:6, :] -= G_rot / self.nvps * rotation
+                force[0:3, :] += self.p['G_rot'] / self.nvps * rotation
+                force[3:6, :] -= self.p['G_rot'] / self.nvps * rotation
 
         # FORCES GLOBALES  dans l'espace physique
 
         ## forces entres les particules
-        if events[2]==0: # event avec la touche V dans explore.py
-            G_repulsion = self.p['G_repulsion']
-        else:
-            G_repulsion = self.p['G_repulsion_hot']        
         # repulsion entre les centres de de chaque paire de segments
         OC = (self.particles[0:3, :]+self.particles[3:6, :])/2
         CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
         distance = np.sqrt(np.sum(CC**2, axis=0)) # NxN ; en metres
         gravity = - np.sum(CC/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
-        force[0:3, :] += G_repulsion * gravity
-        force[3:6, :] += G_repulsion * gravity
-        # TODO attraction / repulsion des angles relatifs des segments
-
-        ind_min = np.argmin(distance + np.eye(self.N)*1e6, axis=0)
-        speed_CC = (self.particles[6:9, :] + self.particles[6:9, ind_min]) + (self.particles[9:12, :] + self.particles[9:12, ind_min])
-#        print speed_CC.shape, ind_min, CC[:,:,ind_min].diagonal().shape, distance[:,ind_min].diagonal().shape
-        poussee =  np.sign(np.sum(speed_CC * CC[:,ind_min,:].diagonal(axis1=1, axis2=2), axis=0)) * CC[:,ind_min,:].diagonal(axis1=1, axis2=2) /(distance[:,ind_min].diagonal() + self.p['eps'])**3 # 3 x N; en metres
-        force[0:3, :] += self.p['G_poussee'] * poussee
-        force[3:6, :] += self.p['G_poussee'] * poussee
+        force[0:3, :] += self.p['G_repulsion'] * gravity
+        force[3:6, :] += self.p['G_repulsion'] * gravity
+        # attraction / repulsion des angles relatifs des segments
         
-
-        if events[0]==0: # event avec la touch R dans explore.py
-            G_struct = self.p['G_struct']
-            distance_struct = self.p['distance_struct']
-        else:
-            G_struct = self.p['G_struct_hot']   
-            distance_struct = self.p['distance_struct_hot']   
         # attraction / repulsion des extremites des segments
         AB = self.particles[0:3, :, np.newaxis]-self.particles[0:3, np.newaxis, :]
         distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
-        gravity = - np.sum((distance < distance_struct) * AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
-        force[0:3, :] += G_struct * gravity
+        gravity = - np.sum((distance < self.p['distance_struct']) * AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
+        force[0:3, :] += self.p['G_struct'] * gravity
         AB = self.particles[3:6, :, np.newaxis]-self.particles[3:6, np.newaxis, :]
         distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
-        gravity = - np.sum((distance < distance_struct) * AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
-        force[3:6, :] += G_struct * gravity
+        gravity = - np.sum((distance < self.p['distance_struct']) * AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
+        force[3:6, :] += self.p['G_struct'] * gravity
         AB = self.particles[0:3, :][:, :, np.newaxis]-self.particles[3:6, :][:, :, np.newaxis]
         distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
-        gravity = - np.sum((distance < distance_struct) * AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
-        force[0:3, :] += .5* G_struct * gravity
-        force[3:6, :] += .5* G_struct * gravity
+        gravity = - np.sum((distance < self.p['distance_struct']) * AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
+        force[0:3, :] += .5*self.p['G_struct'] * gravity
+        force[3:6, :] += .5*self.p['G_struct'] * gravity
 
 #
 #       # TODO :  gravité vers le bas pour séparer 2 phases
 #        if not(self.p['G_gravite']==0.):
 #            force[2, :] -= self.p['G_gravite']
 #            force[5, :] -= self.p['G_gravite']
-       # HACK: une force pour orienter les particule vers le plan vertical
-        if not(self.p['G_gravite']==0.):
-            AB_x = self.particles[0, :]-self.particles[3, :] # 1 x N
-            force[0, :] = -self.p['G_gravite'] * AB_x
-            force[3, :] = self.p['G_gravite'] * AB_x
 
-        if events[1]==0: # event avec la touch P dans explore.py
-            self.l_seg[:-2] = self.p['l_seg_min'] * np.ones(self.N-2)
-            G_spring = self.p['G_spring']
-        else:
-            self.l_seg[:-2] = self.p['l_seg_hot'] * np.ones(self.N-2)
-            G_spring = self.p['G_spring_hot']
-#            print "relax"
         # ressort
         AB = self.particles[0:3, :]-self.particles[3:6, :] # 3 x N
         distance = np.sqrt(np.sum(AB**2, axis=0)) # en metres
-#            print distance[-2:]
 #        print force.shape, (distance[np.newaxis, :] - l_seg).shape, D_ij.shape, self.particles[6:12, :].shape, self.l_seg
-        force[0:3, :] -= G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
-        force[3:6, :] += G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
+        force[0:3, :] -= self.p['G_spring'] * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
+        force[3:6, :] += self.p['G_spring'] * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
 
         # damping        
-#        z_C = (self.particles[2, :]+self.particles[5, :])/2
-#        print z_C 
-        modul = 1 #np.exp(- z_C* (z_C>0) / self.volume[2] / 4. )
-        force -= self.p['damp'] * modul * self.particles[6:12, :]/self.dt
-        force = self.p['scale'] * np.tanh(force/self.p['scale'])
-
+        force -= self.p['damp'] * self.particles[6:12, :]/self.dt
+#        force = np.tanh(force/self.p['scale'])
         force *= self.p['speed_0']
-        
         return force
 
-
-
-
-    def do_scenario(self, positions=None, events=[0, 0, 0, 0, 0, 0, 0, 0]):
+    def do_scenario(self, positions=None):
         self.t_last = self.t
         self.t = time.time()
         self.dt = (self.t - self.t_last)
@@ -319,7 +274,7 @@ class Scenario:
 
 
         elif self.scenario == 'calibration':
-            #             self.particles = np.zeros((6, self.N))
+#             self.particles = np.zeros((6, self.N))
 
             longueur_segments, undershoot_z = .05, .5
 #            longueur_segments, undershoot_z = .05, .0
@@ -341,7 +296,7 @@ class Scenario:
             #            print self.particles.mean(axis=1)
 
         elif self.scenario == 'cristal':
-            #             self.particles = 1000*np.ones((6, self.N)) # segments outside 
+#             self.particles = 1000*np.ones((6, self.N)) # segments outside 
             frequency_plane = .005 # how fast the whole disk moves in Hz
             length = .5 # length of each AB
             mean_elevation, frequency_elevation, std_elevation = 90. * np.pi / 180., 0.3, 45. * np.pi / 180.  # elevation (in radians) of viual angle for the points of convergence defiing the cristal's circle
@@ -362,11 +317,11 @@ class Scenario:
 
 
         elif self.scenario == 'fan':
-            #             self.particles = np.zeros((6, self.N))
+#             self.particles = np.zeros((6, self.N))
             frequency_plane = .005 # how fast the disk moves in Hz
             radius_min, radius_max = 2.0, 5.0
             radius, length_ratio = .2 * d_z, 1.4
-            N_dots = 16 #np.min(16, self.N)
+            N_dots = np.min(16, self.N)
 
 #            N_dots = 50
 #            radius, length_ratio = .1 * d_z, 2
@@ -383,7 +338,7 @@ class Scenario:
 #            self.particles[3:6, N_dots:] = self.origin[:, np.newaxis] + .0001 # très fin
 
         elif self.scenario == '2fan':
-            #             self.particles = np.zeros((6, self.N))
+#             self.particles = np.zeros((6, self.N))
             frequency_rot, frequency_plane = .1, .05 # how fast the whole disk moves in Hz
             radius, length_ratio = .2 * d_z, 1.4
             N_dots = np.min(16, self.N)
@@ -402,11 +357,11 @@ class Scenario:
             self.particles[3, N_dots:2*N_dots] = self.center[0] + 1. # on the reference plane
             self.particles[4, N_dots:2*N_dots] = self.center[1] + radius * length_ratio * np.sin(-angle)
             self.particles[5, N_dots:2*N_dots] = self.center[2] + radius * length_ratio * np.cos(-angle)
-            self.particles[0:3, N_dots:] = self.center[:, np.newaxis] # un rayon vers l'origine
-            self.particles[3:6, N_dots:] = self.center[:, np.newaxis] + .0001 # très fin
+            self.particles[0:3, 2*N_dots:] = self.origin[:, np.newaxis] # un rayon vers l'origine
+            self.particles[3:6, 2*N_dots:] = self.origin[:, np.newaxis] + .001 # très fin
 
         elif self.scenario == 'rotating-circle':
-            #             self.particles = np.zeros((6, self.N))
+#             self.particles = np.zeros((6, self.N))
             frequency_rot, frequency_plane = .1, .05 # how fast the whole disk moves in Hz
             N_dots = np.min(16, self.N)
             radius, length_ratio = .3 * d_z, 2.5
@@ -419,103 +374,21 @@ class Scenario:
             self.particles[3, :N_dots] = self.center[0] + radius * length_ratio * np.sin(angle) * np.sin(2*np.pi*frequency_rot*self.t)
             self.particles[4, :N_dots] = self.center[1] + radius * length_ratio * np.sin(angle) * np.cos(2*np.pi*frequency_rot*self.t)
             self.particles[5, :N_dots] = self.center[2] + radius * length_ratio * np.cos(angle)
-            self.particles[0:3, N_dots:] = self.center[:, np.newaxis] # un rayon vers l'origine
-            self.particles[3:6, N_dots:] = self.center[:, np.newaxis] + .0001 # très fin
-                
-        elif self.scenario == 'odyssey':
-            np.random.seed(12345)
-            up_down = np.sign(np.random.randn(self.N)-.5)
-            speed_flow, frequency_flow_trans = 20., .01 # how fast the whole disk moves in Hz
-            frequency_plane_1, frequency_plane_2 = .0101, .01 # how fast the whole disk moves in Hz
-#            frequency_rot_1, frequency_rot_2 = .02, .01 # how fast the whole disk moves in Hz
-            radius, length, width = .3 * d_z, .8, d_y*4
-            
-            angle = 2 * np.pi * frequency_plane_1 * self.t
-#            angle_rot_1 = 2 * np.pi * (frequency_rot_1 * self.t)+ np.ones(self.N)# + np.random.rand(self.N))
-#            angle_rot_2 = 2 * np.pi * (frequency_rot_2 * self.t)+ np.ones(self.N)# + np.random.rand(self.N))
-            
-            # coordinates before the plane rotation
-            #            x = d_x * np.sin(2*np.pi*frequency_flow*self.t)
-#            x = np.mod(np.random.rand(self.N)*d_x + speed_flow*self.t, d_x)
-            dx = -2*np.abs((np.linspace(0, d_x, self.N)-d_x/2))
-            x = np.mod(dx + speed_flow*self.t, 3*d_x)
-            y = np.linspace(-width/2, width/2, self.N) # np.random.rand(self.N)*width - width/2 #
-            z = d_z / 5. * up_down
-            l = np.sqrt(y**2 + z**2)
-#            vector = np.array([np.zeros(self.N), y/l, z/l ])
-#
-#            self.particles[0, :] = x
-#            self.particles[1, :] = y
-#            self.particles[2, :] = z
-#
-#            self.particles[0:3, :] -= length/2. * vector
-#            self.particles[3:6, :] += length/2. * vector
-#            
-            # a circle drawn on a rotating plane
-            self.particles[0, :] = x
-            self.particles[1, :] = (y - y*length/l) * np.sin(angle) + (z - z*length/l) * np.cos(angle)
-            self.particles[2, :] = (y - y*length/l) * np.cos(angle) - (z - z*length/l) * np.sin(angle)
-#            self.particles[3:6, :] = self.particles[0:3, :]
-            self.particles[3, :] = x
-            self.particles[4, :] = (y + y*length/l) * np.sin(angle) + (z + z*length/l) * np.cos(angle)
-            self.particles[5, :] = (y + y*length/l) * np.cos(angle) - (z + z*length/l) * np.sin(angle)
-            
-#            vector = np.array([np.cos(angle_rot_2)*np.cos(angle_rot_1), np.cos(angle_rot_2)*np.sin(angle_rot_1), np.sin(angle_rot_2) ])
-#            vector = np.array([np.sin(angle_rot_2), np.cos(angle_rot_2)*np.cos(angle_rot_1), np.cos(angle_rot_2)*np.sin(angle_rot_1) ])
-#            l = np.sqrt(self.particles[1, :]**2 + self.particles[2, :]**2)
-#            vector = np.array([np.zeros(self.N), self.particles[2, :]/l, self.particles[1, :]/l ])
+            self.particles[0:3, N_dots:] = self.origin[:, np.newaxis] # un rayon vers l'origine
+            self.particles[3:6, N_dots:] = self.origin[:, np.newaxis] + .0001 # très fin
 
-#            self.particles[0:3, :] -= length/2. * vector
-#            self.particles[3:6, :] += length/2. * vector
-            
-            self.particles[0:3, :] += self.center[:, np.newaxis]
-            self.particles[3:6, :] += self.center[:, np.newaxis]
-
-        elif self.scenario == 'snake':
-            np.random.seed(12345)
-            up_down = np.sign(np.random.randn(self.N)-.5)
-            speed_flow, frequency_flow_trans = 1., .01 # how fast the whole disk moves in Hz
-            frequency_plane_1, frequency_plane_2 = .0101, .01 # how fast the whole disk moves in Hz
-            #            frequency_rot_1, frequency_rot_2 = .02, .01 # how fast the whole disk moves in Hz
-            radius, length, width = .3 * d_z, .8, d_y/4
-            
-            angle = 2 * np.pi * frequency_plane_1 * self.t
-            #            angle_rot_1 = 2 * np.pi * (frequency_rot_1 * self.t)+ np.ones(self.N)# + np.random.rand(self.N))
-            #            angle_rot_2 = 2 * np.pi * (frequency_rot_2 * self.t)+ np.ones(self.N)# + np.random.rand(self.N))
-            
-            # coordinates before the plane rotation
-            #            x = d_x * np.sin(2*np.pi*frequency_flow*self.t)
-            #            x = np.mod(np.random.rand(self.N)*d_x + speed_flow*self.t, d_x)
-            #dx = -2*np.abs((np.linspace(0, d_x, self.N)-d_x/2))
-#            x = np.mod(np.linspace(0, d_x, self.N) + speed_flow*self.t, d_x)
-            x = d_x/2+np.sin(np.linspace(0, 2*np.pi, self.N)/3 + speed_flow*self.t) * d_x/2
-            y = np.sin(np.linspace(0, 2*np.pi, self.N)/4) * width # np.random.rand(self.N)*width - width/2 #
-
-            z = d_z / 5. #* up_down
-            l = np.sqrt(y**2 + z**2)
-            self.particles[0, :] = x
-            self.particles[1, :] = y * np.sin(angle) + z * np.cos(angle)
-            self.particles[2, :] = y * np.cos(angle) - z * np.sin(angle)
-
-            self.particles[3:6, :] = np.roll(self.particles[0:3, :], 1, axis=1)
-            self.particles[3:6, 0] = self.particles[0:3, 0]
-
-            self.particles[0:3, :] += self.center[:, np.newaxis]
-            self.particles[3:6, :] += self.center[:, np.newaxis]
-    
         elif self.scenario == 'leapfrog':
-            #            distance = np.sqrt((np.array(positions) - self.positions_old)**2).sum()
+#            distance = np.sqrt((np.array(positions) - self.positions_old)**2).sum()
             #TODO : use simpy
             self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
-            force = self.champ(positions=positions, events=events)
+            force = self.champ(positions=positions)
             self.particles[6:12, :] += force * self.dt
-            # TODO normalize spped?
             # application de l'acceleration calculée sur les positions
             self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
 #            self.positions_old = np.array(positions)
 
         elif self.scenario == 'euler':
-            force = self.champ(positions=positions, events=events)
+            force = self.champ(positions=positions)
             self.particles[6:12, :] += force * self.dt
             # application de l'acceleration calculée sur les positions
             self.particles[:6, :] += self.particles[6:12, :] * self.dt
@@ -528,7 +401,7 @@ class Scenario:
 #                     A=1
 # 
 #
-        if not(positions == None) and not(positions == np.nan) and not(positions == []) and (self.scenario in ['croix', 'fan', '2fan', 'rotating-circle', 'calibration']):
+        if not(positions == None) and not(positions == np.nan) and (self.scenario in ['croix', 'fan', '2fan', 'rotating-circle', 'calibration']):
             # pour la calibration on centre le pattern autour de la premiere personne captée
             self.particles[0:3, :] -= self.center[:, np.newaxis]
             self.particles[3:6, :] -= self.center[:, np.newaxis]
@@ -540,7 +413,7 @@ class Scenario:
         #  permet de ne pas sortir du volume (todo: créer un champ répulsif aux murs...)
         if (self.scenario == 'leapfrog') or (self.scenario == 'euler') :
             for i in range(6):
-                #                self.particles[i, (self.particles[i, :] > self.volume[i % 3]) ] = self.volume[i % 3]
+#                self.particles[i, (self.particles[i, :] > self.volume[i % 3]) ] = self.volume[i % 3]
 #                self.particles[i, (self.particles[i, :] < 0.) ] = 0.
                 self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
                 self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
