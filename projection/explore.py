@@ -148,14 +148,13 @@ def on_draw():
     if do_sock:
         positions = k.read_sock() # TODO: c'est bien une liste de coordonnées [x, y, z] ?
     else:
-        # HACK pour simuler ROGER:
+        # pour simuler ROGER:
         from numpy import cos, pi
         positions = []
-        amp = .2
-        T, T2 = 20., 30 # periode en secondes
-        phi = 10/9. #.5*( 1 + sqrt(5) )
-        positions.append([s.roger[0], s.roger[1] * (1. + 1.*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
-        positions.append([s.roger[0], s.roger[1] * (1. + .2*cos(2*pi*s.t/T2)), 1.1*s.roger[2]]) # une personne dans un mouvement circulaire (elipse)
+        amp, amp2 = .2, .5
+        T, T2 = 15., 30. # periode en secondes
+        positions.append([s.roger[0], s.roger[1] * (1. + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
+        positions.append([s.roger[0], s.roger[1] * (1. + amp2*cos(2*pi*s.t/T2)), 1.1*s.roger[2]]) # une personne dans un mouvement circulaire (elipse)
 
 
 #    if np.random.rand() > .9: 
@@ -168,18 +167,13 @@ def on_draw():
     gl.glMatrixMode(gl.GL_MODELVIEW)
     gl.glLoadIdentity()
     if do_firstperson:
-#        gl.glEnable(gl.GL_FOG)
-#        gl.fogColor = [0.8,0.8,0.8, 1.]
-#        gl.glEnable(gl.GL_FOG)
-#        gl.fogColor = [0.5, 0.5, 0.5, 1.0]
-#        global fogMode
-#        fogMode = gl.GL_EXP
-#        gl.glFogi (gl.GL_FOG_MODE, fogMode)
-##        gl.glFogfv (gl.GL_FOG_COLOR, gl.fogColor)
-#        gl.glFogf (gl.GL_FOG_DENSITY, 0.05)
-#        gl.glHint (gl.GL_FOG_HINT, gl.GL_DONT_CARE)
-#        gl.glFogf (gl.GL_FOG_START, 1.0)
-#        gl.glFogf (gl.GL_FOG_END, 5.0)
+        gl.glEnable(gl.GL_FOG)
+        gl.glFogi (gl.GL_FOG_MODE, gl.GL_LINEAR)
+#        gl.glFogfv (gl.GL_FOG_COLOR, [0.8,0.8,0.8, 1.])
+        gl.glHint (gl.GL_FOG_HINT, gl.GL_NICEST)#GL_DONT_CARE)
+        gl.glFogf (gl.GL_FOG_DENSITY, 0.1)
+        gl.glFogf (gl.GL_FOG_START, .0)
+        gl.glFogf (gl.GL_FOG_END, 6.0)
 #        gl.glClearColor(0.5, 0.5, 0.5, 1.0)
 
         gl.gluPerspective(foc_fp, 1.0*win_0.width/win_0.height,
@@ -204,7 +198,7 @@ def on_draw():
                                  ('c4f', colors_.T.ravel().tolist()))
 
     else:
-#        gl.glDisable(gl.GL_FOG)
+        gl.glDisable(gl.GL_FOG)
         gl.gluPerspective(VPs[i_VP]['foc'], 1.0*win_0.width/win_0.height,
                           VPs[i_VP]['pc_min'], VPs[i_VP]['pc_max'])
         gluLookAt(VPs[i_VP]['x'], VPs[i_VP]['y'], VPs[i_VP]['z'],
