@@ -5,22 +5,33 @@ Particle-like simulations using pyglet.app
 
 Exploration mode.
 
+
+    Les interactions visuo - sonores sont simulées ici par des switches lançant les événements:
+    - R : rugosité G_struct distance_struct
+    - P : pulse (modif de la longueur et raideur des segments)
+    - V : G_repulsion <> G_repulsion_hot
+    - G : G_rot <> G_rot_hot
+    - espace : restore la config
+    TODO: il reste de la place...
+    
 """
 
 do_sock = False
 #do_sock=True
 do_fs = False
+do_slider = False
 i_VP = 0 # VP utilisé comme projecteur
-
+scenario = 'leapfrog' #'rotating-circle'
 #import sys
 #window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
 from parametres import VPs, volume, p, kinects_network_config
 from scenarios import Scenario
-s = Scenario(p['N'], 'leapfrog', volume, VPs, p)
 #s = Scenario(256, 'odyssey', volume, VPs, p)
 #s = Scenario(256, 'snake', volume, VPs, p)
-#s = Scenario(p['N'], 'rotating-circle', volume, VPs, p)
-#s = Scenario(p['N'], 'leapfrog', volume, [VPs[0]], p)
+#s = Scenario(256, 'snake', volume, VPs, p)
+#s = Scenario(p['N'], 'fan', volume, VPs, p)
+#s = Scenario(p['N'], '2fan', volume, VPs, p)
+s = Scenario(p['N'], scenario, volume, VPs, p)
 
 
 if do_sock:
@@ -125,7 +136,7 @@ def on_draw():
         T = 20. # periode en secondes
         phi = 10/9. #.5*( 1 + sqrt(5) )
         positions.append([s.center[0], s.center[1] * (1. + 1.2*cos(2*pi*s.t/T)), 1.1*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
-#        positions.append([s.center[0], s.center[1] * (1. + .0*cos(2*pi*s.t/T/phi)), 1.*s.center[2]]) # une autre personne dans un mouvement en phase
+        positions.append([s.center[0], s.center[1] * (1. + .0*cos(2*pi*s.t/T/phi)), 1.*s.center[2]]) # une autre personne dans un mouvement en phase
 
 
 #    if np.random.rand() > .9: 
@@ -220,7 +231,7 @@ try:
     
         return fig
 
-    if s.scenario=='leapfrog' and not(do_fs):
+    if s.scenario=='leapfrog' and do_slider:
         fig = sliders(s.p)
 except Exception, e:
     print('problem while importing sliders ! Error = ', e)

@@ -31,7 +31,6 @@ distance_ecran = 2.58
 foc_estim = 2 * arctan2(largeur_ecran/2, distance_ecran) * 180 / pi # ref P101L1
 foc = 30.1
 #foc = 72
-foc = foc_estim
 print("parameres.py nous dit: focale estimée = ", foc_estim, ", focal utilisée = ", foc)
 
 volume = [d_x, d_y, d_z]
@@ -55,7 +54,7 @@ kinects_network_config = {
 # et direction d'angle de vue (cx, cy, cz) comme le point de fixation ainsi que le champ de vue (en deg) 
 # distance des VPs du plan de reference
 #profondeur du plan de référence
-cx = d_x# CX=0 ->on positionne l'écran pour régler la visée au fond de la salle # d_x - 10.27
+cx = 0.# CX=0 ->on positionne l'écran pour régler la visée au fond de la salle # d_x - 10.27
 cy = d_y/2 # on regarde le centre du plan de reference
 cz = z # d_z/2
 # une liste des video projs donnant:
@@ -63,15 +62,17 @@ cz = z # d_z/2
 # TODO: ne mettre que les VPs qui sont utilisés
 VPs = [
         {'address':'10.42.0.51', 'port': 50035,
-            'x':0, 'y':0.5, 'z': z,
+            'x':d_x, 'y':0.5, 'z': z,
+#            'x':d_x, 'y':5.26, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
         {'address':'10.42.0.52', 'port': 50034,
-            'x':0, 'y':3.65, 'z': z,
+            'x':d_x, 'y':3.65, 'z': z,
+#            'x':d_x, 'y':4.27, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000 },
         {'address':'10.42.0.53', 'port': 50036,
-            'x':0, 'y':7.3, 'z': z,
+            'x':d_x, 'y':7.3, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
         ]
@@ -111,7 +112,7 @@ p = {'N': 32,
      'scale': 200., # facteur global (et redondant avec les G_*) pour régler la saturation dela force
 #     'speed_0': .9, 
      'kurt' : 1., # 1 is normal gravity, higher makes the attraction more local
-     'line_width': 1, # line width of segments
+     'line_width': 4, # line width of segments
      }
 
 #parametres des kinects
@@ -134,6 +135,41 @@ info_kinects = [
   
 DEBUG  = False
 
+
+
+
+def sliders(p):
+    caca
+    import matplotlib as mpl
+    mpl.rcParams['interactive'] = True
+#    mpl.rcParams['backend'] = 'Qt4Agg'
+    mpl.rcParams['backend_fallback'] = True
+    mpl.rcParams['toolbar'] = 'None'
+    import pylab
+    fig = pylab.figure(1)
+#    AX = fig.add_subplot(111)
+    pylab.ion()
+    # turn interactive mode on for dynamic updates.  If you aren't in interactive mode, you'll need to use a GUI event handler/timer.
+    from matplotlib.widgets import Slider
+    ax, value = [], []
+    n_key = len(p.keys())*1.
+#    print s.p.keys()
+    for i_key, key in enumerate(p.keys()):
+#        print [0.1, 0.05+i_key/(n_key+1)*.9, 0.9, 0.05]
+        ax.append(fig.add_axes([0.15, 0.05+i_key/(n_key-1)*.9, 0.6, 0.05], axisbg='lightgoldenrodyellow'))
+        value.append(Slider(ax[i_key], key, 0., (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
+
+    def update(val):
+        for i_key, key in enumerate(p.keys()):
+            p[key]= value[i_key].val
+            print key, p[key]#, value[i_key].val
+        pylab.draw()
+
+    for i_key, key in enumerate(p.keys()): value[i_key].on_changed(update)
+
+    pylab.show()#block=False) # il faut pylab.ion() pour pas avoir de blocage
+
+    return fig
 
 
 if __name__ == "__main__":
