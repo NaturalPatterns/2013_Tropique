@@ -36,21 +36,9 @@ print("parameres.py nous dit: focale estimée = ", foc_estim, ", focal utilisée
 
 volume = [d_x, d_y, d_z]
 
-play = "leapfrog"
+#play = "leapfrog"
 #play = "croix" # calibration croix a x=0, y =d_y/2, z = 1.36
 
-run_thread_network_config = {
-        'port_to_line_res' : 8005,
-        'ip_to_line_res' : "10.42.0.70",
-        }
-
-kinects_network_config = {
-        'UDP_IP' : "",
-        'UDP_PORT' : 3003,
-        'send_UDP_IP' : "10.42.0.1",
-        'send_UDP_PORT' : 3005,
-        'para_data' : [1 , 10, 50, 350, 5 ],
-}
 
 # et direction d'angle de vue (cx, cy, cz) comme le point de fixation ainsi que le champ de vue (en deg) 
 # distance des VPs du plan de reference
@@ -111,7 +99,7 @@ p = {'N': 32,
      'scale': 200., # facteur global (et redondant avec les G_*) pour régler la saturation dela force
 #     'speed_0': .9, 
      'kurt' : 1., # 1 is normal gravity, higher makes the attraction more local
-     'line_width': 1, # line width of segments
+     'line_width': 3, # line width of segments
      }
 
 #parametres des kinects
@@ -131,7 +119,19 @@ info_kinects = [
 		{'address':'10.42.0.15', 'port': 9999, 'x':100.0, 'y':-1, 'z': 4.3, 'az':-1.2 ,'max':491},#11
 
 		]
-  
+
+run_thread_network_config = {
+    'port_to_line_res' : 8005,
+    'ip_to_line_res' : "10.42.0.70",
+}
+
+kinects_network_config = {
+    'UDP_IP' : "",
+    'UDP_PORT' : 3003,
+    'send_UDP_IP' : "10.42.0.1",
+    'send_UDP_PORT' : 3005,
+    'para_data' : [1 , 10, 50, 350, 5 ],
+}
 DEBUG  = False
 
 
