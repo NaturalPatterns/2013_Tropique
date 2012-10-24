@@ -23,7 +23,7 @@ scenario = 'leapfrog' #'rotating-circle'
 do_firstperson, foc_fp, i_VP_fp = False, 45., 1
 i_VP = 0 # VP utilisé comme projecteur
 do_fs = False
-do_slider = True
+do_slider = False
 do_sock = False
 #do_sock=True
 do_stipple = False
@@ -69,7 +69,7 @@ from pyglet.window import Window
 #from pyglet import clock
 
 if do_fs:
-    win_0 = Window(screen=screens[0], fullscreen=True)#  False, resizable=True)
+    win_0 = Window(screen=screens[0], fullscreen=True, resizable=True)
 else:
     win_0 = Window(width=screen.width*2/3, height=screen.height*2/3, screen=screens[0], fullscreen=False, resizable=True)
     win_0.set_location(screen.width/3, screen.height/3)
@@ -134,8 +134,11 @@ def on_key_press(symbol, modifiers):
         events[2] = 1 - events[2]
     elif symbol == pyglet.window.key.G:
         events[4] = 1 - events[4]
-    print events 
-        
+    print events
+
+@win_0.event
+def on_resize(width, height):
+    print 'The window was resized to %dx%d' % (width, height)
 ##if DEBUG: fps_display = pyglet.clock.ClockDisplay(color=(1., 1., 1., 1.))
 @win_0.event
 def on_draw():
@@ -177,8 +180,12 @@ def on_draw():
             gl.glColor3f(1., 1., 1.)
             VP_ = np.array([[VP['x'], VP['y'], VP['z']]]).T * np.ones((1, s.N))
             p_ = s.particles[0:6, :]
+            colors_ = np.array([[255, 255, 255, 0, 0, 0, 0, 0, 0]]).T * np.ones((1, s.N), dtype=np.int)
+            print np.vstack((VP_, p_)).shape, (np.array([[255, 255, 255, 0, 0, 0, 0, 0, 0]]).T * np.ones((1, s.N))).T.ravel().tolist()
             pyglet.graphics.draw(3*s.N, gl.GL_TRIANGLES,
-                                 ('v3f', np.vstack((VP_, p_)).T.ravel().tolist()))
+                                 ('v3f', np.vstack((VP_, p_)).T.ravel().tolist(),
+                                  'c3B', colors_.T.ravel().tolist()))
+
     else:
         gl.gluPerspective(VPs[i_VP]['foc'], 1.0*win_0.width/win_0.height,
                           VPs[i_VP]['pc_min'], VPs[i_VP]['pc_max'])
