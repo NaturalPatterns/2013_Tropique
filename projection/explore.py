@@ -109,8 +109,13 @@ events = [0, 0, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
 @win_0.event
 def on_key_press(symbol, modifiers):
     global events    
-    
-    if symbol == pyglet.window.key.SPACE:
+    if symbol == pyglet.window.key.TAB:
+        if win_0.fullscreen:
+            win_0.set_fullscreen(0)
+            win_0.set_location(screen.width/3, screen.height/3)
+        else:
+            win_0.set_fullscreen(1)
+    elif symbol == pyglet.window.key.SPACE:
         events = [0, 0, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
     elif symbol == pyglet.window.key.R:
         events[0] = 1 - events[0]
