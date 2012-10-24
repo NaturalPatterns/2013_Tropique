@@ -4,24 +4,31 @@
 Particle-like simulations using pyglet.app
 
 Exploration mode.
-
+    
+    Interaction keyboard:
+    - TAB pour passer/sortir du fulscreen
+    - espace : passage en first-person persepective
 
     Les interactions visuo - sonores sont simulées ici par des switches lançant les événements:
     - R : rugosité G_struct distance_struct
     - P : pulse (modif de la longueur et raideur des segments)
     - V : G_repulsion <> G_repulsion_hot
     - G : G_rot <> G_rot_hot
-    - espace : restore la config
+    - Q : restore la config sans event
     TODO: il reste de la place...
     
 """
-
+########################################
+scenario = 'leapfrog' #'rotating-circle'
+do_firstperson, foc_fp, i_VP_fp = False, 45., 1
+i_VP = 0 # VP utilisé comme projecteur
+do_fs = False
+do_slider = True
 do_sock = False
 #do_sock=True
-do_fs = False
-do_slider = False
-i_VP = 0 # VP utilisé comme projecteur
-scenario = 'leapfrog' #'rotating-circle'
+do_stipple = False
+########################################
+
 #import sys
 #window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
 from parametres import VPs, volume, p, kinects_network_config
@@ -67,6 +74,7 @@ else:
     win_0 = Window(width=screen.width*2/3, height=screen.height*2/3, screen=screens[0], fullscreen=False, resizable=True)
     win_0.set_location(screen.width/3, screen.height/3)
 
+#print screen.width
 import pyglet.gl as gl
 fps_text = pyglet.clock.ClockDisplay()
 from pyglet.gl.glu import gluLookAt
@@ -99,8 +107,7 @@ gluLookAt(VPs[i_win]['x'], VPs[i_win]['y'], VPs[i_win]['z'],
 #win_0.on_draw = on_draw
 # batch = pyglet.graphics.Batch()
 
-
-gl.glEnable(gl.GL_LINE_STIPPLE)
+if do_stipple: gl.glEnable(gl.GL_LINE_STIPPLE)
 #spin = 0
 
 
@@ -108,14 +115,16 @@ events = [0, 0, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
 
 @win_0.event
 def on_key_press(symbol, modifiers):
-    global events    
+    global events, do_firstperson
     if symbol == pyglet.window.key.TAB:
         if win_0.fullscreen:
-            win_0.set_fullscreen(0)
+            win_0.set_fullscreen(False)
             win_0.set_location(screen.width/3, screen.height/3)
         else:
-            win_0.set_fullscreen(1)
+            win_0.set_fullscreen(True)
     elif symbol == pyglet.window.key.SPACE:
+        do_firstperson = not(do_firstperson)
+    elif symbol == pyglet.window.key.Q:
         events = [0, 0, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
     elif symbol == pyglet.window.key.R:
         events[0] = 1 - events[0]
@@ -153,38 +162,54 @@ def on_draw():
     win_0.clear()
     gl.glMatrixMode(gl.GL_MODELVIEW)
     gl.glLoadIdentity()
+    if do_firstperson:
+        gl.gluPerspective(foc_fp, 1.0*win_0.width/win_0.height,
+                          VPs[i_VP]['pc_min'], VPs[i_VP]['pc_max'])
+        gluLookAt(positions[0][0], positions[0][1], positions[0][2], #VPs[i_VP]['cx'], VPs[i_VP]['y'], VPs[i_VP]['z'],
+                  VPs[i_VP_fp]['x'], VPs[i_VP_fp]['y'], VPs[i_VP_fp]['z'],
+                  0., 0, 1.0)
+        # marque la postion de chaque VP par un joli carré vert
+        for VP in VPs:
+            gl.glPointSize(10)
+            gl.glColor3f(0., 1., 0.)
+            pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', [VP['x'], VP['y'], VP['z']]))
+
+            gl.glColor3f(1., 1., 1.)
+            VP_ = np.array([[VP['x'], VP['y'], VP['z']]]).T * np.ones((1, s.N))
+            p_ = s.particles[0:6, :]
+            pyglet.graphics.draw(3*s.N, gl.GL_TRIANGLES,
+                                 ('v3f', np.vstack((VP_, p_)).T.ravel().tolist()))
+    else:
+        gl.gluPerspective(VPs[i_VP]['foc'], 1.0*win_0.width/win_0.height,
+                          VPs[i_VP]['pc_min'], VPs[i_VP]['pc_max'])
+        gluLookAt(VPs[i_VP]['x'], VPs[i_VP]['y'], VPs[i_VP]['z'],
+                  VPs[i_VP]['cx'], VPs[i_VP]['cy'], VPs[i_VP]['cz'],
+                  0., 0, 1.0)
     
-    gl.gluPerspective(VPs[i_VP]['foc'], 1.0*win_0.width/win_0.height,
-                      VPs[i_VP]['pc_min'], VPs[i_VP]['pc_max'])
-    gluLookAt(VPs[i_VP]['x'], VPs[i_VP]['y'], VPs[i_VP]['z'],
-              VPs[i_VP]['cx'], VPs[i_VP]['cy'], VPs[i_VP]['cz'],
-              0., 0, 1.0)
+        gl.glLineWidth (p['line_width'])
+        # marque la postion des personnes par un joli carré rouge
+        for position in positions:
+            gl.glPointSize(10)
+            gl.glColor3f(1., 0., 0.)
+            pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', position))
+            
+        gl.glColor3f(1., 1., 1.)
+    #    gl.glColor3f(0., 1., 0.)
+    #    gl.glEnable(gl.GL_LINE_STIPPLE)
+        pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
 
+    #    gl.glColor3f(0., 0., 1.)
+    #    pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', (s.particles[0:6, :] + np.array([0.3, 0., 0., 0.3, 0., 0.])[:, np.newaxis]).T.ravel().tolist()))
 
-    gl.glLineWidth (p['line_width'])
-    # marque la postion des personnes par un joli carré rouge
-    for position in positions:
-        gl.glPointSize(10)
-        gl.glColor3f(1.,0.,0.)
-        pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', position))
-        
-    gl.glColor3f(1., 1., 1.)
-#    gl.glColor3f(0., 1., 0.)
-#    gl.glEnable(gl.GL_LINE_STIPPLE)
-    pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
-
-#    gl.glColor3f(0., 0., 1.)
-#    pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', (s.particles[0:6, :] + np.array([0.3, 0., 0., 0.3, 0., 0.])[:, np.newaxis]).T.ravel().tolist()))
-
-#    gl.glLineStipple (1, 0x00FF)  # dashed    
-#    gl.glLineStipple(1, 0x0101)
-#    gl.glLineStipple(1, 0x5555)
-#    if spin:
-#        gl.glLineStipple(1, 0x0101)
-#    else:
-#        gl.glLineStipple(1, 0x1010)
-#    spin = 1 - spin
-#    gl.glDisable(gl.GL_LINE_STIPPLE)
+    #    gl.glLineStipple (1, 0x00FF)  # dashed    
+    #    gl.glLineStipple(1, 0x0101)
+    #    gl.glLineStipple(1, 0x5555)
+    #    if spin:
+    #        gl.glLineStipple(1, 0x0101)
+    #    else:
+    #        gl.glLineStipple(1, 0x1010)
+    #    spin = 1 - spin
+    #    gl.glDisable(gl.GL_LINE_STIPPLE)
     
 
 #    fps_text.draw()
@@ -232,7 +257,7 @@ try:
     
         for i_key, key in enumerate(p.keys()): value[i_key].on_changed(update)
     
-        pylab.show()#block=False) # il faut pylab.ion() pour pas avoir de blocage
+        pylab.show(block=False) # il faut pylab.ion() pour pas avoir de blocage
     
         return fig
 
