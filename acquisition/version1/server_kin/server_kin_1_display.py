@@ -18,6 +18,7 @@ import socket
 import fcntl
 import struct
 
+sys.path.append('../../../projection/')
 from parametres import info_kinects
 
 print('Press ESC in window to stop')

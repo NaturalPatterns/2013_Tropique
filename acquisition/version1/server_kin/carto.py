@@ -241,7 +241,7 @@ def display_player():
 					player[x] = 0
             cv2.rectangle(imaplay,(50,50),(590,430) , (255,255,255) , 5)
             cv2.circle(imaplay,(player[0],player[1]),5,col,10)
-            cv2.circle(imaplay,(50 , 50),15,(255,255,255),10)
+            cv2.circle(imaplay,(50 , 50),15,(255,25,255),10)
 
    
             #cv2.circle(imaplay,(player[0],player[1]),detect*2,(128,180,225),1)
@@ -379,11 +379,11 @@ def calc_angle(each, x_pos , y_pos , z_pos , azimut):
     else:
         #print "x1z1  angle=", coord_x, int (coord_z), angle
         if y_pos == 1 :
-            z= 50 + int((math.cos (angle) * coord_z) *coef_y)
+            z= 400 + int((math.cos (angle) * coord_z) *coef_y)
             x=640 - ( x_pos+int ((math.sin (angle) * coord_z) * coef_x))
 
         else :
-            z= 430 - int((math.cos (angle) * coord_z) *coef_y)
+            z= 550 - int((math.cos (angle) * coord_z) *coef_y)
             x= ( x_pos+int ((math.sin (angle) * coord_z) * coef_x))
 
             

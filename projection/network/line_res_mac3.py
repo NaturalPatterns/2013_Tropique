@@ -192,7 +192,7 @@ def on_draw():
                 my_color = store_blob[10]/255.0
                 
     gl.glColor3f(my_color, my_color , my_color)
-    my_own_draw(placex , placey , scene, lateral,  witdh_line,  nbr_seg ,rx ,ry,rmin ,rmax)
+#    my_own_draw(placex , placey , scene, lateral,  witdh_line,  nbr_seg ,rx ,ry,rmin ,rmax)
     gl.glColor3f(1,1,1)
 
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Particle-like simulation. Just the simulation.
-Functional mode
+Functional modes
 @author: BIOGENE&lolo
 
 """
@@ -32,16 +32,18 @@ if do_sock:
 else:
     positions = None
 
-
+scenario = 'leapfrog' #'rotating-circle'
 from scenarios import Scenario
-s = Scenario(p['N'], play, volume, VPs, p)
+#s = Scenario(p['N'], play, volume, VPs, p)
+s = Scenario(p['N'], scenario, volume, VPs, p)
+
 positions = []
 
 positions.append([s.center[0], s.center[1] , s.center[2]]) # une personne dans un mouvement circulaire (elipse)
 test_positions = ([s.center[0], s.center[1] , s.center[2]]) # une personne dans un mouvement circulaire (elipse)
 
 global events
-events = [0, 0, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
+events = [1, 1, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
 
 if play == "croix":
     positions.append([0, s.center[1] , 1.36 ])# une personne 
@@ -62,6 +64,7 @@ sok = OSC.OSCServer(receive_address) # basic
 # And, if the client supports it, a '/subscribe' & '/unsubscribe' handler
 #sok.addDefaultHandlers()
 # define a message-handler function for the server to call.
+
 def printing_handler(addr, tags, stuff, source):
     global events
 #    print "---"
@@ -72,6 +75,8 @@ def printing_handler(addr, tags, stuff, source):
     events = (stuff)
     
 sok.addMsgHandler("/seq", printing_handler) # adding our function
+
+
 # just checking which handlers we have added
 print "Registered Callback-functions are :"
 for addr in sok.getOSCAddressSpace():
@@ -86,8 +91,12 @@ st.start()
 #----------------------
 
 start_time = time.time()
+
+print events
+
+
 while True:
-    
+    global events
     if DEBUG: 
         elapsed_time = time.time() - start_time
         start_time = time.time()
@@ -118,7 +127,7 @@ while True:
 #        positions.append([s.center[0], s.center[1] * (1. + .75*cos(2*pi*s.t/T)), 1.2*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
 #        positions.append([s.center[0], s.center[1] * (1. + .0*cos(2*pi*s.t/T/phi)),0.9*s.center[2]]) # une autre personne dans un mouvement en phase
 #        positions.append([s.center[0], s.volume[1]*.75, s.volume[2]*.75]) # une personne dans un mouvement circulaire (elipse)
-    s.do_scenario(positions=positions , events=events)
+    s.do_scenario(positions=positions, events=events)
     
     # envoi aux VPs
     str_send = s.particles[0:6, :].tostring('F')

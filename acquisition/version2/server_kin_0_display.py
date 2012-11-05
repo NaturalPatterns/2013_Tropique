@@ -18,8 +18,8 @@ import socket
 import fcntl
 import struct
 
-sys.path.append('../../../projection/')
-from parametres import info_kinects
+#sys.path.append('../../../projection/')
+#from parametres import info_kinects
 
 print('Press ESC in window to stop')
 
@@ -33,11 +33,14 @@ def get_ip_address(ifname):
         struct.pack('256s', ifname[:15])
     )[20:24])
     
-my_ip = get_ip_address('eth0')
-print "my ip is =", my_ip
-global my_number  
-my_number= (int(my_ip[len(my_ip)-1])*2)+ server_kin
-string_name= str(my_ip) +","+str(my_number)
+#my_ip = get_ip_address('eth0')
+#print "my ip is =", my_ip
+#global my_number  
+#my_number= (int(my_ip[len(my_ip)-1])*2)+ server_kin
+#string_name= str(my_ip) +","+str(my_number)
+
+string_name="fenetre"
+my_number = 0
 
 
 print('Press ESC in window to stop')
@@ -50,10 +53,10 @@ threshold = 500
 current_depth = 495
 level = 3
 
-for kin in info_kinects:
-    if ( (kin['address'] == my_ip) and (kin['port'] == 9998+server_kin) )  :
-        current_depth = kin['max']
-
+#for kin in info_kinects:
+#    if ( (kin['address'] == my_ip) and (kin['port'] == 9998+server_kin) )  :
+#        current_depth = kin['max']
+current_depth =1024
 
 UDP_IP="10.42.0.1"
 UDP_PORT=5005
