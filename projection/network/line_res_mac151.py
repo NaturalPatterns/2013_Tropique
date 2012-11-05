@@ -39,7 +39,7 @@ dx ,dy = 10.0 , 10.0
 #    )[20:24])
 #my_ip = get_ip_address('eth0')
 
-my_ip = "10.42.0.51"
+my_ip = "10.42.0.151"
 print "my ip is =", my_ip
 
 
@@ -192,8 +192,8 @@ def on_draw():
                 my_color = store_blob[10]/255.0
                 
     gl.glColor3f(my_color, my_color , my_color)
-    
 #    my_own_draw(placex , placey , scene, lateral,  witdh_line,  nbr_seg ,rx ,ry,rmin ,rmax)
+    gl.glColor3f(1,1,1)
 
 
     

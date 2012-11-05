@@ -26,10 +26,12 @@ from_PORT=run_thread_network_config['port_to_line_res']
 from_send = socket.socket( socket.AF_INET, socket.SOCK_DGRAM ) # UDP
 
 
-scenario = 'croix' #'rotating-circle'
+scenario = 'leapfrog' #'rotating-circle'
 
 from scenarios import Scenario
+#s = Scenario(p['N'], 'croix', volume, VPs, p)
 s = Scenario(p['N'], scenario, volume, VPs, p)
+
 from numpy import cos, pi
 positions = []
 
@@ -38,7 +40,7 @@ test_positions = ([s.center[0], s.center[1] , s.center[2]]) # une personne dans 
 
 
 
-do_sock=True
+do_sock=False
 if do_sock:
     from network import Kinects
     k = Kinects(kinects_network_config)

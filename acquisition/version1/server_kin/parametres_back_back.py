@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Projection information
@@ -20,8 +20,8 @@ Par convention, la position spatiale des VPs par rapport au centre du plan de re
 """
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
-d_y, d_z = 6.26, 6.
-d_x = 14.43 # en metres
+d_y, d_z = 7.3, 6.
+d_x = 18 # en metres
 
 # mesures au telemetre
 z = 1.31# hauteur des VPs
@@ -36,14 +36,14 @@ print("parameres.py nous dit: focale estimée = ", foc_estim, ", focal utilisée
 
 volume = [d_x, d_y, d_z]
 
-play = "leapfrog"
+#play = "leapfrog"
 #play = "croix" # calibration croix a x=0, y =d_y/2, z = 1.36
 
 
 # et direction d'angle de vue (cx, cy, cz) comme le point de fixation ainsi que le champ de vue (en deg) 
 # distance des VPs du plan de reference
 #profondeur du plan de référence
-cx = 0# ->on positionne l'écran pour régler la visée au fond de la salle # d_x - 10.27
+cx = d_x# CX=0 ->on positionne l'écran pour régler la visée au fond de la salle # d_x - 10.27
 cy = d_y/2 # on regarde le centre du plan de reference
 cz = z # d_z/2
 # une liste des video projs donnant:
@@ -51,15 +51,15 @@ cz = z # d_z/2
 # TODO: ne mettre que les VPs qui sont utilisés
 VPs = [
         {'address':'10.42.0.51', 'port': 50035,
-            'x':d_x, 'y':0, 'z': z,
+            'x':0, 'y':0.5, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
         {'address':'10.42.0.52', 'port': 50034,
-            'x':d_x, 'y':2.58, 'z': z,
+            'x':0, 'y':3.65, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000 },
         {'address':'10.42.0.53', 'port': 50036,
-            'x':d_x, 'y':5.3, 'z': z,
+            'x':0, 'y':7.3, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
         ]
@@ -74,9 +74,8 @@ p = {'N': 32,
       'G_rot_hot': -.05,
 #     'G_struct': 15.0,
      'distance_tabou': .9, # distance tabou
-     'distance_tabou_event': .93, # distance tabou
+#     'distance_tabou': 1.4, # distance tabou
      'G_tabou': 41.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
-     'G_tabou_event': 500.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
 
      'G_poussee': 1., # force avec laquelle les bouts de segments s'attirent
      'G_struct': .1, # force avec laquelle les bouts de segments s'attirent
@@ -93,8 +92,7 @@ p = {'N': 32,
      'G_spring': 5., 'l_seg_min': 0.6, 'l_seg_max': 4., # dureté et longueur des segments
      'G_spring_hot': 1., 'l_seg_hot': 2.,  # dureté et longueur des segments dans un break
      # parametres globaux
-     'damp': .05,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-     'damp_hot': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
+     'damp': .1,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
 #      'damp': .06,  # facteur de damping / absorbe l'énergie / regle la viscosité 
 #     'speed_0': .9, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules###
      'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
@@ -107,18 +105,19 @@ p = {'N': 32,
 #parametres des kinects
 # une liste des kinects donnant leur adresse, port, position (x; y; z) et azimuth. 
 info_kinects = [
-		{'address':'10.42.0.10', 'port': 9998, 'x':500.0, 'y':-1, 'z': 4.3, 'az':-1.2 ,'max':502},#0
-		{'address':'10.42.0.10', 'port': 9999, 'x':300.0, 'y':-1, 'z': 4.3, 'az':0 ,'max':495},#1
-		{'address':'10.42.0.11', 'port': 9998, 'x':500.0, 'y':-1, 'z': 4.3, 'az':0 ,'max':487},#2
-		{'address':'10.42.0.11', 'port': 9999, 'x':500.0, 'y':-1, 'z': 4.3, 'az':+1.2 ,'max':475},#3
+		{'address':'10.42.0.10', 'port': 9998, 'x':300.0, 'y':1, 'z': 4.3, 'az':+1.2 ,'max':504},#0
+		{'address':'10.42.0.10', 'port': 9999, 'x':100.0, 'y':1, 'z': 4.3, 'az':0 ,'max':495},#1
+		{'address':'10.42.0.11', 'port': 9998, 'x':300.0, 'y':1, 'z': 4.3, 'az':0 ,'max':495},#2
+		{'address':'10.42.0.11', 'port': 9999, 'x':300.0, 'y':1, 'z': 4.3, 'az':-1.2 ,'max':497},#3
 #		{'address':'10.42.0.12', 'port': 9998, 'x':500.0, 'y':1, 'z': 4.3, 'az':0 ,'max':501},#4
 #		{'address':'10.42.0.12', 'port': 9999, 'x':500.0, 'y':1, 'z': 4.3, 'az':+1.2 ,'max':497},#5
-		{'address':'10.42.0.13', 'port': 9998, 'x':100.0, 'y':-1, 'z': 4.3, 'az':+1.2 ,'max':483},#6
-		{'address':'10.42.0.13', 'port': 9999, 'x':100.0, 'y':-1, 'z': 4.3, 'az':0 ,'max':487},#7
-		{'address':'10.42.0.14', 'port': 9998, 'x':100.0, 'y':-1, 'z': 4.3, 'az':-1.2 ,'max':490},#8
+		{'address':'10.42.0.13', 'port': 9998, 'x':300.0, 'y':-1, 'z': 4.3, 'az':+1.2 ,'max':505},#6
+		{'address':'10.42.0.13', 'port': 9999, 'x':300.0, 'y':-1, 'z': 4.3, 'az':-1.2 ,'max':489},#7
+		{'address':'10.42.0.14', 'port': 9998, 'x':300.0, 'y':-1, 'z': 4.3, 'az':0 ,'max':497},#8
 #  		{'address':'10.42.0.14', 'port': 9999, 'x':500.0, 'y':-1, 'z': 4.3, 'az':0 ,'max':505},#9
 #		{'address':'10.42.0.15', 'port': 9998, 'x':100.0, 'y':-1, 'z': 4.3, 'az':0 ,'max':491},#10
 #		{'address':'10.42.0.15', 'port': 9999, 'x':100.0, 'y':-1, 'z': 4.3, 'az':-1.2 ,'max':491},#11
+
 		]
 
 run_thread_network_config = {

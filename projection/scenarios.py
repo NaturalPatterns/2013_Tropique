@@ -117,12 +117,26 @@ class Scenario:
 #        self.positions_old = 0
         
     def champ(self, positions, events):
+        if events[1]==0: # event avec la touche P dans explore.py
+            self.l_seg[:-2] = self.p['l_seg_min'] * np.ones(self.N-2)
+            self.l_seg[-2:] = self.p['l_seg_max']
+            G_spring = self.p['G_spring']
+            G_tabou = self.p['G_tabou']
+            distance_tabou = self.p['distance_tabou']
+        else:
+            self.l_seg[:-2] = self.p['l_seg_hot'] * np.ones(self.N-2)
+            self.l_seg[-6:] = self.p['l_seg_max']
+            G_spring = self.p['G_spring_hot']
+            G_tabou = self.p['G_tabou_event']
+            distance_tabou = self.p['distance_tabou_event']
+
+	# TODO: simplifier le code pour garder les interactions principales
 
         force = np.zeros((6, self.N)) # one vector per point
         n = self.p['kurt']
 
         # FORCES SUBJECTIVES  dans l'espace perceptuel
-        # TODO :  les réulsions combinéees avec l'attraction centripete crée un fan puis transition a plusieurs anneaux 
+        # TODO :  les répulsions combinéees avec l'attraction centripete crée un fan puis transition a plusieurs anneaux / rotation?
 #       print self.t, position
         # point C (centre) du segment
         if events[4]==0: # event avec la touche G dans explore.py
@@ -154,8 +168,8 @@ class Scenario:
 #            gravity = - np.sum(CC*distance.T/(distance.T + self.p['eps'])**4, axis=1) # 3 x N; en metres
 #            force[0:3, :] += self.p['G_centre'] * gravity
 #            force[3:6, :] += self.p['G_centre'] * gravity
+            
 #            # attraction / repulsion des angles relatifs des segments
-
             if not(positions == None) and not(positions == np.nan): #False: # 
                 distance_min = 1000000. * np.ones((self.N)) # very big to begin with
                 rotation = np.empty((3, self.N))
@@ -171,11 +185,14 @@ class Scenario:
                     SC = OC - np.array(position)[:, np.newaxis]
                     SC /= np.sqrt((SC**2).sum(axis=0))
 
-                    tabou = - SC * (distance_SC < self.p['distance_tabou']) * (distance_SC**n - self.p['distance_tabou']**n)/(distance_SC + self.p['eps'])**(n+1) # en metres
-                    force[0:3, :] += self.p['G_tabou'] * tabou
-                    force[3:6, :] += self.p['G_tabou'] * tabou
+                    # TODO : diminuer la force du tabou dans le temps pour les personnes arrétées / parametre T_damp_global
+                    tabou = - SC * (distance_SC < distance_tabou) * (distance_SC**n - distance_tabou**n)/(distance_SC + self.p['eps'])**(n+1) # en metres
+                    force[0:3, :] += G_tabou * tabou
+                    force[3:6, :] += G_tabou * tabou
 #                    distance_SC = rae_VS[0]*np.sin(arcdistance(rae_VS, rae_VC))
 #                     SC = OC - np.array(position)[:, np.newaxis]
+
+		    # TODO : réduire la dimension de profondeur à une simple convergence vers la position en x / reflète la perception
 
                     gravity_ = - SC * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+1) # en metres
 
@@ -183,7 +200,8 @@ class Scenario:
                     cap_SC = orientation(rae_VS, rae_VC)
                     cap_AB = orientation(rae_VA, rae_VB)
 
-                    # TODO rotatio aussi vers le plan perpendiculaire a l'acteur
+                    # TODO rotation aussi vers le plan perpendiculaire a l'acteur
+		    # TODO : tuner les paramètres de rotation
                     AB = self.particles[3:6, :] - self.particles[0:3, :]# 3 x N
 #                    print np.sum(AB**2, axis=0)
                     rotation_ = -np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
@@ -227,7 +245,7 @@ class Scenario:
         force[3:6, :] += self.p['G_poussee'] * poussee
         
 
-        if events[0]==0: # event avec la touch R dans explore.py
+        if events[0]==0: # event avec la touche R dans explore.py
             G_struct = self.p['G_struct']
             distance_struct = self.p['distance_struct']
         else:
@@ -248,7 +266,6 @@ class Scenario:
         force[0:3, :] += .5* G_struct * gravity
         force[3:6, :] += .5* G_struct * gravity
 
-#
 #       # TODO :  gravité vers le bas pour séparer 2 phases
 #        if not(self.p['G_gravite']==0.):
 #            force[2, :] -= self.p['G_gravite']
@@ -259,13 +276,6 @@ class Scenario:
             force[0, :] = -self.p['G_gravite'] * AB_x
             force[3, :] = self.p['G_gravite'] * AB_x
 
-        if events[1]==0: # event avec la touch P dans explore.py
-            self.l_seg[:-2] = self.p['l_seg_min'] * np.ones(self.N-2)
-            G_spring = self.p['G_spring']
-        else:
-            self.l_seg[:-2] = self.p['l_seg_hot'] * np.ones(self.N-2)
-            G_spring = self.p['G_spring_hot']
-#            print "relax"
         # ressort
         AB = self.particles[0:3, :]-self.particles[3:6, :] # 3 x N
         distance = np.sqrt(np.sum(AB**2, axis=0)) # en metres
@@ -278,15 +288,14 @@ class Scenario:
 #        z_C = (self.particles[2, :]+self.particles[5, :])/2
 #        print z_C 
         modul = 1 #np.exp(- z_C* (z_C>0) / self.volume[2] / 4. )
-        force -= self.p['damp'] * modul * self.particles[6:12, :]/self.dt
-        force = self.p['scale'] * np.tanh(force/self.p['scale'])
-
-        force *= self.p['speed_0']
+        if events[7]==1: # event avec la touche S dans explore.py
+            force -= self.p['damp_hot'] * modul * self.particles[6:12, :]/self.dt
+        else:
+            force -= self.p['damp'] * modul * self.particles[6:12, :]/self.dt
         
+        force = self.p['scale'] * np.tanh(force/self.p['scale'])
+        force *= self.p['speed_0']
         return force
-
-
-
 
     def do_scenario(self, positions=None, events=[0, 0, 0, 0, 0, 0, 0, 0]):
         self.t_last = self.t
