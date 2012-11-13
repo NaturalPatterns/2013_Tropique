@@ -23,7 +23,7 @@ Exploration mode.
 # TODO: contrôle de la vitesse du mouvement de position simulé
 ########################################
 scenario = 'leapfrog' #'rotating-circle'
-do_firstperson, foc_fp, i_VP_fp, alpha_fp, int_fp, show_VP = False, 60., 1, .3, 1., False
+do_firstperson, foc_fp, i_VP_fp, alpha_fp, int_fp, intB_fp, show_VP = False, 60., 1, .3, 1., 0.01, False
 i_VP = 1 # VP utilisé comme projecteur en mode projection
 do_fs = True # fullscreen par défaut?
 do_slider = False
@@ -34,7 +34,8 @@ do_stipple = False
 
 #import sys
 #window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
-from parametres import VPs, volume, p, kinects_network_config
+from parametres import VPs, volume, p, kinects_network_config, d_x
+print d_x
 from scenarios import Scenario
 #s = Scenario(256, 'odyssey', volume, VPs, p)
 #s = Scenario(256, 'snake', volume, VPs, p)
@@ -42,7 +43,7 @@ from scenarios import Scenario
 #s = Scenario(p['N'], 'fan', volume, VPs, p)
 #s = Scenario(p['N'], '2fan', volume, VPs, p)
 s = Scenario(p['N'], scenario, volume, VPs, p)
-
+print s.roger
 
 if do_sock:
     from network import Kinects
@@ -165,7 +166,7 @@ def on_draw():
         positions = []
         amp, amp2 = .2, .5
         T, T2 = 15., 30. # periode en secondes
-        positions.append([s.roger[0], s.roger[1] * (1. + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
+        positions.append([s.roger[0] * (1. + amp2*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
 #        positions.append([s.roger[0], s.roger[1] * (1. + amp2*cos(2*pi*s.t/T2)), 1.1*s.roger[2]]) # une personne dans un mouvement circulaire (elipse)
 
 
@@ -186,7 +187,7 @@ def on_draw():
 
         gl.gluPerspective(foc_fp, 1.0*win_0.width/win_0.height,
                           VPs[i_VP_fp]['pc_min'], VPs[i_VP_fp]['pc_max'])
-        gluLookAt(positions[0][0], positions[0][1], positions[0][2], #VPs[i_VP]['cx'], VPs[i_VP]['y'], VPs[i_VP]['z'],
+        gluLookAt(positions[0][0], positions[0][1], positions[0][2], 
                   VPs[i_VP_fp]['x'], VPs[i_VP_fp]['y'], VPs[i_VP_fp]['z'],
                   0., 0, 1.0)
         # marque la postion de chaque VP par un joli carré vert
@@ -197,9 +198,15 @@ def on_draw():
                 pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', [VP['x'], VP['y'], VP['z']]))
 
             VP_ = np.array([[VP['x'], VP['y'], VP['z']]]).T * np.ones((1, s.N))
-            p_ = s.particles[0:6, :]
+            p_ = s.particles[0:6, :].copy()
+            p_[1] = d_x / (d_x - p_[0]) * (p_[1]-VP['y']) + VP['y']
+            p_[2] = d_x / (d_x - p_[0]) * (p_[2]-VP['z']) + VP['z']
+            p_[4] = d_x / (d_x - p_[3]) * (p_[4]-VP['y']) + VP['y']
+            p_[5] = d_x / (d_x - p_[3]) * (p_[5]-VP['z']) + VP['z']
+            p_[0] = 0
+            p_[3] = 0
             #colors_ = np.array([[255, 255, 255, 0, 0, 0, 0, 0, 0]]).T * np.ones((1, s.N), dtype=np.int)
-            colors_ = np.array([int_fp, int_fp, int_fp, alpha_fp, 0, 0, 0, 0, 0, 0, 0, 0])[:, np.newaxis] * np.ones((1, s.N))
+            colors_ = np.array([int_fp, int_fp, int_fp, alpha_fp, intB_fp, intB_fp, intB_fp, alpha_fp, intB_fp, intB_fp, intB_fp, alpha_fp])[:, np.newaxis] * np.ones((1, s.N))
             #print colors_.T.ravel().tolist()
             pyglet.graphics.draw(3*s.N, gl.GL_TRIANGLES,
                                  ('v3f', np.vstack((VP_, p_)).T.ravel().tolist()),
