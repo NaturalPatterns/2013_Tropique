@@ -115,9 +115,10 @@ class Scenario:
         self.particles[3:6, :] = self.particles[0:3, :] + np.random.randn(3, self.N)*self.l_seg
         self.particles[4, :] = self.particles[1, :] + self.l_seg # np.random.randn(2, self.N)*self.l_seg
 #        self.positions_old = 0
-        
+        self.t_break = 0.
+
     def champ(self, positions, events):
-        if events[1]==0: # event avec la touche P dans explore.py
+        if events[1] == 0 and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche P dans explore.py
             self.l_seg[:-2] = self.p['l_seg_min'] * np.ones(self.N-2)
             self.l_seg[-2:] = self.p['l_seg_max']
             G_spring = self.p['G_spring']
@@ -130,7 +131,17 @@ class Scenario:
             G_tabou = self.p['G_tabou_event']
             distance_tabou = self.p['distance_tabou_event']
 
-	# TODO: simplifier le code pour garder les interactions principales
+        # initialize t_break at the onset 
+        if (events[:6] == [1, 1, 1, 1, 1, 1]) and (self.t_break == 0.):
+            self.t_break = self.t
+
+        # reset the break after T_break seconds AND receiveing the restting signal
+        if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
+            print self.t_break, self.t
+            if (events[:6] == [0, 0, 0, 0, 0, 0]):
+                if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
+
+        # TODO: simplifier le code pour garder les interactions principales
 
         force = np.zeros((6, self.N)) # one vector per point
         n = self.p['kurt']
@@ -139,7 +150,7 @@ class Scenario:
         # TODO :  les répulsions combinéees avec l'attraction centripete crée un fan puis transition a plusieurs anneaux / rotation?
 #       print self.t, position
         # point C (centre) du segment
-        if events[4]==0: # event avec la touche G dans explore.py
+        if events[4] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche G dans explore.py
             G_rot = self.p['G_rot']
         else:
             G_rot = self.p['G_rot_hot']
@@ -224,7 +235,7 @@ class Scenario:
         # FORCES GLOBALES  dans l'espace physique
 
         ## forces entres les particules
-        if events[2]==0: # event avec la touche V dans explore.py
+        if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche V dans explore.py
             G_repulsion = self.p['G_repulsion']
         else:
             G_repulsion = self.p['G_repulsion_hot']        
@@ -245,7 +256,7 @@ class Scenario:
         force[3:6, :] += self.p['G_poussee'] * poussee
         
 
-        if events[0]==0: # event avec la touche R dans explore.py
+        if events[0] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche R dans explore.py
             G_struct = self.p['G_struct']
             distance_struct = self.p['distance_struct']
         else:
@@ -288,13 +299,24 @@ class Scenario:
 #        z_C = (self.particles[2, :]+self.particles[5, :])/2
 #        print z_C 
         modul = 1 #np.exp(- z_C* (z_C>0) / self.volume[2] / 4. )
-        if events[7]==1: # event avec la touche S dans explore.py
+        if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans explore.py
             force -= self.p['damp_hot'] * modul * self.particles[6:12, :]/self.dt
         else:
             force -= self.p['damp'] * modul * self.particles[6:12, :]/self.dt
-        
+        if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
+            if (events[-1] == 0): # break #2 or #3
+                if self.t > self.t_break + self.p['T_break']: 
+                    speed_0 = self.p['speed_0']
+                else:
+                    speed_0 = self.p['speed_0'] *((self.p['A_break']-1) * np.exp(-(self.p['T_break'] - (self.t - self.t_break)) / self.p['tau_break']) + 1)
+                    print speed_0
+            else:
+                speed_0 = self.p['speed_0']
+        else:
+            speed_0 = self.p['speed_0']
+
         force = self.p['scale'] * np.tanh(force/self.p['scale'])
-        force *= self.p['speed_0']
+        force *= speed_0
         return force
 
     def do_scenario(self, positions=None, events=[0, 0, 0, 0, 0, 0, 0, 0]):

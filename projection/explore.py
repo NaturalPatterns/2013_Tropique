@@ -134,6 +134,8 @@ def on_key_press(symbol, modifiers):
             win_0.set_fullscreen(True)
     elif symbol == pyglet.window.key.SPACE:
         do_firstperson = not(do_firstperson)
+    elif symbol == pyglet.window.key.B:
+        events = [1, 1, 1, 1, 1, 1, 1, 0] # 8 types d'événéments
     elif symbol == pyglet.window.key.D:
         events = [0, 0, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
     elif symbol == pyglet.window.key.R:

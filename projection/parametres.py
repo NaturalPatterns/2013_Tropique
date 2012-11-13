@@ -102,6 +102,9 @@ p = {'N': 32,
 #     'speed_0': .9, 
      'kurt' : 1., # 1 is normal gravity, higher makes the attraction more local
      'line_width': 3, # line width of segments
+     'T_break': 6., # duration (secondes) of all three breaks
+     'A_break': 7.5, # amplitude du break #2 et #3
+     'tau_break': .103, # duration du transient dans les breaks #2 et #3
      }
 
 #parametres des kinects
