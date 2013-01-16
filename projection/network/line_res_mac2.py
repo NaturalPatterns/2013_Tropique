@@ -152,14 +152,18 @@ def on_draw():
     gluLookAt(my_x, my_y, my_z,my_cx, my_cy, my_cz,0., 0, 1.0)
     
     global s, vps, N
-    vps.trigger()
+    try : 
+        vps.trigger()
+    except :
+        pass
+#    vps.trigger()    
     particlestest = vps.listen()#
 #    print "receive",particlestest
      
     if (particlestest!=None):
         #print 'ok dude',  particlestest.shape
         my_part = np.fromstring(particlestest, dtype='f')
-        print "receive",my_part
+        print "receive"#,my_part
 
         
     gl.glLineWidth ( p['line_width'] )

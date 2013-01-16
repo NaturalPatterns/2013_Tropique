@@ -1,5 +1,5 @@
 #!/bin/bash          
-STR="Hello World!"
+STR="Start Kinect Server!"
 cd /home/tropic/Dropbox/TROPIQUE/pyTropique/acquisition/version1/server_kin/
 for i in {1..5}
 do

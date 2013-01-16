@@ -9,11 +9,13 @@ import os
 from parametres import info_kinects , DEBUG
 
 nbr_kinect = 0
+import time as time
 
 from threading import Thread
 
 global DEBUG
-
+global f
+f = open('/home/tropic/Dropbox/TROPIQUE/pyTropique/acquisition/version1/record_her', 'w')
 class testkin(Thread):
     def __init__ (self,ip, port):
         Thread.__init__(self)
@@ -37,7 +39,6 @@ class testkin(Thread):
             if (DEBUG and received !="" ) : print "received = ", received," from ", self.port
             if (DEBUG and received =="" ) : print "received 0", " from ",self.port
             self.status = received
-            
 
 def list_kinect():
     os.system('clear')
@@ -47,12 +48,17 @@ def list_kinect():
         print ligne, info_kinects[ligne]
 
 def stream_acqui():
-    os.system('clear')
-    print "listen to kinects server whou "
+#    os.system('clear')
+    print "listen to kinects server "
     # SOCK_DGRAM is the socket type to use for UDP sockets
 #    testit.lifeline = re.compile(r"(\d) received")
     teston =0
+    last_time = 0
     while (teston < 1) :
+        a = time.time()
+        b = a - last_time 
+#        print "the time lapsed = ",b , 1/float(b)
+        last_time = a
         serverkinects = []
         for kin in info_kinects :
             ip = kin['address']
@@ -67,15 +73,13 @@ def stream_acqui():
             try: var = int(server.status)  
             except:all_pos +=server.status
             else: pass
-#        print "all_pos = ",all_pos
         all_pos = all_pos[0:(len(all_pos) -1)]
-        #print "send  =", all_pos
         if all_pos !="":
-            print "send  =", all_pos
-
-            #sock_pd.sendto((String ), (host_pd, port_pd))
-            sock_pd.sendto((all_pos ), (host_affi, port_affi))
+#            print "send  =", all_pos
+#            sock_pd.sendto((all_pos ), (host_affi, port_affi))
             sock_pd.sendto((all_pos ), (my_host, my_port))
+#            f.write(str(b)+"   " + all_pos + " \n " )
+
 
 def segment():
     os.system('clear')
@@ -124,10 +128,11 @@ if __name__ == "__main__":
     port_pd = 3002
     host_affi = '10.42.0.101'
     port_affi = 3003
-    my_host = '10.42.0.1'
+    my_host = '10.42.0.100'
     my_port = 3004
+    list_kinect()
+    print "send to ",my_host, my_port
     stream_acqui()
-
 
     while 1 :
         print "\n \t \t client.py = CLIENT KINECTS  in TROPIC \n"

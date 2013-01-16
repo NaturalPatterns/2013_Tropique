@@ -131,13 +131,14 @@ class Scenario:
             G_tabou = self.p['G_tabou_event']
             distance_tabou = self.p['distance_tabou_event']
 
+
         # initialize t_break at the onset 
         if (events[:6] == [1, 1, 1, 1, 1, 1]) and (self.t_break == 0.):
             self.t_break = self.t
 
         # reset the break after T_break seconds AND receiveing the restting signal
         if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
-            print self.t_break, self.t
+#             print self.t_break, self.t
             if (events[:6] == [0, 0, 0, 0, 0, 0]):
                 if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
 
@@ -254,6 +255,7 @@ class Scenario:
         poussee =  np.sign(np.sum(speed_CC * CC[:,ind_min,:].diagonal(axis1=1, axis2=2), axis=0)) * CC[:,ind_min,:].diagonal(axis1=1, axis2=2) /(distance[:,ind_min].diagonal() + self.p['eps'])**3 # 3 x N; en metres
         force[0:3, :] += self.p['G_poussee'] * poussee
         force[3:6, :] += self.p['G_poussee'] * poussee
+        damping = 0.1
         
 
         if events[0] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche R dans explore.py
@@ -282,7 +284,7 @@ class Scenario:
 #            force[2, :] -= self.p['G_gravite']
 #            force[5, :] -= self.p['G_gravite']
        # HACK: une force pour orienter les particule vers le plan vertical
-        if not(self.p['G_gravite']==0.):
+        if not(self.p['G_gravite'] == 0.):
             AB_x = self.particles[0, :]-self.particles[3, :] # 1 x N
             force[0, :] = -self.p['G_gravite'] * AB_x
             force[3, :] = self.p['G_gravite'] * AB_x
@@ -303,13 +305,16 @@ class Scenario:
             force -= self.p['damp_hot'] * modul * self.particles[6:12, :]/self.dt
         else:
             force -= self.p['damp'] * modul * self.particles[6:12, :]/self.dt
+
+        # normalisation des forces pour éviter le chaos
+
         if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
             if (events[-1] == 0): # break #2 or #3
                 if self.t > self.t_break + self.p['T_break']: 
                     speed_0 = self.p['speed_0']
                 else:
                     speed_0 = self.p['speed_0'] *((self.p['A_break']-1) * np.exp(-(self.p['T_break'] - (self.t - self.t_break)) / self.p['tau_break']) + 1)
-                    print speed_0
+#                     print speed_0
             else:
                 speed_0 = self.p['speed_0']
         else:

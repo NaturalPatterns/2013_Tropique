@@ -15,6 +15,8 @@ Exploration mode.
     - V : G_repulsion <> G_repulsion_hot
     - G : G_rot <> G_rot_hot
     - Q : restore la config sans event
+    - B : break
+    - D : Down
     TODO: il reste de la place...
     
 """
@@ -26,7 +28,7 @@ scenario = 'leapfrog' #'rotating-circle'
 do_firstperson, foc_fp, i_VP_fp, alpha_fp, int_fp, intB_fp, show_VP = False, 60., 1, .3, 1., 0.01, False
 i_VP = 1 # VP utilisé comme projecteur en mode projection
 do_fs = True # fullscreen par défaut?
-do_slider = False
+do_slider = False # True
 do_sock = False
 #do_sock=True
 do_stipple = False
@@ -35,7 +37,7 @@ do_stipple = False
 #import sys
 #window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
 from parametres import VPs, volume, p, kinects_network_config, d_x
-print d_x
+# print d_x
 from scenarios import Scenario
 #s = Scenario(256, 'odyssey', volume, VPs, p)
 #s = Scenario(256, 'snake', volume, VPs, p)
@@ -107,7 +109,7 @@ def on_resize(width, height):
 i_win = 0
 win_0.on_resize = on_resize
 win_0.set_visible(True)
-win_0.set_mouse_visible(False)
+# win_0.set_mouse_visible(False)
 gl.glMatrixMode(gl.GL_MODELVIEW)
 gl.glLoadIdentity()
 gl.gluPerspective(VPs[i_win]['foc'], 1.0*win_0.width/win_0.height, VPs[i_win]['pc_min'], VPs[i_win]['pc_max'])
@@ -164,12 +166,14 @@ def on_draw():
         positions = k.read_sock() # TODO: c'est bien une liste de coordonnées [x, y, z] ?
     else:
         # pour simuler ROGER:
-        from numpy import cos, pi
+        from numpy import sin, cos, pi
         positions = []
         amp, amp2 = .2, .5
         T, T2 = 15., 30. # periode en secondes
-        positions.append([s.roger[0] * (1. + amp2*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
-#        positions.append([s.roger[0], s.roger[1] * (1. + amp2*cos(2*pi*s.t/T2)), 1.1*s.roger[2]]) # une personne dans un mouvement circulaire (elipse)
+        positions.append([s.roger[0] * (1. + amp2*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp2*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
+        positions.append([s.roger[0] * (1. + amp*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
+        positions.append([s.roger[0] * (1. + amp*sin(2*pi*s.t/T2)), s.roger[1] * (1. + amp*sin(2*pi*s.t/T)), 1.2*s.roger[2]]) # une autre personne dans un mouvement en phase
+        positions.append([s.roger[0], s.roger[1] * (1. + amp2*cos(2*pi*s.t/T2)), 1.1*s.roger[2]]) # une personne dans un mouvement circulaire (elipse)
 
 
     s.do_scenario(positions=positions, events=events)

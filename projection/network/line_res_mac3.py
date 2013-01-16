@@ -152,7 +152,11 @@ def on_draw():
     gluLookAt(my_x, my_y, my_z,my_cx, my_cy, my_cz,0., 0, 1.0)
     
     global s, vps, N
-    vps.trigger()
+    try : 
+        vps.trigger()
+    except :
+        pass
+#    vps.trigger()
     particlestest = vps.listen()#
      
     if (particlestest!=None):

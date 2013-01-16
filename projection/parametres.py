@@ -20,16 +20,17 @@ Par convention, la position spatiale des VPs par rapport au centre du plan de re
 """
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
-d_y, d_z = 6.26, 6.
-d_x = 14.43 # en metres
+d_y, d_z = 5.26, 3.4
+d_x = 37.0 # en metres
 
 # mesures au telemetre
 z = 1.31# hauteur des VPs
 from numpy import arctan2, pi
 largeur_ecran = 1.75 # ouvert à fond
 distance_ecran = 2.58
-foc_estim = 2 * arctan2(largeur_ecran/2, distance_ecran) * 180 / pi # ref P101L1
-foc = 30.1
+#foc_estim = 2 * arctan2(largeur_ecran/2, distance_ecran) * 180 / pi # ref P101L1
+#foc = 30.1
+foc_estim = 20.6
 #foc = 72
 foc = foc_estim
 print("parameres.py nous dit: focale estimée = ", foc_estim, ", focal utilisée = ", foc)
@@ -51,21 +52,25 @@ cz = z # d_z/2
 # TODO: ne mettre que les VPs qui sont utilisés
 VPs = [
         {'address':'10.42.0.51', 'port': 50035,
-            'x':d_x, 'y':0, 'z': z,
+            'x':d_x, 'y':0.65, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
         {'address':'10.42.0.52', 'port': 50034,
-            'x':d_x, 'y':2.58, 'z': z,
+            'x':d_x, 'y':2.56, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000 },
         {'address':'10.42.0.53', 'port': 50036,
-            'x':d_x, 'y':5.3, 'z': z,
+            'x':d_x, 'y':4.76, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
+        {'address':'10.42.0.180', 'port': 50034,
+            'x':d_x, 'y':2.56, 'z': z,
+            'cx':cx, 'cy':cy, 'cz': cz,
+            'foc': foc, 'pc_min': 0.01, 'pc_max': 10000 },
         ]
 
-# parametres du champ
 p = {'N': 32,
+# parametres du champ
 #     'distance_m': 1.2, # distance d'équilibre des segments autour d'une position de player	
      'distance_m': 0.50, # distance d'équilibre des segments autour d'une position de player	
      'G_global': 40., # attraction globale vers les centres des positions
@@ -90,38 +95,39 @@ p = {'N': 32,
      'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_gravite': 4., # force de gravité vers le bas de la piece
 #     'G_spring': 20., 'l_seg': 0.3, # dureté et longueur des segments
-     'G_spring': 5., 'l_seg_min': 0.6, 'l_seg_max': 4., # dureté et longueur des segments
+     'G_spring': 3., 'l_seg_min': 0.6, 'l_seg_max': 4., # dureté et longueur des segments
      'G_spring_hot': 1., 'l_seg_hot': 2.,  # dureté et longueur des segments dans un break
      # parametres globaux
-     'damp': .05,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
+     'damp': .20,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_hot': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
+     'damp_midle': .50,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
 #      'damp': .06,  # facteur de damping / absorbe l'énergie / regle la viscosité 
 #     'speed_0': .9, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules###
      'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
-     'scale': 200., # facteur global (et redondant avec les G_*) pour régler la saturation dela force
+     'scale': 20., # facteur global (et redondant avec les G_*) pour régler la saturation de la force
 #     'speed_0': .9, 
      'kurt' : 1., # 1 is normal gravity, higher makes the attraction more local
-     'line_width': 3, # line width of segments
+     'line_width': 5, # line width of segments
      'T_break': 6., # duration (secondes) of all three breaks
      'A_break': 7.5, # amplitude du break #2 et #3
      'tau_break': .103, # duration du transient dans les breaks #2 et #3
-     }
+}
 
 #parametres des kinects
 # une liste des kinects donnant leur adresse, port, position (x; y; z) et azimuth. 
 info_kinects = [
-		{'address':'10.42.0.10', 'port': 9998, 'x':500.0, 'y':-1, 'z': 4.3, 'az':-1.2 ,'max':502},#0
-		{'address':'10.42.0.10', 'port': 9999, 'x':300.0, 'y':-1, 'z': 4.3, 'az':0 ,'max':495},#1
-		{'address':'10.42.0.11', 'port': 9998, 'x':500.0, 'y':-1, 'z': 4.3, 'az':0 ,'max':487},#2
-		{'address':'10.42.0.11', 'port': 9999, 'x':500.0, 'y':-1, 'z': 4.3, 'az':+1.2 ,'max':475},#3
-#		{'address':'10.42.0.12', 'port': 9998, 'x':500.0, 'y':1, 'z': 4.3, 'az':0 ,'max':501},#4
-#		{'address':'10.42.0.12', 'port': 9999, 'x':500.0, 'y':1, 'z': 4.3, 'az':+1.2 ,'max':497},#5
-		{'address':'10.42.0.13', 'port': 9998, 'x':100.0, 'y':-1, 'z': 4.3, 'az':+1.2 ,'max':483},#6
-		{'address':'10.42.0.13', 'port': 9999, 'x':100.0, 'y':-1, 'z': 4.3, 'az':0 ,'max':487},#7
-		{'address':'10.42.0.14', 'port': 9998, 'x':100.0, 'y':-1, 'z': 4.3, 'az':-1.2 ,'max':490},#8
-#  		{'address':'10.42.0.14', 'port': 9999, 'x':500.0, 'y':-1, 'z': 4.3, 'az':0 ,'max':505},#9
-#		{'address':'10.42.0.15', 'port': 9998, 'x':100.0, 'y':-1, 'z': 4.3, 'az':0 ,'max':491},#10
-#		{'address':'10.42.0.15', 'port': 9999, 'x':100.0, 'y':-1, 'z': 4.3, 'az':-1.2 ,'max':491},#11
+		{'address':'10.42.0.10', 'port': 9998, 'x':7.0, 'y':0, 'z': 1.3, 'az':5*pi/6 ,'max':580},#0
+		{'address':'10.42.0.10', 'port': 9999, 'x':1.0, 'y':0, 'z': 1.3, 'az':3*pi/6 ,'max':500},#1
+		{'address':'10.42.0.11', 'port': 9998, 'x':7.0, 'y':0, 'z': 1.3, 'az':3*pi/6 ,'max':500},#2
+		{'address':'10.42.0.11', 'port': 9999, 'x':7.0, 'y':0, 'z': 1.3, 'az':1*pi/6 ,'max':580},#3
+		{'address':'10.42.0.12', 'port': 9998, 'x':19.0, 'y':0, 'z': 1.3, 'az':5*pi/6 ,'max':580},#4
+		{'address':'10.42.0.12', 'port': 9999, 'x':13.0, 'y':0, 'z': 1.3, 'az':3*pi/6 ,'max':501},#5
+		{'address':'10.42.0.13', 'port': 9998, 'x':19.0, 'y':0, 'z': 1.3, 'az':1*pi/6 ,'max':560},#6
+		{'address':'10.42.0.13', 'port': 9999, 'x':19.0, 'y':0, 'z': 1.3, 'az':3*pi/6 ,'max':501},#7
+		{'address':'10.42.0.16', 'port': 9998, 'x':31.0, 'y':0, 'z': 1.3, 'az':5*pi/6 ,'max':560},#12
+		{'address':'10.42.0.16', 'port': 9999, 'x':25.0, 'y':0, 'z': 1.3, 'az':3*pi/6 ,'max':501},#13
+		{'address':'10.42.0.17', 'port': 9998, 'x':31.0, 'y':0, 'z': 1.3, 'az':1*pi/6 ,'max':400},#14
+		{'address':'10.42.0.17', 'port': 9999, 'x':31.0, 'y':0, 'z': 1.3, 'az':3*pi/6 ,'max':500},#15
 		]
 
 run_thread_network_config = {
@@ -132,7 +138,7 @@ run_thread_network_config = {
 kinects_network_config = {
     'UDP_IP' : "",
     'UDP_PORT' : 3003,
-    'send_UDP_IP' : "10.42.0.1",
+    'send_UDP_IP' : "10.42.0.100",
     'send_UDP_PORT' : 3005,
     'para_data' : [1 , 10, 50, 350, 5 ],
 }
