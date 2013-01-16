@@ -7,6 +7,7 @@ Functional modes
 
 """
 DEBUG = False
+from time import gmtime, strftime
 
 import sys
 sys.path.append('..')
@@ -33,6 +34,8 @@ else:
     positions = None
 
 scenario = 'leapfrog' #'rotating-circle'
+#scenario = 'croix' #'rotating-circle'
+
 from scenarios import Scenario
 #s = Scenario(p['N'], play, volume, VPs, p)
 s = Scenario(p['N'], scenario, volume, VPs, p)
@@ -71,7 +74,8 @@ def printing_handler(addr, tags, stuff, source):
 #    print "received new osc msg from %s" % OSC.getUrlStr(source)
 #    print "with addr : %s" % addr
 #    print "typetags %s" % tags
-    print "data %s" % stuff
+
+#    print "data %s" % stuff,strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
     events = (stuff)
     
 sok.addMsgHandler("/seq", printing_handler) # adding our function
@@ -92,7 +96,7 @@ st.start()
 
 start_time = time.time()
 
-print events
+#print events
 
 
 while True:

@@ -44,6 +44,8 @@ scenario = 'croix'
 
 
 from parametres import VPs, volume, p, kinects_network_config
+import sys
+sys.path.append('network/')
 
 from network import Kinects
 do_sock=True
@@ -68,7 +70,7 @@ while True:
         position = k.read_sock() # TODO: c'est bien une liste de coordonnées [x, y, z] ?
         # TODO: put in network
         if (position!=None) : 
-#            print "the pos are ", position
+            print "the pos are ", position
 #            for changing in position:
 #                print 'pos de 0' , changing[0]
 #                changing[0] /= 100

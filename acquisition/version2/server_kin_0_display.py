@@ -20,6 +20,13 @@ import struct
 global my_thresholdarray
 #sys.path.append('../../../projection/')
 #from parametres import info_kinects
+global fx_d , fy_d , cx_d , cy_d
+fx_d = 1.0 / 5.9421434211923247e+02;
+fy_d = 1.0 / 5.9104053696870778e+02;
+cx_d = 3.3930780975300314e+02;
+cy_d = 2.4273913761751615e+02;
+
+
 
 print('Press ESC in window to stop')
 
@@ -51,7 +58,7 @@ cv2.cv.ResizeWindow(string_name,400,400)
 
 threshold = 400
 #current_depth = 495
-level = 3
+level = 5
 
 #for kin in info_kinects:
 #    if ( (kin['address'] == my_ip) and (kin['port'] == 9998+server_kin) )  :
@@ -82,7 +89,7 @@ global img_moy
 img_moy = np.zeros((480, 640), np.uint8)
 
 def get_depth0():
-    print "ANEWROUND"
+#    print "ANEWROUND"
     global my_thresholdarray
     global img_moy
 
@@ -98,10 +105,11 @@ def get_depth0():
     global image_depth, i_frame, depth_hist, learn, record_list
     my_array = my_depth
     cv2.imshow("0", my_depth.astype(np.uint8))
-
-    for nbr_test in range (0,my_thresholdarray.shape[0]):
-       my_array[my_thresholdarray[nbr_test][0]  ] = my_array[my_thresholdarray[nbr_test][0]] * np.less_equal( my_array[my_thresholdarray[nbr_test][0]],  my_thresholdarray[nbr_test][1])
-
+    try :
+        for nbr_test in range (0,my_thresholdarray.shape[0]):
+            my_array[my_thresholdarray[nbr_test][0]  ] = my_array[my_thresholdarray[nbr_test][0]] * np.less_equal( my_array[my_thresholdarray[nbr_test][0]],  my_thresholdarray[nbr_test][1])
+    except :
+        pass
 #    my_array2 = 255 * np.logical_and(my_array >= current_depth - threshold,my_array <= current_depth + threshold)
     my_array2 = my_array * np.logical_and(my_array >= 0,my_array <= int( ((1.0/(float(threshold)/100))-3.33) / -0.003071))
 #    print "threshold=",threshold
@@ -182,19 +190,29 @@ def get_depth0():
                     cv2.circle(vis,(x_moy,y_moy),25,(255,255),3)
                     cv2.circle(vis,(int(centre[0][0]),(int(centre[0][1]))) ,25,(255,255,255),3)
                     cv2.circle(vis,(int((x_min+x_max)/2),int((y_min+y_max)/2)) ,25,(0,255,255),3)
-     
+#    Vec3f result;
+#    const double depth = RawDepthToMeters(depthValue);
+#    result.x = float((x - cx_d) * depth * fx_d);
+#    result.y = float((y - cy_d) * depth * fy_d);
+#    result.z = float(depth);
+#    return result;
                     valu_array[0]=my_number
                     valu_array[1]=nbr
-                    valu_array[2]= x_moy
-                    valu_array[3]= y_min
+#                    valu_array[2]= x_moy
+#                    valu_array[3]= y_min
+                    depth = float(1.0 / (float(good_z) * -0.0030711016 + 3.3309495161))
+                    valu_array[2]= int (float((x_moy - cx_d) * depth * fx_d)*100)
+                    valu_array[3]= int (float((y_min - cy_d) * depth * fy_d)*100)
+                    valu_array[4]= int (depth*100)
 #                    valu_array[4]=good_z
-                    valu_array[4]= int(( 1.0/( (float(good_z)* -0.0030711016 + 3.3309495161)))*100)
+#                    valu_array[4]= int(( 1.0/( (float(good_z)* -0.0030711016 + 3.3309495161)))*100)
                     valu_array[5]=100 
                     nbr +=1
                     for val in valu_array:
                         send_string += str (val) + ","
         #			print "my len =" 
                     print send_string
+                    
                     send_string = send_string[0:(len(send_string) -1)]
                     send_string += ";"
                 else:
@@ -208,8 +226,8 @@ def get_depth0():
 	vis = cv2.resize(vis, (320,240))
         cv2.imshow(string_name, vis)
     update(levels)
-    cv2.createTrackbar( "depth", string_name, threshold, 500, change_threshold ) 
-    print "sendstring",send_string
+    cv2.createTrackbar( "depth", string_name, threshold, 600, change_threshold ) 
+#    print "sendstring",send_string
     try :	
         Donnee, Client = PySocket.recvfrom (1024)
         print Donnee
@@ -219,118 +237,6 @@ def get_depth0():
          if Donnee == "data":
              PySocket.sendto (send_string,Client)
              print timestamp
-
-"""
-    def update(levels):
-        vis = np.zeros((h, w, 3), np.uint8)
-        nbr = 0
-    	send_string = str("")
-        for cnt in contours:
- 		global good_z
-	        if (len(cnt)>8) and (cv2.contourArea(cnt) > 2000):
-#		    print "len cnt ok contourArea ok"
-                    centre = cv2.minAreaRect(cnt)
-                    area = cv2.contourArea(cnt)
-		    
-                    a= 0
-                    x_moy = 0
-                    y_moy=0
-		    x_max = 0
-                    x_min = 640
-                    y_max = 0
-		    y_min = 480
-                    for i in cnt:
-                        #print "my i =",i
-                        x= i[0][0]
-                        y=i[0][1]
-			if (x > x_max):
-                            x_max = x
-			if (x < x_min):
-			    x_min = x
-			if (y > y_max):
-                            y_max = y
-			if (y < y_min):
-			    y_min = y
-                        x_moy += x
-                        y_moy+= y
-                        a +=1
-                        #print "x , y = " ,x ,y
-	                cv2.circle(vis,(x,y),10,255,3)
-
-                    #x_moy = (int(centre[0][0]))
-                    #y_moy = (int(centre[0][1]))
-                    x_moy = int((x_min+x_max)/2)
-                    y_moy = int((y_min+y_max)/2)
-                    my_z = 0
-                    a = 0
-                    for i in (range (3)):
-                        for k in (range (3)):
-                            try :
-                                if ( (data [(y_moy-1)+i][(x_moy-1)+k])<= 1024 ):
-                                    my_z += data [(y_moy-1)+i][(x_moy-1)+k]
-                                    poor_data =0
-                                    a+=1
-#                                    print "good" , data [(y_moy-1)+i][(x_moy-1)+k]
-                                else:
-#                                    print "the goodz is bad " , (data [(y_moy-1)+i][(x_moy-1)+k])
-                                    pass
-                            except:
-#                                print "bad data"
-                                poor_data =1
-                                
-                    global good_z      
-                    if a!=0:
-                        my_z =int (my_z/a)
-			good_z = my_z
-                    #print "z , my_z = " , data [y_moy][x_moy], good_z
-	            	cv2.circle(vis,(x_moy,y_moy),25,(255,255),3)
-	            	cv2.circle(vis,(int(centre[0][0]),(int(centre[0][1]))) ,25,(255,255,255),3)
-	            	cv2.circle(vis,(int((x_min+x_max)/2),int((y_min+y_max)/2)) ,25,(0,255,255),3)
- 
-                    	valu_array[0]=my_number
-                     
-		   	valu_array[1]=nbr
-                    	valu_array[2]= x_moy
-                    	valu_array[3]= y_min
-                   	valu_array[4]=good_z
-                    	valu_array[5]=100 
-                    	send_array = str(valu_array)
-                    	sock.sendto(send_array, (UDP_IP, UDP_PORT) )
-#		   	print "people dtect , area ,x1,z1  = ",nbr, area, x_moy,good_z       
-
-                    	nbr +=1
-			for val in valu_array:
-       
-               print "the calcul val =",val
-               send_string += str (val) + ","
-#			print "my len =" 
-			send_string = send_string[0:(len(send_string) -1)]
-			send_string += ";"
-		    else:
-                        cv2.circle(vis,(x_moy,y_moy),25,(0,125,255),3)
-
-#        levels = 5
-        cv2.drawContours( vis, contours, (-1, 3)[levels <= 0], (128,255,255), 3, cv2.CV_AA, hierarchy, abs(levels) )
-	vis = cv2.resize(vis, (320,240))
-        cv2.imshow(string_name, vis)
-    update(levels)
-    #cv2.createTrackbar( "levels+3", "contours", level, 7, updated )
-    cv2.createTrackbar( "depth", string_name, threshold, 500, change_threshold )  
-    try :	
-        Donnee, Client = PySocket.recvfrom (1024)
-        print Donnee
-    except :
-         pass#		print "no need of data"
-    else :
-         if Donnee == "data":
-             PySocket.sendto (send_string,Client)
-             print timestamp
-    #cv2.imshow('nb', img2)
-    #cv.ShowImage('Video1', img)
-"""
-
-
-
 
 """
 cv.NamedWindow('Video1')
@@ -390,7 +296,10 @@ def make_my_thresholdarray():
                     a+=1
             else :
                 my_thresholdarray = np.append(my_thresholdarray, [ [i,int(np.mean(img_moy[i,:])) +10 ] ] , axis =0)
-    print"themy_thresholdarray",   my_thresholdarray , my_thresholdarray.shape, my_thresholdarray.shape[0]
+    if a==0:
+        print "il ny a pas de my_thresholdarray"
+    else :
+        print"themy_thresholdarray",   my_thresholdarray , my_thresholdarray.shape, my_thresholdarray.shape[0]
     
 #    for i in range (my_thresholdarray)
     

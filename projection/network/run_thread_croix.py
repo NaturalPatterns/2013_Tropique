@@ -33,12 +33,13 @@ s = Scenario(p['N'], scenario, volume, VPs, p)
 from numpy import cos, pi
 positions = []
 
-positions.append([s.center[0], s.center[1] , s.center[2]]) # une personne dans un mouvement circulaire (elipse)
-test_positions = ([s.center[0], s.center[1] , s.center[2]]) # une personne dans un mouvement circulaire (elipse)
+#positions.append([0, s.center[1]/2 , s.center[2]/2]) # une personne dans un mouvement circulaire (elipse)
+#test_positions = ([0, s.center[1]/2 , s.center[2]/2]) # une personne dans un mouvement circulaire (elipse)
+#positions.append([0, 0 , 1000]) # une personne dans un mouvement circulaire (elipse)
 
 
 
-do_sock=True
+do_sock=False
 if do_sock:
     from network import Kinects
     k = Kinects(kinects_network_config)
@@ -99,14 +100,22 @@ while True:
         k.trigger()
         test_positions = k.read_sock() # TODO: c'est bien une liste de coordonnées [x, y, z] ?
         if (test_positions!=None):
+            print"receivenow=", test_positions
             positions = []
             for position in test_positions:
                 positions.append([position[0], position[1],position[2] ])
-    else:
+    else: 
+        
         # HACK pour simuler ROGER:
-        positions = []
-#        positions = [[s.center[0], s.center[1], s.center[2]]] # une personne fixe
-        positions.append([0, s.center[1] , 1.36 ])# une personne fixe
+#        positions = []
+        positions = [[1, s.center[1], s.center[2]]] # une personne fixe
+#        positions = [[0, 0, 0]] # une personne fixe
+
+#        print [s.center[0], s.center[1], s.center[2]] # une personne fixe
+#        print [s.center[0], s.center[1], s.center[2]] # une personne fixe
+
+#        positions.append([0, 0, 0 ])# une personne fixe
+#
 #        positions.append([s.center[0], s.volume[1]*.25, s.volume[2]*.25]) # une autre personne dans un mouvement en phase
 
 
