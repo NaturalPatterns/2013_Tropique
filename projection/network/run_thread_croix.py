@@ -108,7 +108,8 @@ while True:
         
         # HACK pour simuler ROGER:
 #        positions = []
-        positions = [[1, s.center[1], s.center[2]]] # une personne fixe
+        print "center =" ,9.0, s.center[1], s.center[2]
+        positions = [[9, s.center[1], s.center[2]]] # une personne fixe
 #        positions = [[0, 0, 0]] # une personne fixe
 
 #        print [s.center[0], s.center[1], s.center[2]] # une personne fixe

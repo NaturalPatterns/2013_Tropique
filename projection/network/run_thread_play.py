@@ -111,6 +111,7 @@ while True:
         test_positions = k.read_sock() # TODO: c'est bien une liste de coordonnées [x, y, z] ?
         if (test_positions!=None):
             positions = []
+#            print test_positions
             for position in test_positions:
                 positions.append([position[0], position[1],position[2] ])
     else:
