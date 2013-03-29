@@ -20,8 +20,8 @@ Par convention, la position spatiale des VPs par rapport au centre du plan de re
 """
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
-d_y, d_z = 5.26, 3.4
-d_x = 37.0 # en metres
+d_y, d_z = 6.16, 6.
+d_x = 13.745 # en metres
 
 # mesures au telemetre
 from numpy import arctan2, pi
@@ -43,15 +43,16 @@ play = "leapfrog"
 # et direction d'angle de vue (cx, cy, cz) comme le point de fixation ainsi que le champ de vue (en deg) 
 # distance des VPs du plan de reference
 #profondeur du plan de référence
-z = 1.31# hauteur des VPs
+z = 1.35# hauteur des VPs
 cx = 0# ->on positionne l'écran pour régler la visée au fond de la salle # d_x - 10.27
 cy = d_y/2 # on regarde le centre du plan de reference
 cz = z # d_z/2
 # une liste des video projs donnant:
 # leur adresse, port, leurs parametres physiques
 # TODO: ne mettre que les VPs qui sont utilisés
+
 VPs = [
-        {'address':'10.42.0.51', 'port': 50035,
+        {'address':'10.42.0.53', 'port': 50035,
             'x':d_x, 'y':0.65, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
@@ -59,14 +60,10 @@ VPs = [
             'x':d_x, 'y':2.56, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000 },
-        {'address':'10.42.0.53', 'port': 50036,
+        {'address':'10.42.0.51', 'port': 50036,
             'x':d_x, 'y':4.76, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
-        {'address':'10.42.0.180', 'port': 50034,
-            'x':d_x, 'y':2.56, 'z': z,
-            'cx':cx, 'cy':cy, 'cz': cz,
-            'foc': foc, 'pc_min': 0.01, 'pc_max': 10000 },
         ]
 
 p = {'N': 32,
@@ -116,18 +113,12 @@ p = {'N': 32,
 #parametres des kinects
 # une liste des kinects donnant leur adresse, port, position (x; y; z) et azimuth. 
 info_kinects = [
-		{'address':'10.42.0.10', 'port': 9998, 'x':7.0, 'y':0, 'z': 1.3, 'az':5*pi/6 ,'max':580},#0
-		{'address':'10.42.0.10', 'port': 9999, 'x':1.0, 'y':0, 'z': 1.3, 'az':3*pi/6 ,'max':500},#1
-		{'address':'10.42.0.11', 'port': 9998, 'x':7.0, 'y':0, 'z': 1.3, 'az':3*pi/6 ,'max':500},#2
-		{'address':'10.42.0.11', 'port': 9999, 'x':7.0, 'y':0, 'z': 1.3, 'az':1*pi/6 ,'max':580},#3
-		{'address':'10.42.0.12', 'port': 9998, 'x':19.0, 'y':0, 'z': 1.3, 'az':5*pi/6 ,'max':580},#4
-		{'address':'10.42.0.12', 'port': 9999, 'x':13.0, 'y':0, 'z': 1.3, 'az':3*pi/6 ,'max':501},#5
-		{'address':'10.42.0.13', 'port': 9998, 'x':19.0, 'y':0, 'z': 1.3, 'az':1*pi/6 ,'max':560},#6
-		{'address':'10.42.0.13', 'port': 9999, 'x':19.0, 'y':0, 'z': 1.3, 'az':3*pi/6 ,'max':501},#7
-		{'address':'10.42.0.16', 'port': 9998, 'x':31.0, 'y':0, 'z': 1.3, 'az':5*pi/6 ,'max':560},#12
-		{'address':'10.42.0.16', 'port': 9999, 'x':25.0, 'y':0, 'z': 1.3, 'az':3*pi/6 ,'max':501},#13
-		{'address':'10.42.0.17', 'port': 9998, 'x':31.0, 'y':0, 'z': 1.3, 'az':1*pi/6 ,'max':400},#14
-		{'address':'10.42.0.17', 'port': 9999, 'x':31.0, 'y':0, 'z': 1.3, 'az':3*pi/6 ,'max':500},#15
+#		{'address':'10.42.0.10', 'port': 9998, 'x':1.0, 'y':d_y, 'z': 1.3, 'az':9*pi/6 ,'max':520},#1
+		{'address':'10.42.0.11', 'port': 9998, 'x':1.0, 'y':d_y, 'z': 1.3, 'az':11*pi/6 ,'max':487},#2
+		{'address':'10.42.0.11', 'port': 9999, 'x':1.0, 'y':d_y, 'z': 1.3, 'az':9*pi/6 ,'max':475},#3
+		{'address':'10.42.0.12', 'port': 9998, 'x':6.0, 'y':d_y, 'z': 1.3, 'az':7*pi/6 ,'max':501},#4
+		{'address':'10.42.0.12', 'port': 9999, 'x':12.0, 'y':d_y, 'z': 1.3, 'az':9*pi/6 ,'max':497},#5
+		{'address':'10.42.0.13', 'port': 9998, 'x':12.0, 'y':d_y, 'z': 1.3, 'az':11*pi/6 ,'max':483},#6
 		]
 
 run_thread_network_config = {
