@@ -12,7 +12,7 @@ sys.path.append('..')
 # Screen information
 # ------------------
 from parametres import VPs, p, volume, run_thread_network_config
-#whouawhoua
+
 from network import VP
 vps= VP(run_thread_network_config['ip_to_line_res'] , 7005 , 7006)
 pdata = VP("10.42.0.1" , 9005 , 9006)
@@ -156,15 +156,12 @@ def on_draw():
         vps.trigger()
     except :
         pass
-#    vps.trigger()    
-    particlestest = vps.listen()#
-#    print "receive",particlestest
+#    vps.trigger()
+    particlestest = vps.listen()
      
     if (particlestest!=None):
-        #print 'ok dude',  particlestest.shape
+#        print 'ok dude',  particlestest.shape
         my_part = np.fromstring(particlestest, dtype='f')
-        print "receive"#,my_part
-
         
     gl.glLineWidth ( p['line_width'] )
     
@@ -199,9 +196,8 @@ def on_draw():
                 my_color = store_blob[10]/255.0
                 
     gl.glColor3f(my_color, my_color , my_color)
-
+    
 #    my_own_draw(placex , placey , scene, lateral,  witdh_line,  nbr_seg ,rx ,ry,rmin ,rmax)
-    gl.glColor3f(1,1,1)
 
 
     

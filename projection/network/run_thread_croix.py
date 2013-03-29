@@ -108,8 +108,8 @@ while True:
         
         # HACK pour simuler ROGER:
 #        positions = []
-        print "center =" ,9.0, s.center[1], s.center[2]
-        positions = [[9, s.center[1], s.center[2]]] # une personne fixe
+        # print "center =" , s.crox
+        positions = [[s.croix[0], s.croix[1], s.croix[2]]] # la position de la croix 
 #        positions = [[0, 0, 0]] # une personne fixe
 
 #        print [s.center[0], s.center[1], s.center[2]] # une personne fixe
