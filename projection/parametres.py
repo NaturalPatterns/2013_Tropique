@@ -112,13 +112,18 @@ p = {'N': 32,
 
 #parametres des kinects
 # une liste des kinects donnant leur adresse, port, position (x; y; z) et azimuth. 
+# pour des kinects dans le segment (0, d_y) --- (d_x, d_y) alors  az : 11*pi/6 = a gauche , 9*pi/6 = tout droit, 7*pi/6 = a droite
 info_kinects = [
-#		{'address':'10.42.0.10', 'port': 9998, 'x':1.0, 'y':d_y, 'z': 1.3, 'az':9*pi/6 ,'max':520},#1
-		{'address':'10.42.0.11', 'port': 9998, 'x':1.0, 'y':d_y, 'z': 1.3, 'az':11*pi/6 ,'max':487},#2
-		{'address':'10.42.0.11', 'port': 9999, 'x':1.0, 'y':d_y, 'z': 1.3, 'az':9*pi/6 ,'max':475},#3
-		{'address':'10.42.0.12', 'port': 9998, 'x':6.0, 'y':d_y, 'z': 1.3, 'az':7*pi/6 ,'max':501},#4
-		{'address':'10.42.0.12', 'port': 9999, 'x':12.0, 'y':d_y, 'z': 1.3, 'az':9*pi/6 ,'max':497},#5
-		{'address':'10.42.0.13', 'port': 9998, 'x':12.0, 'y':d_y, 'z': 1.3, 'az':11*pi/6 ,'max':483},#6
+		# on tourne les numeros de kinect dans le sens des aiguilles d'une montre en commencant par le point (0, 0)- le point de vue (az) donne l'ordre dans une colonne de kinects 
+ 		# premier bloc
+		#{'address':'10.42.0.11', 'port': 9998, 'x':1.0, 'y':d_y, 'z': 1.14, 'az':7*pi/6 ,'max':520},#1.1
+		{'address':'10.42.0.10', 'port': 9999, 'x':1.0, 'y':d_y, 'z': 1.24, 'az':9*pi/6 ,'max':475}, #1.2
+		{'address':'10.42.0.10', 'port': 9998, 'x':1.0, 'y':d_y, 'z': 1.34, 'az':11*pi/6 ,'max':487},#1.3
+		# deuxieme bloc
+	        {'address':'10.42.0.13', 'port': 9998, 'x':8.0, 'y':d_y, 'z': 1.14, 'az':7*pi/6 ,'max':501},#2.1
+		{'address':'10.42.0.12', 'port': 9999, 'x':8.0, 'y':d_y, 'z': 1.24, 'az':9*pi/6 ,'max':497},#2.2
+		{'address':'10.42.0.13', 'port': 9998, 'x':8.0, 'y':d_y, 'z': 1.34, 'az':11*pi/6 ,'max':483},#2.3
+		{'address':'10.42.0.12', 'port': 9998, 'x':12.0, 'y':d_y, 'z': 1.14, 'az':9*pi/6 ,'max':483},#2.4
 		]
 
 run_thread_network_config = {
@@ -138,4 +143,4 @@ DEBUG  = False
 
 
 if __name__ == "__main__":
-    import explore
+    import explo
