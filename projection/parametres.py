@@ -17,19 +17,21 @@ Par convention, la position spatiale des VPs par rapport au centre du plan de re
 - placement regulier, le centre en premier
 - on place les VPs vers 1m30 de haut
 
+Par convention, la position de la croix est au centre de la salle: [d_x/2, d_y/2]
+
 """
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
-d_y, d_z = 6.16, 6.
-d_x = 13.745 # en metres
+d_y, d_z = 6.6, 6.
+d_x = 17.3 # en metres
 
 # mesures au telemetre
 from numpy import arctan2, pi
 largeur_ecran = 1.75 # ouvert à fond
 distance_ecran = 2.58
 #foc_estim = 2 * arctan2(largeur_ecran/2, distance_ecran) * 180 / pi # ref P101L1
-#foc = 30.1
-foc_estim = 20.6
+foc_estim = 30.1
+#foc_estim = 20.6
 #foc = 72
 foc = foc_estim
 print("parameres.py nous dit: focale estimée = ", foc_estim, ", focal utilisée = ", foc)
@@ -49,26 +51,37 @@ cy = d_y/2 # on regarde le centre du plan de reference
 cz = z # d_z/2
 # une liste des video projs donnant:
 # leur adresse, port, leurs parametres physiques
-# TODO: ne mettre que les VPs qui sont utilisés
 
 VPs = [
-        {'address':'10.42.0.53', 'port': 50035,
-            'x':d_x, 'y':0.65, 'z': z,
+        {'address':'10.42.0.56',
+            'x':d_x, 'y':0.5, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
-        {'address':'10.42.0.52', 'port': 50034,
-            'x':d_x, 'y':2.56, 'z': z,
+        {'address':'10.42.0.55', 
+            'x':d_x, 'y':3.3, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000 },
-        {'address':'10.42.0.51', 'port': 50036,
-            'x':d_x, 'y':4.76, 'z': z,
+        {'address':'10.42.0.54',
+            'x':d_x, 'y':6.4, 'z': z,
             'cx':cx, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
+        {'address':'10.42.0.51',
+            'x':1.9, 'y':0.5, 'z': z,
+            'cx':d_x, 'cy':cy, 'cz': cz,
+            'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
+        {'address':'10.42.0.52',
+             'x':1.9, 'y':3.3, 'z': z,
+             'cx':d_x, 'cy':cy, 'cz': cz,
+             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000 },
+        {'address':'10.42.0.53',
+             'x':1.9, 'y':6.4, 'z': z,
+             'cx':d_x, 'cy':cy, 'cz': cz,
+             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
         ]
 
 p = {'N': 32,
 # parametres du champ
-#     'distance_m': 1.2, # distance d'équilibre des segments autour d'une position de player	
+#     'distance_m': 1.2, # distance d'équilibre des segments autour d'une position de player
      'distance_m': 0.50, # distance d'équilibre des segments autour d'une position de player	
      'G_global': 40., # attraction globale vers les centres des positions
 #      'G_rot': 1.0,
@@ -115,15 +128,17 @@ p = {'N': 32,
 # pour des kinects dans le segment (0, d_y) --- (d_x, d_y) alors  az : 11*pi/6 = a gauche , 9*pi/6 = tout droit, 7*pi/6 = a droite
 info_kinects = [
 		# on tourne les numeros de kinect dans le sens des aiguilles d'une montre en commencant par le point (0, 0)- le point de vue (az) donne l'ordre dans une colonne de kinects 
- 		# premier bloc
-		#{'address':'10.42.0.11', 'port': 9998, 'x':1.0, 'y':d_y, 'z': 1.14, 'az':7*pi/6 ,'max':520},#1.1
-		{'address':'10.42.0.10', 'port': 9999, 'x':1.0, 'y':d_y, 'z': 1.24, 'az':9*pi/6 ,'max':475}, #1.2
-		{'address':'10.42.0.10', 'port': 9998, 'x':1.0, 'y':d_y, 'z': 1.34, 'az':11*pi/6 ,'max':487},#1.3
-		# deuxieme bloc
-	        {'address':'10.42.0.13', 'port': 9998, 'x':8.0, 'y':d_y, 'z': 1.14, 'az':7*pi/6 ,'max':501},#2.1
-		{'address':'10.42.0.12', 'port': 9999, 'x':8.0, 'y':d_y, 'z': 1.24, 'az':9*pi/6 ,'max':497},#2.2
-		{'address':'10.42.0.13', 'port': 9998, 'x':8.0, 'y':d_y, 'z': 1.34, 'az':11*pi/6 ,'max':483},#2.3
-		{'address':'10.42.0.12', 'port': 9998, 'x':12.0, 'y':d_y, 'z': 1.14, 'az':9*pi/6 ,'max':483},#2.4
+ 		# deuxieme  bloc
+		{'address':'10.42.0.14', 'port': 9998, 'x':8.8, 'y':0.2, 'z': 1.24, 'az':pi/6 ,'max':580},#1.1
+		{'address':'10.42.0.14', 'port': 9999, 'x':8.8, 'y':0.2, 'z': 1.14, 'az':3*pi/6 ,'max':600}, #1.2
+		{'address':'10.42.0.15', 'port': 9998, 'x':8.8, 'y':0.2, 'z': 1.24, 'az':5*pi/6 ,'max':580},#1.3
+  		{'address':'10.42.0.15', 'port': 9999, 'x':14.2, 'y':0.2, 'z': 1.14, 'az':3*pi/6 ,'max':600},#1.3
+
+#		# premier  bloc
+       {'address':'10.42.0.16', 'port': 9998, 'x':3.8, 'y':0.2, 'z': 1.14, 'az':3*pi/6 ,'max':600},#2.1
+#		{'address':'10.42.0.12', 'port': 9999, 'x':8.0, 'y':0, 'z': 1.24, 'az':5*pi/6 ,'max':497},#2.2
+#		{'address':'10.42.0.13', 'port': 9998, 'x':8.0, 'y':d_y, 'z': 1.34, 'az':11*pi/6 ,'max':483},#2.3
+#		{'address':'10.42.0.12', 'port': 9998, 'x':12.0, 'y':d_y, 'z': 1.14, 'az':9*pi/6 ,'max':483},#2.4
 		]
 
 run_thread_network_config = {

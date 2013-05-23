@@ -34,13 +34,13 @@ dx ,dy = 10.0 , 10.0
 #    )[20:24])
 #my_ip = get_ip_address('eth0')
 
-my_ip = "10.42.0.151"
+my_ip = "10.42.0.55"
 print "my ip is =", my_ip
 
 
 global my_x ,my_y,my_z, my_cx,my_cy,my_cz,my_foc,my_pc_min,my_pc_max
         
-for i in range (3):
+for i in range (5):
     print VPs[i]['address']
     if (my_ip == VPs[i]['address']) :
         i_win= i
@@ -147,7 +147,11 @@ def on_draw():
     gluLookAt(my_x, my_y, my_z,my_cx, my_cy, my_cz,0., 0, 1.0)
     
     global s, vps, N
-    vps.trigger()
+    try : 
+        vps.trigger()
+    except :
+        pass
+#    vps.trigger()
     particlestest = vps.listen()#
      
     if (particlestest!=None):
