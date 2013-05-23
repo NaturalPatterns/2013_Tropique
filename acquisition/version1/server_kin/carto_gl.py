@@ -273,6 +273,8 @@ def display_player():
             msg.append(float(float(player[1])/(d_y*100)))
             msg.append(float(float(player[3])/1000))
 #            print "the osc mess is=", msg
+            batch = pyglet.graphics.Batch()
+
             if ( (float(float(player[0])/(d_x*100)) != 0 ) and (float(float(player[1])/(d_y*100)) != 0 ) ):
                 send_osc(msg)        
                 sendx = player[0]
@@ -281,7 +283,10 @@ def display_player():
                 gl.glPointSize (16.0);
                 gl.glColor4f(0.5, 0.5, 1, 1);
                 makemedraw(sendx,sendy)
+                pyglet.text.Label(str(the_player),font_size = 30, x=sendx- 10 , y=sendy - 20, anchor_y='bottom',color=(0, 255, 0, 255),batch=batch )
+
                 str_send += str( int(sendx) ) + "," + str( int(sendy) ) + "," + str( int(sendz) ) + ";"
+            batch.draw()
                 
         packed +=55000
         a +=1
@@ -326,6 +331,7 @@ def decors():
     drawOneLine(0 , d_y*100, d_x*100 , d_y*100)
     drawOneLine(d_x*100 , 0, d_x*100 , d_y*100)
     drawOneLine(0 ,0, d_x*100 , 0)
+    batch = pyglet.graphics.Batch()
     for k in info_kinects :
           gl.glColor4f(0, 0, 1, 1);
           gl.glPointSize (32.0);
@@ -334,6 +340,7 @@ def decors():
           gl.glVertex2f(k['x']*100, k['y']*100);
           gl.glEnd();
           drawOneLine(k['x']*100 ,k['y']*100, k['x']*100 + cos (k['az'])*k['max'],k['y']*100 + sin (k['az'])*k['max'])
+          pyglet.text.Label(k['address'][8:]  + str(k['port']-9998) ,font_size = 40, x=k['x']*100 - 30 , y=k['y']*100 - 30, anchor_y='bottom',color=(255, 0, 0, 255),batch=batch )
     for p in VPs:
           gl.glColor4f(0, 1, 1, 1);
           gl.glPointSize (32.0);
@@ -341,7 +348,10 @@ def decors():
           gl.glBegin (gl.GL_POINTS);
           gl.glVertex2f(p['x']*100, p['y']*100);
           gl.glEnd();
-          drawOneLine(p['x']*100 ,p['y']*100, p['cx']*100 ,p['cy']*100 )      
+          drawOneLine(p['x']*100 ,p['y']*100, p['cx']*100 ,p['cy']*100 )    
+          pyglet.text.Label(p['address'][8:],font_size = 40, x=p['x']*100 - 30 , y=p['y']*100 - 30, anchor_y='bottom',color=(0, 0, 0, 255),batch=batch )
+    batch.draw()
+
     gl.glFlush ()
   
 def calc_angle(each, kin):
@@ -355,7 +365,7 @@ def calc_angle(each, kin):
     z = each[3]
     if (z>= -100 and z<= 50) :
 #        print 150-z
-        z= z +20
+        z= z 
         test_players(x,y, 150-z)
         gl.glPointSize (32.0);
         gl.glColor4f(1, 0, 1, 1);

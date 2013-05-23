@@ -19,11 +19,6 @@ pdata = VP("10.42.0.1" , 9005 , 9006)
 
 import numpy as np
 
-import socket
-import fcntl
-import struct
-
-from fanclass import my_own_draw #, createline
 global rx ,ry
 rx = 1
 ry = 1
@@ -45,7 +40,7 @@ print "my ip is =", my_ip
 
 global my_x ,my_y,my_z, my_cx,my_cy,my_cz,my_foc,my_pc_min,my_pc_max
         
-for i in range (3):
+for i in range (6):
     print VPs[i]['address']
     if (my_ip == VPs[i]['address']) :
         i_win= i

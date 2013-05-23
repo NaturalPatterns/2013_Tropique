@@ -11,7 +11,7 @@ sys.path.append('..')
 
 # Screen information
 # ------------------
-from parametres import VPs, p, volume, run_thread_network_config
+from parametres import VPs, p, volume, run_thread_network_config, foc
 
 from network import VP
 vps= VP(run_thread_network_config['ip_to_line_res'] , 7005 , 7006)
@@ -34,13 +34,13 @@ dx ,dy = 10.0 , 10.0
 #    )[20:24])
 #my_ip = get_ip_address('eth0')
 
-my_ip = "10.42.0.151"
+my_ip = "10.42.0.180"
 print "my ip is =", my_ip
 
 
 global my_x ,my_y,my_z, my_cx,my_cy,my_cz,my_foc,my_pc_min,my_pc_max
         
-for i in range (3):
+for i in range (4):
     print VPs[i]['address']
     if (my_ip == VPs[i]['address']) :
         i_win= i
@@ -54,7 +54,6 @@ for i in range (3):
         my_foc= VPs[i]['foc']
         my_pc_min= VPs[i]['pc_min']
         my_pc_max= VPs[i]['pc_max']
-
 
 
 
@@ -147,7 +146,11 @@ def on_draw():
     gluLookAt(my_x, my_y, my_z,my_cx, my_cy, my_cz,0., 0, 1.0)
     
     global s, vps, N
-    vps.trigger()
+#    try : 
+#        vps.trigger()
+#    except :
+#        pass
+    vps.trigger()    
     particlestest = vps.listen()#
      
     if (particlestest!=None):
@@ -187,8 +190,8 @@ def on_draw():
                 my_color = store_blob[10]/255.0
                 
     gl.glColor3f(my_color, my_color , my_color)
+    
 #    my_own_draw(placex , placey , scene, lateral,  witdh_line,  nbr_seg ,rx ,ry,rmin ,rmax)
-    gl.glColor3f(1,1,1)
 
 
     
