@@ -27,12 +27,11 @@ Exploration mode.
 scenario = 'leapfrog'  # 'rotating-circle'
 #import sys
 #window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
-from parametres import VPs, volume, p, kinects_network_config, d_x
-# print d_x
+from parametres import VPs, volume, p, kinects_network_config, d_x, d_y, d_z
 from scenarios import Scenario
 s = Scenario(p['N'], scenario, volume, VPs, p)
 ########################################
-do_firstperson, foc_fp, i_VP_fp, alpha_fp, int_fp, intB_fp, show_VP = True, 60., 1, .3, 1., 0.01, True
+do_firstperson, foc_fp, i_VP_fp, alpha_fp, int_fp, intB_fp, show_VP = False, 60., 1, .1, 1., 0.01, True
 s.heading_fp, s.rot_heading_fp, s.inc_heading_fp = 0., 0., 0.1
 i_VP = 1  # VP utilisé comme projecteur en mode projection
 do_fs = True  # fullscreen par défaut?
@@ -169,10 +168,11 @@ def on_draw():
         positions = []
         amp, amp2 = .2, .5
         T, T2 = 15., 30. # periode en secondes
-        positions.append([s.roger[0] * (1. + amp2*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp2*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
-        positions.append([s.roger[0] * (1. + amp*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
-        positions.append([s.roger[0] * (1. + amp*sin(2*pi*s.t/T2)), s.roger[1] * (1. + amp*sin(2*pi*s.t/T)), 1.2*s.roger[2]]) # une autre personne dans un mouvement en phase
-        positions.append([s.roger[0], s.roger[1] * (1. + amp2*cos(2*pi*s.t/T2)), 1.1*s.roger[2]]) # une personne dans un mouvement circulaire (elipse)
+        # positions.append([s.roger[0] * (1. + amp2*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp2*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
+        positions.append([s.roger[0], s.roger[1], s.roger[2]]) #  bouge pas, roger.
+        # positions.append([s.roger[0] * (1. + amp*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
+        # positions.append([s.roger[0] * (1. + amp*sin(2*pi*s.t/T2)), s.roger[1] * (1. + amp*sin(2*pi*s.t/T)), 1.2*s.roger[2]]) # une autre personne dans un mouvement en phase
+        # positions.append([s.roger[0], s.roger[1] * (1. + amp2*cos(2*pi*s.t/T2)), 1.1*s.roger[2]]) # une personne dans un mouvement circulaire (elipse)
 
 
     s.do_scenario(positions=positions, events=events)
@@ -185,9 +185,9 @@ def on_draw():
         gl.glFogi (gl.GL_FOG_MODE, gl.GL_LINEAR)
         # gl.glFogfv (gl.GL_FOG_COLOR, [0.8,0.8,0.8, 1.])
         gl.glHint (gl.GL_FOG_HINT, gl.GL_NICEST)#GL_DONT_CARE)
-        gl.glFogf (gl.GL_FOG_DENSITY, 0.000001)
+        gl.glFogf (gl.GL_FOG_DENSITY, 0.0000001)
         gl.glFogf (gl.GL_FOG_START, .0)
-        gl.glFogf (gl.GL_FOG_END, 6000.0)
+        gl.glFogf (gl.GL_FOG_END, 60.0)
         # gl.glClearColor(0.5, 0.5, 0.5, 1.0)
 
         gl.gluPerspective(foc_fp, 1.0*win_0.width/win_0.height,
@@ -206,15 +206,22 @@ def on_draw():
 
             VP_ = np.array([[VP['x'], VP['y'], VP['z']]]).T * np.ones((1, s.N))
             p_ = s.particles[0:6, :].copy()
-            p_[1] = d_x / (d_x - p_[0]) * (p_[1]-VP['y']) + VP['y']
-            p_[2] = d_x / (d_x - p_[0]) * (p_[2]-VP['z']) + VP['z']
-            p_[4] = d_x / (d_x - p_[3]) * (p_[4]-VP['y']) + VP['y']
-            p_[5] = d_x / (d_x - p_[3]) * (p_[5]-VP['z']) + VP['z']
-            p_[0] = 0
-            p_[3] = 0
-            #colors_ = np.array([[255, 255, 255, 0, 0, 0, 0, 0, 0]]).T * np.ones((1, s.N), dtype=np.int)
+            # projecting the segment on the wall opposite to the VPs
+            if VP['x'] > d_x/2: # un VP du coté x=0, on projete sur le plan x=0
+                p_[1] = d_x / (d_x - p_[0]) * (p_[1]-VP['y']) + VP['y']
+                p_[2] = d_x / (d_x - p_[0]) * (p_[2]-VP['z']) + VP['z']
+                p_[4] = d_x / (d_x - p_[3]) * (p_[4]-VP['y']) + VP['y']
+                p_[5] = d_x / (d_x - p_[3]) * (p_[5]-VP['z']) + VP['z']
+                p_[0] = 0
+                p_[3] = 0
+            else:
+                p_[1] = d_x / (p_[0]) * (p_[1]-VP['y']) + VP['y']
+                p_[2] = d_x / (p_[0]) * (p_[2]-VP['z']) + VP['z']
+                p_[4] = d_x / (p_[3]) * (p_[4]-VP['y']) + VP['y']
+                p_[5] = d_x / (p_[3]) * (p_[5]-VP['z']) + VP['z']
+                p_[0] = d_x
+                p_[3] = d_x
             colors_ = np.array([int_fp, int_fp, int_fp, alpha_fp, intB_fp, intB_fp, intB_fp, alpha_fp, intB_fp, intB_fp, intB_fp, alpha_fp])[:, np.newaxis] * np.ones((1, s.N))
-            #print colors_.T.ravel().tolist()
             pyglet.graphics.draw(3*s.N, gl.GL_TRIANGLES,
                                  ('v3f', np.vstack((VP_, p_)).T.ravel().tolist()),
                                  ('c4f', colors_.T.ravel().tolist()))
@@ -226,6 +233,10 @@ def on_draw():
         gluLookAt(VPs[i_VP]['x'], VPs[i_VP]['y'], VPs[i_VP]['z'],
                   VPs[i_VP]['cx'], VPs[i_VP]['cy'], VPs[i_VP]['cz'],
                   0., 0, 1.0)
+
+
+        # TODO: make an option to view particles from above
+        # gl.gluOrtho2D(0.0, d_y, 0., d_z)
 
         gl.glLineWidth (p['line_width'])
         # marque la postion des personnes par un joli carré rouge

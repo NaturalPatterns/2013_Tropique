@@ -11,9 +11,9 @@ import time
 def arcdistance(rae1, rae2):
     """
     renvoie l'angle sur le grand cercle (en radians)
-    
-    # rae1 ---> rae2    
-    
+
+    # rae1 ---> rae2
+
      r = distance depuis le centre des coordonnées sphériques (mètres)
      a =  azimuth = declinaison = longitude (radians)
      e =  elevation = ascension droite = lattitude (radians)
@@ -23,7 +23,7 @@ def arcdistance(rae1, rae2):
     """
 #    a = np.sin((azel[2, ...] - azel[0, ...])/2) **2 + np.cos(azel[0, ...]) * np.cos(azel[2, ...]) * np.sin((azel[3, ...] - azel[1, ...])/2) **2
 #    return 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
-    a =  (np.cos(rae2[2, ...]) * np.sin(rae2[1, ...] - rae1[1, ...]))**2 
+    a =  (np.cos(rae2[2, ...]) * np.sin(rae2[1, ...] - rae1[1, ...]))**2
     a += (np.cos(rae1[2, ...]) * np.sin(rae2[2, ...]) -  np.sin(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...]))**2
     b =   np.sin(rae1[2, ...]) * np.sin(rae2[2, ...]) +  np.cos(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...])
     return np.arctan2(np.sqrt(a), b)
@@ -31,7 +31,7 @@ def arcdistance(rae1, rae2):
 def orientation(rae1, rae2):
     """
     renvoie le  cap suivant le grand cercle (en radians)
-    
+
      r = distance depuis le centre des coordonnées sphériques (mètres)
      a =  azimuth = declinaison = longitude (radians)
      e =  elevation = ascension droite = lattitude (radians)
@@ -44,13 +44,13 @@ def orientation(rae1, rae2):
 def xyz2azel(xyz, OV = np.zeros((3,))):
     """
     renvoie le vecteur de coordonnées perceptuelles en fonction des coordonnées physiques
-    
+
     xyz = 3 x N x ...
 
-    Le vecteur OV désigne le centre des coordonnées sphériques, 
+    Le vecteur OV désigne le centre des coordonnées sphériques,
     - O est la référence des coordonnées cartésiennes et
     - V les coordonnées cartesiennes du centre (typiquement du videoprojecteur).
-    
+
     """
     rae = np.zeros(xyz.shape)
 #     print rae.shape, xyz, VP
@@ -64,7 +64,7 @@ def xyz2azel(xyz, OV = np.zeros((3,))):
 def rae2xyz(rae, OV = np.zeros((3,))):
     """
     renvoie le vecteur de coordonnées physiques en fonction des coordonnées perceptuelles
-                    
+
     """
     xyz = np.zeros(rae.shape)
     xyz[0, ...] = rae[0, ...] * np.cos(rae[2, ...])  * np.cos(rae[1, ...]) + OV[0]
@@ -81,7 +81,7 @@ class Scenario:
         d_x, d_y, d_z = self.volume
         self.center = np.array([d_x/2., d_y/2, VPs[0]['z']], dtype='f') # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
         self.croix = np.array([d_x/2., d_y/2., VPs[0]['z']], dtype='f') # definition de la position de la croix
-        self.roger = np.array([d_x/3., d_y/2, 1.68], dtype='f') #  fixation dot  (AKA Roger?)
+        self.roger = np.array([d_x/2., d_y/2., 1.73], dtype='f') #  fixation dot  (AKA Roger?)
 #        self.origin = np.array([0., 0., 0.]) # origin
 
         self.VPs = VPs # le dictionnaire avec les characteristiques de tous les VPs
@@ -89,7 +89,6 @@ class Scenario:
         for VP in self.VPs:
             self.vps.append(np.array([VP['x'], VP['y'], VP['z']]))
         self.nvps = len(self.vps)
-            
         self.p = p
         self.N = N
         self.l_seg = p['l_seg_min'] * np.ones(N)
@@ -133,7 +132,7 @@ class Scenario:
             distance_tabou = self.p['distance_tabou_event']
 
 
-        # initialize t_break at the onset 
+        # initialize t_break at the onset
         if (events[:6] == [1, 1, 1, 1, 1, 1]) and (self.t_break == 0.):
             self.t_break = self.t
 
@@ -159,7 +158,7 @@ class Scenario:
         OC = (self.particles[0:3, :]+self.particles[3:6, :])/2
         CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
         for OV in self.vps:
-            # if self.p['G_global']>0:                
+            # if self.p['G_global']>0:
 #                     rae_VA = xyz2azel(self.particles[:3, :], OV)
 #                     rae_VB = xyz2azel(self.particles[3:, :], OV)
             rae_VC = xyz2azel(OC, OV)
@@ -181,9 +180,9 @@ class Scenario:
 #            gravity = - np.sum(CC*distance.T/(distance.T + self.p['eps'])**4, axis=1) # 3 x N; en metres
 #            force[0:3, :] += self.p['G_centre'] * gravity
 #            force[3:6, :] += self.p['G_centre'] * gravity
-            
+
 #            # attraction / repulsion des angles relatifs des segments
-            if not(positions == None) and not(positions == np.nan): #False: # 
+            if not(positions == None) and not(positions == np.nan): #False: #
                 distance_min = 1000000. * np.ones((self.N)) # very big to begin with
                 rotation = np.empty((3, self.N))
                 gravity = np.empty((3, self.N))
@@ -205,8 +204,7 @@ class Scenario:
 #                    distance_SC = rae_VS[0]*np.sin(arcdistance(rae_VS, rae_VC))
 #                     SC = OC - np.array(position)[:, np.newaxis]
 
-		    # TODO : réduire la dimension de profondeur à une simple convergence vers la position en x / reflète la perception
-
+                    # TODO : réduire la dimension de profondeur à une simple convergence vers la position en x / reflète la perception
                     gravity_ = - SC * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+1) # en metres
 
                     # compute desired rotation
@@ -214,10 +212,10 @@ class Scenario:
                     cap_AB = orientation(rae_VA, rae_VB)
 
                     # TODO rotation aussi vers le plan perpendiculaire a l'acteur
-		    # TODO : tuner les paramètres de rotation
+                    # TODO : tuner les paramètres de rotation
                     AB = self.particles[3:6, :] - self.particles[0:3, :]# 3 x N
 #                    print np.sum(AB**2, axis=0)
-                    rotation_ = -np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
+                    rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
 #                    rotation_ = -(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2)/(distance_SC + self.p['eps']) #
 #                    rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2)/(distance_SC + self.p['eps']) #
 #                    rotation_ = np.sinh((cap_SC-cap_AB)/20.)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
@@ -240,7 +238,7 @@ class Scenario:
         if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche V dans explore.py
             G_repulsion = self.p['G_repulsion']
         else:
-            G_repulsion = self.p['G_repulsion_hot']        
+            G_repulsion = self.p['G_repulsion_hot']
         # repulsion entre les centres de de chaque paire de segments
         OC = (self.particles[0:3, :]+self.particles[3:6, :])/2
         CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
@@ -250,21 +248,22 @@ class Scenario:
         force[3:6, :] += G_repulsion * gravity
         # TODO attraction / repulsion des angles relatifs des segments
 
+        # poussee enrtainant une rotation lente et globale (cf p152)
         ind_min = np.argmin(distance + np.eye(self.N)*1e6, axis=0)
         speed_CC = (self.particles[6:9, :] + self.particles[6:9, ind_min]) + (self.particles[9:12, :] + self.particles[9:12, ind_min])
 #        print speed_CC.shape, ind_min, CC[:,:,ind_min].diagonal().shape, distance[:,ind_min].diagonal().shape
         poussee =  np.sign(np.sum(speed_CC * CC[:,ind_min,:].diagonal(axis1=1, axis2=2), axis=0)) * CC[:,ind_min,:].diagonal(axis1=1, axis2=2) /(distance[:,ind_min].diagonal() + self.p['eps'])**3 # 3 x N; en metres
         force[0:3, :] += self.p['G_poussee'] * poussee
         force[3:6, :] += self.p['G_poussee'] * poussee
-        damping = 0.1
-        
+        # utiliser un damping = 0.1?
+
 
         if events[0] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche R dans explore.py
             G_struct = self.p['G_struct']
             distance_struct = self.p['distance_struct']
         else:
-            G_struct = self.p['G_struct_hot']   
-            distance_struct = self.p['distance_struct_hot']   
+            G_struct = self.p['G_struct_hot']
+            distance_struct = self.p['distance_struct_hot']
         # attraction / repulsion des extremites des segments
         AB = self.particles[0:3, :, np.newaxis]-self.particles[0:3, np.newaxis, :]
         distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
@@ -298,9 +297,9 @@ class Scenario:
         force[0:3, :] -= G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
         force[3:6, :] += G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
 
-        # damping        
+        # damping
 #        z_C = (self.particles[2, :]+self.particles[5, :])/2
-#        print z_C 
+#        print z_C
         modul = 1 #np.exp(- z_C* (z_C>0) / self.volume[2] / 4. )
         if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans explore.py
             force -= self.p['damp_hot'] * modul * self.particles[6:12, :]/self.dt
@@ -311,7 +310,7 @@ class Scenario:
 
         if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
             if (events[-1] == 0): # break #2 or #3
-                if self.t > self.t_break + self.p['T_break']: 
+                if self.t > self.t_break + self.p['T_break']:
                     speed_0 = self.p['speed_0']
                 else:
                     speed_0 = self.p['speed_0'] *((self.p['A_break']-1) * np.exp(-(self.p['T_break'] - (self.t - self.t_break)) / self.p['tau_break']) + 1)
@@ -378,7 +377,7 @@ class Scenario:
             #            print self.particles.mean(axis=1)
 
         elif self.scenario == 'cristal':
-            #             self.particles = 1000*np.ones((6, self.N)) # segments outside 
+            #             self.particles = 1000*np.ones((6, self.N)) # segments outside
             frequency_plane = .005 # how fast the whole disk moves in Hz
             length = .5 # length of each AB
             mean_elevation, frequency_elevation, std_elevation = 90. * np.pi / 180., 0.3, 45. * np.pi / 180.  # elevation (in radians) of viual angle for the points of convergence defiing the cristal's circle
@@ -458,7 +457,7 @@ class Scenario:
             self.particles[5, :N_dots] = self.center[2] + radius * length_ratio * np.cos(angle)
             self.particles[0:3, N_dots:] = self.center[:, np.newaxis] # un rayon vers l'origine
             self.particles[3:6, N_dots:] = self.center[:, np.newaxis] + .0001 # très fin
-                
+
         elif self.scenario == 'odyssey':
             np.random.seed(12345)
             up_down = np.sign(np.random.randn(self.N)-.5)
@@ -466,11 +465,11 @@ class Scenario:
             frequency_plane_1, frequency_plane_2 = .0101, .01 # how fast the whole disk moves in Hz
 #            frequency_rot_1, frequency_rot_2 = .02, .01 # how fast the whole disk moves in Hz
             radius, length, width = .3 * d_z, .8, d_y*4
-            
+
             angle = 2 * np.pi * frequency_plane_1 * self.t
 #            angle_rot_1 = 2 * np.pi * (frequency_rot_1 * self.t)+ np.ones(self.N)# + np.random.rand(self.N))
 #            angle_rot_2 = 2 * np.pi * (frequency_rot_2 * self.t)+ np.ones(self.N)# + np.random.rand(self.N))
-            
+
             # coordinates before the plane rotation
             #            x = d_x * np.sin(2*np.pi*frequency_flow*self.t)
 #            x = np.mod(np.random.rand(self.N)*d_x + speed_flow*self.t, d_x)
@@ -487,7 +486,7 @@ class Scenario:
 #
 #            self.particles[0:3, :] -= length/2. * vector
 #            self.particles[3:6, :] += length/2. * vector
-#            
+#
             # a circle drawn on a rotating plane
             self.particles[0, :] = x
             self.particles[1, :] = (y - y*length/l) * np.sin(angle) + (z - z*length/l) * np.cos(angle)
@@ -496,7 +495,7 @@ class Scenario:
             self.particles[3, :] = x
             self.particles[4, :] = (y + y*length/l) * np.sin(angle) + (z + z*length/l) * np.cos(angle)
             self.particles[5, :] = (y + y*length/l) * np.cos(angle) - (z + z*length/l) * np.sin(angle)
-            
+
 #            vector = np.array([np.cos(angle_rot_2)*np.cos(angle_rot_1), np.cos(angle_rot_2)*np.sin(angle_rot_1), np.sin(angle_rot_2) ])
 #            vector = np.array([np.sin(angle_rot_2), np.cos(angle_rot_2)*np.cos(angle_rot_1), np.cos(angle_rot_2)*np.sin(angle_rot_1) ])
 #            l = np.sqrt(self.particles[1, :]**2 + self.particles[2, :]**2)
@@ -504,7 +503,7 @@ class Scenario:
 
 #            self.particles[0:3, :] -= length/2. * vector
 #            self.particles[3:6, :] += length/2. * vector
-            
+
             self.particles[0:3, :] += self.center[:, np.newaxis]
             self.particles[3:6, :] += self.center[:, np.newaxis]
 
@@ -515,11 +514,11 @@ class Scenario:
             frequency_plane_1, frequency_plane_2 = .0101, .01 # how fast the whole disk moves in Hz
             #            frequency_rot_1, frequency_rot_2 = .02, .01 # how fast the whole disk moves in Hz
             radius, length, width = .3 * d_z, .8, d_y/4
-            
+
             angle = 2 * np.pi * frequency_plane_1 * self.t
             #            angle_rot_1 = 2 * np.pi * (frequency_rot_1 * self.t)+ np.ones(self.N)# + np.random.rand(self.N))
             #            angle_rot_2 = 2 * np.pi * (frequency_rot_2 * self.t)+ np.ones(self.N)# + np.random.rand(self.N))
-            
+
             # coordinates before the plane rotation
             #            x = d_x * np.sin(2*np.pi*frequency_flow*self.t)
             #            x = np.mod(np.random.rand(self.N)*d_x + speed_flow*self.t, d_x)
@@ -539,7 +538,7 @@ class Scenario:
 
             self.particles[0:3, :] += self.center[:, np.newaxis]
             self.particles[3:6, :] += self.center[:, np.newaxis]
-    
+
         elif self.scenario == 'leapfrog':
             #            distance = np.sqrt((np.array(positions) - self.positions_old)**2).sum()
             #TODO : use simpy
@@ -561,9 +560,9 @@ class Scenario:
 #         if not(positions==None) and not(positions==np.nan) :
 #             for position in positions:
 #                 for VP in self.VPs:
-#                     # TODO : fonction tabou dans les scenarios: zone d'évitement des bords: passer en coordonnées perceptuelles / utiliser la position des VPs / utiliser la position des VPs 
+#                     # TODO : fonction tabou dans les scenarios: zone d'évitement des bords: passer en coordonnées perceptuelles / utiliser la position des VPs / utiliser la position des VPs
 #                     A=1
-# 
+#
 #
         if not(positions == None) and not(positions == np.nan) and not(positions == []) and (self.scenario in ['croix', 'fan', '2fan', 'rotating-circle', 'calibration']):
             # pour la calibration on centre le pattern autour de la premiere personne captée

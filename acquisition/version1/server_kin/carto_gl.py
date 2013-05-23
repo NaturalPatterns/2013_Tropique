@@ -76,8 +76,9 @@ N_screen = len(screens) # number of screens
 assert N_screen == 1 # we should be running on one screen only
   
 from pyglet.window import Window
-win_0 = Window(screen=screens[0], fullscreen=False, resizable=True, vsync = True)
-win_0.set_size(1600, 300)
+win_0 = Window(screen=screens[0], fullscreen=True, resizable=False, vsync = True)
+#win_0 = Window(screen=screens[0], fullscreen=False, resizable=True, vsync = True)
+#win_0.set_size(1900, 1080)
 import pyglet.gl as gl
 
 def on_resize(width, height):
@@ -91,7 +92,7 @@ def on_resize(width, height):
     gl.glColor3f(1.0, 1.0, 1.0)
     gl.glMatrixMode(gl.GL_PROJECTION)
     gl.glLoadIdentity()
-    gl.gluOrtho2D(-10.0, 4000, -10.0, 700)
+    gl.gluOrtho2D(-10.0, 1810, -10.0, 1090)
 
 win_0.on_resize = on_resize
 win_0.set_visible(True)
@@ -194,7 +195,7 @@ def send_osc(msg):
 		client.send(msg) # now we dont need to tell the client the address anymore
 #		client2.send(msg) # now we dont need to tell the client the address anymore
 	except:
-		print "no osc open"
+		pass #print "no osc open"
 
 def display_player():
     global my_players

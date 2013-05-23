@@ -85,20 +85,20 @@ p = {'N': 32,
      'distance_m': 0.50, # distance d'équilibre des segments autour d'une position de player
      'G_global': 40., # attraction globale vers les centres des positions
 #      'G_rot': 1.0,
-      'G_rot': 15.,
+      'G_rot': 175.,
       'G_rot_hot': -.05,
 #     'G_struct': 15.0,
      'distance_tabou': .9, # distance tabou
      'distance_tabou_event': .93, # distance tabou
-     'G_tabou': 41.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
+     'G_tabou': 21.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
      'G_tabou_event': 500.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
 
-     'G_poussee': 1., # force avec laquelle les bouts de segments s'attirent
-     'G_struct': .1, # force avec laquelle les bouts de segments s'attirent
+     'G_poussee': .0, # force avec laquelle les bouts de segments s'attirent
+     'G_struct': .01, # force avec laquelle les bouts de segments s'attirent
      'G_struct_hot': -1.3, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .3, # distance pour laquelle les bouts de segments s'attirent
      'distance_struct_hot': .8, # distance pour laquelle les bouts de segments s'attirent
-     'G_repulsion': 2., # constante de répulsion entre les particules
+     'G_repulsion': 0.05, # constante de répulsion entre les particules
      'G_repulsion_hot': -.5, # constante de répulsion entre les particules
 #     'G_repulsion': 1.9, # constante de répulsion entre les particules
 #     'G_repulsion': .001, # constante de répulsion entre les particules
