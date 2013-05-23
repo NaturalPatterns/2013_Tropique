@@ -7,7 +7,7 @@ Les coordonnées dans la salle sont par convention définis par rapport à un pl
  perpendiculaire à l'axe long de la salle:
 
 - le point central  (0., 0., 0.) est le coin en bas à gauche de ce plan (donc leur position est positive: x,y,z > 0)
-- l'axe x  perpendiculairement à ce plan, vers les VPs 
+- l'axe x  perpendiculairement à ce plan, vers les VPs
 - l'axe y court est l'axe transversal, horizontal
 - l'axe z est la hauteur
 - tout est physique, en mètres (29.7cm = 0.297m)
@@ -26,15 +26,15 @@ d_y, d_z = 6.6, 6.
 d_x = 17.3 # en metres
 
 # mesures au telemetre
-from numpy import arctan2, pi
-largeur_ecran = 1.75 # ouvert à fond
-distance_ecran = 2.58
+#from numpy import arctan2, pi
+#largeur_ecran = 1.75 # ouvert à fond
+#distance_ecran = 2.58
+# on calcule
 #foc_estim = 2 * arctan2(largeur_ecran/2, distance_ecran) * 180 / pi # ref P101L1
-foc_estim = 30.1
-#foc_estim = 20.6
+# on force
+foc = 30.1
+#foc = 20.6
 #foc = 72
-foc = foc_estim
-print("parameres.py nous dit: focale estimée = ", foc_estim, ", focal utilisée = ", foc)
 
 volume = [d_x, d_y, d_z]
 
@@ -42,11 +42,11 @@ play = "leapfrog"
 #play = "croix" # calibration croix a x=0, y =d_y/2, z = 1.36
 
 
-# et direction d'angle de vue (cx, cy, cz) comme le point de fixation ainsi que le champ de vue (en deg) 
+# et direction d'angle de vue (cx, cy, cz) comme le point de fixation ainsi que le champ de vue (en deg)
 # distance des VPs du plan de reference
-#profondeur du plan de référence
-z = 1.35# hauteur des VPs
-cx = 0# ->on positionne l'écran pour régler la visée au fond de la salle # d_x - 10.27
+# profondeur du plan de référence
+z = 1.35  # hauteur des VPs
+cx_0, cx_1 = 0., d_x  # ->on positionne l'écran pour régler la visée au fond de la salle # d_x - 10.27
 cy = d_y/2 # on regarde le centre du plan de reference
 cz = z # d_z/2
 # une liste des video projs donnant:
@@ -55,34 +55,34 @@ cz = z # d_z/2
 VPs = [
         {'address':'10.42.0.56',
             'x':d_x, 'y':0.5, 'z': z,
-            'cx':cx, 'cy':cy, 'cz': cz,
+            'cx':cx_0, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
-        {'address':'10.42.0.55', 
+        {'address':'10.42.0.55',
             'x':d_x, 'y':3.3, 'z': z,
-            'cx':cx, 'cy':cy, 'cz': cz,
+            'cx':cx_0, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000 },
         {'address':'10.42.0.54',
             'x':d_x, 'y':6.4, 'z': z,
-            'cx':cx, 'cy':cy, 'cz': cz,
+            'cx':cx_0, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
         {'address':'10.42.0.51',
             'x':1.9, 'y':0.5, 'z': z,
-            'cx':d_x, 'cy':cy, 'cz': cz,
+            'cx':cx_1, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
         {'address':'10.42.0.52',
              'x':1.9, 'y':3.3, 'z': z,
-             'cx':d_x, 'cy':cy, 'cz': cz,
+             'cx':cx_1, 'cy':cy, 'cz': cz,
              'foc': foc, 'pc_min': 0.01, 'pc_max': 10000 },
         {'address':'10.42.0.53',
              'x':1.9, 'y':6.4, 'z': z,
-             'cx':d_x, 'cy':cy, 'cz': cz,
+             'cx':cx_1, 'cy':cy, 'cz': cz,
              'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
         ]
 
 p = {'N': 32,
 # parametres du champ
 #     'distance_m': 1.2, # distance d'équilibre des segments autour d'une position de player
-     'distance_m': 0.50, # distance d'équilibre des segments autour d'une position de player	
+     'distance_m': 0.50, # distance d'équilibre des segments autour d'une position de player
      'G_global': 40., # attraction globale vers les centres des positions
 #      'G_rot': 1.0,
       'G_rot': 15.,
@@ -111,11 +111,11 @@ p = {'N': 32,
      'damp': .20,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_hot': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_midle': .50,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-#      'damp': .06,  # facteur de damping / absorbe l'énergie / regle la viscosité 
+#      'damp': .06,  # facteur de damping / absorbe l'énergie / regle la viscosité
 #     'speed_0': .9, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules###
      'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 20., # facteur global (et redondant avec les G_*) pour régler la saturation de la force
-#     'speed_0': .9, 
+#     'speed_0': .9,
      'kurt' : 1., # 1 is normal gravity, higher makes the attraction more local
      'line_width': 5, # line width of segments
      'T_break': 6., # duration (secondes) of all three breaks
@@ -123,16 +123,17 @@ p = {'N': 32,
      'tau_break': .103, # duration du transient dans les breaks #2 et #3
 }
 
+from numpy import pi
 #parametres des kinects
-# une liste des kinects donnant leur adresse, port, position (x; y; z) et azimuth. 
+# une liste des kinects donnant leur adresse, port, position (x; y; z) et azimuth.
 # pour des kinects dans le segment (0, d_y) --- (d_x, d_y) alors  az : 11*pi/6 = a gauche , 9*pi/6 = tout droit, 7*pi/6 = a droite
 info_kinects = [
-		# on tourne les numeros de kinect dans le sens des aiguilles d'une montre en commencant par le point (0, 0)- le point de vue (az) donne l'ordre dans une colonne de kinects 
- 		# deuxieme  bloc
+		# on tourne les numeros de kinect dans le sens des aiguilles d'une montre en commencant par le point (0, 0)- le point de vue (az) donne l'ordre dans une colonne de kinects
+		# deuxieme  bloc
 		{'address':'10.42.0.14', 'port': 9998, 'x':8.8, 'y':0.2, 'z': 1.24, 'az':pi/6 ,'max':580},#1.1
 		{'address':'10.42.0.14', 'port': 9999, 'x':8.8, 'y':0.2, 'z': 1.14, 'az':3*pi/6 ,'max':600}, #1.2
 		{'address':'10.42.0.15', 'port': 9998, 'x':8.8, 'y':0.2, 'z': 1.24, 'az':5*pi/6 ,'max':580},#1.3
-  		{'address':'10.42.0.15', 'port': 9999, 'x':14.2, 'y':0.2, 'z': 1.14, 'az':3*pi/6 ,'max':600},#1.3
+		{'address':'10.42.0.15', 'port': 9999, 'x':14.2, 'y':0.2, 'z': 1.14, 'az':3*pi/6 ,'max':600},#1.3
 
 #		# premier  bloc
        {'address':'10.42.0.16', 'port': 9998, 'x':3.8, 'y':0.2, 'z': 1.14, 'az':3*pi/6 ,'max':600},#2.1

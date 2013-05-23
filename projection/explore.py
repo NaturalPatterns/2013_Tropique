@@ -4,7 +4,7 @@
 Particle-like simulations using pyglet.app
 
 Exploration mode.
-    
+
     Interaction keyboard:
     - TAB pour passer/sortir du fulscreen
     - espace : passage en first-person persepective
@@ -18,20 +18,21 @@ Exploration mode.
     - B : break
     - D : Down
     TODO: il reste de la place...
-    
+
 """
 # TODO: modele 3D blending fog / épaisseur du triangle / projection fond de la salle
 # TODO: paramètre scan pour rechercher des bifurcations (edge of chaos)
 # TODO: contrôle de la vitesse du mouvement de position simulé
 ########################################
-scenario = 'leapfrog' #'rotating-circle'
-do_firstperson, foc_fp, i_VP_fp, alpha_fp, int_fp, intB_fp, show_VP = False, 60., 1, .3, 1., 0.01, False
-i_VP = 1 # VP utilisé comme projecteur en mode projection
-do_fs = True # fullscreen par défaut?
-do_slider = False # True
+scenario = 'leapfrog'  # 'rotating-circle'
+do_firstperson, heading_fp, foc_fp, i_VP_fp, alpha_fp, int_fp, intB_fp, show_VP = False, 0., 60., 1, .3, 1., 0.01, False
+i_VP = 1  # VP utilisé comme projecteur en mode projection
+do_fs = True  # fullscreen par défaut?
+do_fs = False  # fullscreen par défaut?
+do_slider = False  # True
+do_sock=True
 do_sock = False
-#do_sock=True
-do_stipple = False
+do_stipple = False  # stipple are textures on lines
 ########################################
 
 #import sys
@@ -89,11 +90,11 @@ def on_resize(width, height):
     gl.glViewport(0, 0, width, height)
     gl.glEnable(gl.GL_BLEND)
     gl.glShadeModel(gl.GL_SMOOTH) #
-#     gl.glBlendFunc (gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)                             
+#     gl.glBlendFunc (gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
     gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE)
-#     gl.glHint(gl.GL_LINE_SMOOTH, gl.GL_NICEST)# gl.GL_FASTEST)# gl.GL_NICEST)# GL_DONT_CARE)# 
-    gl.glDepthFunc(gl.GL_LEQUAL) 
-    gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_NICEST)# gl.GL_FASTEST)# gl.GL_NICEST)# GL_DONT_CARE)# 
+#     gl.glHint(gl.GL_LINE_SMOOTH, gl.GL_NICEST)# gl.GL_FASTEST)# gl.GL_NICEST)# GL_DONT_CARE)#
+    gl.glDepthFunc(gl.GL_LEQUAL)
+    gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_NICEST)# gl.GL_FASTEST)# gl.GL_NICEST)# GL_DONT_CARE)#
     gl.glDisable(gl.GL_DEPTH_TEST)
     gl.glDisable(gl.GL_LINE_SMOOTH)
     gl.glColor3f(1.0, 1.0, 1.0)
@@ -154,6 +155,8 @@ def on_key_press(symbol, modifiers):
         print symbol
     print events
 
+from numpy import sin, cos, pi
+
 @win_0.event
 def on_resize(width, height):
     print 'The window was resized to %dx%d' % (width, height)
@@ -166,7 +169,6 @@ def on_draw():
         positions = k.read_sock() # TODO: c'est bien une liste de coordonnées [x, y, z] ?
     else:
         # pour simuler ROGER:
-        from numpy import sin, cos, pi
         positions = []
         amp, amp2 = .2, .5
         T, T2 = 15., 30. # periode en secondes
@@ -193,8 +195,10 @@ def on_draw():
 
         gl.gluPerspective(foc_fp, 1.0*win_0.width/win_0.height,
                           VPs[i_VP_fp]['pc_min'], VPs[i_VP_fp]['pc_max'])
-        gluLookAt(positions[0][0], positions[0][1], positions[0][2], 
-                  VPs[i_VP_fp]['x'], VPs[i_VP_fp]['y'], VPs[i_VP_fp]['z'],
+        x_fp, y_fp, z_fp = positions[0][0], positions[0][1], positions[0][2]
+        heading_fp = 2* pi * s.t / 30
+        gluLookAt(x_fp, y_fp, z_fp,
+                  x_fp + np.cos(heading_fp), y_fp + np.sin(heading_fp), z_fp,
                   0., 0, 1.0)
         # marque la postion de chaque VP par un joli carré vert
         for VP in VPs:
@@ -225,18 +229,18 @@ def on_draw():
         gluLookAt(VPs[i_VP]['x'], VPs[i_VP]['y'], VPs[i_VP]['z'],
                   VPs[i_VP]['cx'], VPs[i_VP]['cy'], VPs[i_VP]['cz'],
                   0., 0, 1.0)
-    
+
         gl.glLineWidth (p['line_width'])
         # marque la postion des personnes par un joli carré rouge
         for position in positions:
             gl.glPointSize(10)
             gl.glColor3f(1., 0., 0.)
             pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', position))
-            
+
         gl.glColor3f(1., 1., 1.)
 
         int_p, alpha_p = 1., 1. #.5 + .5*np.sin(2*np.pi*0.2 * s.t)
-        colors_ = np.array([int_p, int_p, int_p, alpha_p, int_p, int_p, int_p, alpha_p])[:, np.newaxis] * np.ones((1, s.N))        
+        colors_ = np.array([int_p, int_p, int_p, alpha_p, int_p, int_p, int_p, alpha_p])[:, np.newaxis] * np.ones((1, s.N))
         # pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
         pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()),
                                  ('c4f', colors_.T.ravel().tolist()))
@@ -278,17 +282,17 @@ try:
                 value.append(Slider(ax[i_key], key, 0., (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
             else:
                 value.append(Slider(ax[i_key], key,  (p[key] + (p[key]==0)*1.)*10,  -(p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
-    
+
         def update(val):
             for i_key, key in enumerate(p.keys()):
                 p[key]= value[i_key].val
                 print key, p[key]#, value[i_key].val
             pylab.draw()
-    
+
         for i_key, key in enumerate(p.keys()): value[i_key].on_changed(update)
-    
+
         pylab.show(block=False) # il faut pylab.ion() pour pas avoir de blocage
-    
+
         return fig
 
     if s.scenario=='leapfrog' and do_slider:
@@ -305,36 +309,36 @@ print 'Goodbye'
 
 # Retained mode
 # -------------
-# 
+#
 # Retained mode rendering stores vertex and index data in vertex buffer objects
 # (or vertex arrays if the context does not support VBOs), and renders multiple
 # primitives in a single batch operation.  This permits the highest-performance
 # rendering possible with pyglet.
-# 
+#
 # To use retained mode, create a Batch object::
-# 
+#
 #     batch = graphics.Batch()
-#     
+#
 # Then add any number of primitives to the batch object.  Conceptually, a batch
 # object is similar to a display list, except that the primitives can be
 # modified or removed after they have been added, and the batch object performs
 # better than display lists on current generation hardware.
-# 
+#
 # For example, to add the shaded triangle from the previous example to the batch
 # object::
-# 
+#
 #     batch.add(3, GL_TRIANGLES,
-#         ('v2f', [10., 10., 
-#                  40., 10., 
+#         ('v2f', [10., 10.,
+#                  40., 10.,
 #                  40., 40.]),
 #         ('c3b', [255, 0, 0,
 #                  0, 255, 0,
 #                  0, 0, 255]))
-# 
+#
 # The `add` method actually returns a `Primitive` object, which can subsequently
 # be modified.  In fact, no initial data for the primitive needs to be given at
 # all.  The following is equivalent to the previous example::
-# 
+#
 #     prim = batch.add(3, GL_TRIANGLES, 'v2f', 'c3b')
 #     prim.vertices = [10., 10.,
 #                      40., 10.,
@@ -342,19 +346,19 @@ print 'Goodbye'
 #     prim.colors = [255, 0, 0,
 #                    0, 255, 0,
 #                    0, 0, 255]
-# 
+#
 # The `vertices` and `colors` arrays can also be modified in-place::
-# 
+#
 #     prim.vertices[0] += 1.
-# 
+#
 # To draw the batch object::
-# 
+#
 #     batch.draw()
-# 
+#
 # No guarantee about the order of rendering is given for the primitives inside a
 # batch object.  They may be re-ordered for efficiency reasons.  A 2D
 # application would typically use one batch object for each "layer" of
 # rendering; a 3D application could use one batch object for all 3D objects with
 # the depth buffer enabled.
-# 
+#
 
