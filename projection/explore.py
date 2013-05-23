@@ -25,28 +25,22 @@ Exploration mode.
 # TODO: contrôle de la vitesse du mouvement de position simulé
 ########################################
 scenario = 'leapfrog'  # 'rotating-circle'
-do_firstperson, heading_fp, foc_fp, i_VP_fp, alpha_fp, int_fp, intB_fp, show_VP = False, 0., 60., 1, .3, 1., 0.01, False
+#import sys
+#window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
+from parametres import VPs, volume, p, kinects_network_config, d_x
+# print d_x
+from scenarios import Scenario
+s = Scenario(p['N'], scenario, volume, VPs, p)
+########################################
+do_firstperson, foc_fp, i_VP_fp, alpha_fp, int_fp, intB_fp, show_VP = True, 60., 1, .3, 1., 0.01, True
+s.heading_fp, s.rot_heading_fp, s.inc_heading_fp = 0., 0., 0.1
 i_VP = 1  # VP utilisé comme projecteur en mode projection
 do_fs = True  # fullscreen par défaut?
 do_fs = False  # fullscreen par défaut?
 do_slider = False  # True
 do_sock=True
 do_sock = False
-do_stipple = False  # stipple are textures on lines
 ########################################
-
-#import sys
-#window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
-from parametres import VPs, volume, p, kinects_network_config, d_x
-# print d_x
-from scenarios import Scenario
-#s = Scenario(256, 'odyssey', volume, VPs, p)
-#s = Scenario(256, 'snake', volume, VPs, p)
-#s = Scenario(256, 'snake', volume, VPs, p)
-#s = Scenario(p['N'], 'fan', volume, VPs, p)
-#s = Scenario(p['N'], '2fan', volume, VPs, p)
-s = Scenario(p['N'], scenario, volume, VPs, p)
-print s.roger
 
 if do_sock:
     from network import Kinects
@@ -120,15 +114,11 @@ gluLookAt(VPs[i_win]['x'], VPs[i_win]['y'], VPs[i_win]['z'],
 #win_0.on_draw = on_draw
 # batch = pyglet.graphics.Batch()
 
-if do_stipple: gl.glEnable(gl.GL_LINE_STIPPLE)
-#spin = 0
-
-
 events = [0, 0, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
 
 @win_0.event
 def on_key_press(symbol, modifiers):
-    global events, do_firstperson
+    global events, do_firstperson, s
     if symbol == pyglet.window.key.TAB:
         if win_0.fullscreen:
             win_0.set_fullscreen(False)
@@ -137,6 +127,12 @@ def on_key_press(symbol, modifiers):
             win_0.set_fullscreen(True)
     elif symbol == pyglet.window.key.SPACE:
         do_firstperson = not(do_firstperson)
+    elif symbol == pyglet.window.key.LEFT:
+        s.rot_heading_fp += s.inc_heading_fp
+        # print s.rot_heading_fp
+    elif symbol == pyglet.window.key.RIGHT:
+        s.rot_heading_fp -= s.inc_heading_fp
+        # print s.rot_heading_fp
     elif symbol == pyglet.window.key.B:
         events = [1, 1, 1, 1, 1, 1, 1, 0] # 8 types d'événéments
     elif symbol == pyglet.window.key.D:
@@ -163,7 +159,8 @@ def on_resize(width, height):
 ##if DEBUG: fps_display = pyglet.clock.ClockDisplay(color=(1., 1., 1., 1.))
 @win_0.event
 def on_draw():
-    global s#, spin
+    global s
+    t = s.t
 
     if do_sock:
         positions = k.read_sock() # TODO: c'est bien une liste de coordonnées [x, y, z] ?
@@ -186,19 +183,19 @@ def on_draw():
     if do_firstperson:
         gl.glEnable(gl.GL_FOG)
         gl.glFogi (gl.GL_FOG_MODE, gl.GL_LINEAR)
-#        gl.glFogfv (gl.GL_FOG_COLOR, [0.8,0.8,0.8, 1.])
+        # gl.glFogfv (gl.GL_FOG_COLOR, [0.8,0.8,0.8, 1.])
         gl.glHint (gl.GL_FOG_HINT, gl.GL_NICEST)#GL_DONT_CARE)
-        gl.glFogf (gl.GL_FOG_DENSITY, 0.00000)
+        gl.glFogf (gl.GL_FOG_DENSITY, 0.000001)
         gl.glFogf (gl.GL_FOG_START, .0)
-        gl.glFogf (gl.GL_FOG_END, 60.0)
+        gl.glFogf (gl.GL_FOG_END, 6000.0)
         # gl.glClearColor(0.5, 0.5, 0.5, 1.0)
 
         gl.gluPerspective(foc_fp, 1.0*win_0.width/win_0.height,
                           VPs[i_VP_fp]['pc_min'], VPs[i_VP_fp]['pc_max'])
         x_fp, y_fp, z_fp = positions[0][0], positions[0][1], positions[0][2]
-        heading_fp = 2* pi * s.t / 30
+        s.heading_fp += s.rot_heading_fp * (s.t -t) # 2* pi * s.t / 30
         gluLookAt(x_fp, y_fp, z_fp,
-                  x_fp + np.cos(heading_fp), y_fp + np.sin(heading_fp), z_fp,
+                  x_fp + np.cos(s.heading_fp), y_fp + np.sin(s.heading_fp), z_fp,
                   0., 0, 1.0)
         # marque la postion de chaque VP par un joli carré vert
         for VP in VPs:
