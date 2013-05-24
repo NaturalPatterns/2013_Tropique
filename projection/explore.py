@@ -36,7 +36,8 @@ s.heading_fp, s.rot_heading_fp, s.inc_heading_fp = 0., 0., 0.1
 i_VP = 1  # VP utilisé comme projecteur en mode projection
 do_fs = True  # fullscreen par défaut?
 do_fs = False  # fullscreen par défaut?
-do_slider = False  # True
+do_slider = True
+do_slider = False
 do_sock=True
 do_sock = False
 ########################################
@@ -168,9 +169,9 @@ def on_draw():
         positions = []
         amp, amp2 = .2, .5
         T, T2 = 15., 30. # periode en secondes
-        # positions.append([s.roger[0] * (1. + amp2*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp2*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
+        positions.append([s.roger[0] * (1. + amp2*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp2*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
         positions.append([s.roger[0], s.roger[1], s.roger[2]]) #  bouge pas, roger.
-        # positions.append([s.roger[0] * (1. + amp*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
+        positions.append([s.roger[0] * (1. + amp*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
         # positions.append([s.roger[0] * (1. + amp*sin(2*pi*s.t/T2)), s.roger[1] * (1. + amp*sin(2*pi*s.t/T)), 1.2*s.roger[2]]) # une autre personne dans un mouvement en phase
         # positions.append([s.roger[0], s.roger[1] * (1. + amp2*cos(2*pi*s.t/T2)), 1.1*s.roger[2]]) # une personne dans un mouvement circulaire (elipse)
 
