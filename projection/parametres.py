@@ -78,44 +78,34 @@ VPs = [
              'cx':cx_1, 'cy':cy, 'cz': cz,
              'foc': foc, 'pc_min': 0.01, 'pc_max': 10000  },
         ]
-
-p = {'N': 32,
 # parametres du champ
-#     'distance_m': 1.2, # distance d'équilibre des segments autour d'une position de player
+p = {'N': 32,
      'distance_m': 0.50, # distance d'équilibre des segments autour d'une position de player
-     'G_global': 40., # attraction globale vers les centres des positions
-#      'G_rot': 1.0,
-      'G_rot': 175.,
+     'G_global': 50.0, # attraction globale vers les centres des positions
+      'G_rot': 50.,
       'G_rot_hot': -.05,
-#     'G_struct': 15.0,
-     'distance_tabou': .9, # distance tabou
+     'distance_tabou': .4, # distance tabou
      'distance_tabou_event': .93, # distance tabou
-     'G_tabou': 21.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
-     'G_tabou_event': 500.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
+     'G_tabou': 30.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
+     'G_tabou_event': 1000.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
 
-     'G_poussee': .0, # force avec laquelle les bouts de segments s'attirent
-     'G_struct': .01, # force avec laquelle les bouts de segments s'attirent
+     'G_poussee': .0, # parametre de poussee créateur de vortex
+     'G_struct': .05, # force avec laquelle les bouts de segments s'attirent
      'G_struct_hot': -1.3, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .3, # distance pour laquelle les bouts de segments s'attirent
      'distance_struct_hot': .8, # distance pour laquelle les bouts de segments s'attirent
      'G_repulsion': 0.05, # constante de répulsion entre les particules
      'G_repulsion_hot': -.5, # constante de répulsion entre les particules
-#     'G_repulsion': 1.9, # constante de répulsion entre les particules
-#     'G_repulsion': .001, # constante de répulsion entre les particules
      'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
-     'G_gravite': 4., # force de gravité vers le bas de la piece
-#     'G_spring': 20., 'l_seg': 0.3, # dureté et longueur des segments
-     'G_spring': 3., 'l_seg_min': 0.6, 'l_seg_max': 4., # dureté et longueur des segments
+     'G_spring': 80., 'l_seg_min': 0.6, 'l_seg_max': 4., # dureté et longueur des segments
      'G_spring_hot': 1., 'l_seg_hot': 2.,  # dureté et longueur des segments dans un break
      # parametres globaux
-     'damp': .20,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
+#      'damp': .20,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_hot': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_midle': .50,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-#      'damp': .06,  # facteur de damping / absorbe l'énergie / regle la viscosité
-#     'speed_0': .9, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules###
+     'damp': .2,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
-     'scale': 20., # facteur global (et redondant avec les G_*) pour régler la saturation de la force
-#     'speed_0': .9,
+     'scale': 100., # facteur global régler la saturation de la force
      'kurt' : 1., # 1 is normal gravity, higher makes the attraction more local
      'line_width': 5, # line width of segments
      'T_break': 6., # duration (secondes) of all three breaks
