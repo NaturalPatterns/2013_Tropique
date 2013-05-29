@@ -1,0 +1,7 @@
+#!/bin/bash
+sleep 30     
+cd /home/tropic/Dropbox/TROPIQUE/pyTropique/acquisition/version1/server_kin/
+xterm -hold -e "cd ~/Dropbox/TROPIQUE/pyTropique/acquisition/version1/server_kin/ && python carto_gl.py"
+
+
+
