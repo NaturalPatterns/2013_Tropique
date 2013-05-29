@@ -20,12 +20,20 @@ Exploration mode.
     TODO: il reste de la place...
 
 """
+# HACK; to avoid the "AccessInit: hash collision: 3 for both 1 and 1" bug...
+# see http://forum.jetbrains.com/thread/PyCharm-938
+import sys
+import PIL.Image
+sys.modules['Image'] = PIL.Image
 # TODO: modele 3D blending fog / épaisseur du triangle / projection fond de la salle
 # TODO: paramètre scan pour rechercher des bifurcations (edge of chaos)
 # TODO: contrôle de la vitesse du mouvement de position simulé
 ########################################
 scenario = 'leapfrog'  # 'rotating-circle'
-#import sys
+scenario = 'rotating-circle'
+scenario = 'fan'
+scenario = 'croix'
+scenario = 'cristal'
 #window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
 from parametres import VPs, volume, p, kinects_network_config, d_x, d_y, d_z
 from scenarios import Scenario
@@ -36,8 +44,8 @@ s.heading_fp, s.rot_heading_fp, s.inc_heading_fp = 0., 0., 0.1
 i_VP = 1  # VP utilisé comme projecteur en mode projection
 do_fs = True  # fullscreen par défaut?
 do_fs = False  # fullscreen par défaut?
-do_slider = True
 do_slider = False
+do_slider = True
 do_sock=True
 do_sock = False
 ########################################
@@ -272,15 +280,15 @@ try:
     def sliders(p):
         import matplotlib as mpl
         mpl.rcParams['interactive'] = True
-#        mpl.rcParams['backend'] = 'macosx'
+        mpl.rcParams['backend'] = 'macosx'
         mpl.rcParams['backend_fallback'] = True
         mpl.rcParams['toolbar'] = 'None'
-        import pylab
+        import pylab as plt
         fig = pylab.figure(1)
     #    AX = fig.add_subplot(111)
-        pylab.ion()
+        plt.ion()
         # turn interactive mode on for dynamic updates.  If you aren't in interactive mode, you'll need to use a GUI event handler/timer.
-        from matplotlib.widgets import Slider
+        from matplotlib.widgets import Slider as slider_pylab
         ax, value = [], []
         n_key = len(p.keys())*1.
     #    print s.p.keys()
@@ -288,9 +296,9 @@ try:
     #        print [0.1, 0.05+i_key/(n_key+1)*.9, 0.9, 0.05]
             ax.append(fig.add_axes([0.15, 0.05+i_key/(n_key-1)*.9, 0.6, 0.05], axisbg='lightgoldenrodyellow'))
             if p[key] > 0:
-                value.append(Slider(ax[i_key], key, 0., (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
+                value.append(slider_pylab(ax[i_key], key, 0., (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
             else:
-                value.append(Slider(ax[i_key], key,  (p[key] + (p[key]==0)*1.)*10,  -(p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
+                value.append(slider_pylab(ax[i_key], key,  (p[key] + (p[key]==0)*1.)*10,  -(p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
 
         def update(val):
             for i_key, key in enumerate(p.keys()):
@@ -316,58 +324,4 @@ pyglet.clock.schedule(callback)
 pyglet.app.run()
 print 'Goodbye'
 
-# Retained mode
-# -------------
-#
-# Retained mode rendering stores vertex and index data in vertex buffer objects
-# (or vertex arrays if the context does not support VBOs), and renders multiple
-# primitives in a single batch operation.  This permits the highest-performance
-# rendering possible with pyglet.
-#
-# To use retained mode, create a Batch object::
-#
-#     batch = graphics.Batch()
-#
-# Then add any number of primitives to the batch object.  Conceptually, a batch
-# object is similar to a display list, except that the primitives can be
-# modified or removed after they have been added, and the batch object performs
-# better than display lists on current generation hardware.
-#
-# For example, to add the shaded triangle from the previous example to the batch
-# object::
-#
-#     batch.add(3, GL_TRIANGLES,
-#         ('v2f', [10., 10.,
-#                  40., 10.,
-#                  40., 40.]),
-#         ('c3b', [255, 0, 0,
-#                  0, 255, 0,
-#                  0, 0, 255]))
-#
-# The `add` method actually returns a `Primitive` object, which can subsequently
-# be modified.  In fact, no initial data for the primitive needs to be given at
-# all.  The following is equivalent to the previous example::
-#
-#     prim = batch.add(3, GL_TRIANGLES, 'v2f', 'c3b')
-#     prim.vertices = [10., 10.,
-#                      40., 10.,
-#                      40., 40.]
-#     prim.colors = [255, 0, 0,
-#                    0, 255, 0,
-#                    0, 0, 255]
-#
-# The `vertices` and `colors` arrays can also be modified in-place::
-#
-#     prim.vertices[0] += 1.
-#
-# To draw the batch object::
-#
-#     batch.draw()
-#
-# No guarantee about the order of rendering is given for the primitives inside a
-# batch object.  They may be re-ordered for efficiency reasons.  A 2D
-# application would typically use one batch object for each "layer" of
-# rendering; a 3D application could use one batch object for all 3D objects with
-# the depth buffer enabled.
-#
 

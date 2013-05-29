@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
@@ -41,7 +40,6 @@ dx ,dy = 10.0 , 10.0
 my_ip = "10.42.0.51"
 print "my ip is =", my_ip
 
-.
 global my_x ,my_y,my_z, my_cx,my_cy,my_cz,my_foc,my_pc_min,my_pc_max
         
 for i in range (3):
