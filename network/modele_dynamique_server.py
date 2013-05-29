@@ -34,7 +34,7 @@ else:
     positions = None
 
 sys.path.append('..')
-from scenarios import Scenario
+from modele_dynamique import Scenario
 #s = Scenario(p['N'], play, volume, VPs, p)
 s = Scenario(p['N'], scenario, volume, VPs, p)
 

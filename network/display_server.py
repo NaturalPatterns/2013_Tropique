@@ -21,7 +21,7 @@ listen_run_thread = socket.socket( socket.AF_INET, socket.SOCK_DGRAM ) # UDP
 listen_run_thread.bind(("", listen_run_thread_PORT))
 listen_run_thread.setblocking(0)
 
-from scenarios import Scenario
+from modele_dynamique import Scenario
 s = Scenario(p['N'], 'croix', volume, VPs, p)
 test_positions = ([s.center[0], s.center[1] , s.center[2]]) # une personne dans un mouvement circulaire (elipse)
 positions = []

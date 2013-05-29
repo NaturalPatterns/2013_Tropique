@@ -119,7 +119,7 @@ class Scenario:
         self.t_break = 0.
 
     def champ(self, positions, events):
-        if events[1] == 0 and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche P dans explore.py
+        if events[1] == 0 and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche P dans display_modele_dynamique.py
             self.l_seg[:-2] = self.p['l_seg_min'] * np.ones(self.N-2)
             self.l_seg[-2:] = self.p['l_seg_max']
             G_spring = self.p['G_spring']
@@ -131,7 +131,7 @@ class Scenario:
             G_spring = self.p['G_spring_hot']
             G_tabou = self.p['G_tabou_event']
             distance_tabou = self.p['distance_tabou_event']
-        if events[4] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche G dans explore.py
+        if events[4] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche G dans display_modele_dynamique.py
             G_rot = self.p['G_rot']
         else:
             G_rot = self.p['G_rot_hot']
@@ -210,7 +210,7 @@ class Scenario:
         # FORCES GLOBALES  dans l'espace physique
 
         ## forces entres les particules
-        if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche V dans explore.py
+        if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche V dans display_modele_dynamique.py
             G_repulsion = self.p['G_repulsion']
         else:
             G_repulsion = self.p['G_repulsion_hot']
@@ -232,7 +232,7 @@ class Scenario:
         force[3:6, :] += self.p['G_poussee'] * poussee
 
         # utiliser un damping = 0.1?
-        if events[0] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche R dans explore.py
+        if events[0] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche R dans display_modele_dynamique.py
             G_struct = self.p['G_struct']
             distance_struct = self.p['distance_struct']
         else:
@@ -276,7 +276,7 @@ class Scenario:
 #        z_C = (self.particles[2, :]+self.particles[5, :])/2
 #        print z_C
         modul = 1 #np.exp(- z_C* (z_C>0) / self.volume[2] / 4. )
-        if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans explore.py
+        if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans display_modele_dynamique.py
             force -= self.p['damp_hot'] * modul * self.particles[6:12, :]/self.dt
         else:
             force -= self.p['damp'] * modul * self.particles[6:12, :]/self.dt
@@ -553,4 +553,4 @@ class Scenario:
 
 
 if __name__ == "__main__":
-    import explore
+    import display_modele_dynamique
