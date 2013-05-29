@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Particle-like simulations using pyglet etand a ugly bitmat
+Particle-like simulations using pyglet and a ugly bitmat
 
 """
 global my_players
@@ -10,15 +10,13 @@ global radius
 radius  = 120
 
 
-DEBUG = False
 import sys
-sys.path.append('../../../projection/')
-
+sys.path.append('..')
+from parametres import VPs, p, volume , info_kinects,d_y, d_z,d_x, DEBUG
 # Screen information
 # ------------------
-from parametres import VPs, p, volume , info_kinects,d_y, d_z,d_x 
-sys.path.append('../../../projection/network/')
 print d_y, d_z,d_x 
+if DEBUG: sys.path.append('../network/')
 from network import VP
 vps= VP("10.42.0.102" , 7005 , 7006)
 pdata = VP("10.42.0.1" , 9005 , 9006)

@@ -6,6 +6,8 @@ Functional modes
 @author: BIOGENE
 
 """
+# TODO : à enlever si obsolete
+
 global total_dic
 global dist_inter_kinect
 dist_inter_kinect=600
@@ -20,7 +22,7 @@ global x_mouse , y_mouse
 x_mouse=0
 y_mouse=0
 
-#sys.path.append('../projection/')
+#sys.path.append('..')
 #from parametres import  p, volume , info_kinects,d_y, d_z,d_x
 
 import sys

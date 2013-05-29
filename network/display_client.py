@@ -5,13 +5,23 @@ Particle-like simulations using pyglet and a ugly bitmat
 @author: BIOGENE&lolo
 
 """
-DEBUG = False
 import sys
 sys.path.append('..')
+#def get_ip_address(ifname):
+#    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+#    return socket.inet_ntoa(fcntl.ioctl(
+#        s.fileno(),
+#        0x8915,  # SIOCGIFADDR
+#        struct.pack('256s', ifname[:15])
+#    )[20:24])
+#my_ip = get_ip_address('eth0')
+
+my_ip = str(sys.argv[1])
+print "my ip is =", my_ip
 
 # Screen information
 # ------------------
-from parametres import VPs, p, volume, run_thread_network_config
+from parametres import VPs, p, volume, run_thread_network_config, DEBUG
 
 from network import VP
 vps= VP(run_thread_network_config['ip_to_line_res'] , 7005 , 7006)
@@ -25,22 +35,10 @@ ry = 1
 global dx ,dy
 dx ,dy = 10.0 , 10.0
 
-#def get_ip_address(ifname):
-#    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#    return socket.inet_ntoa(fcntl.ioctl(
-#        s.fileno(),
-#        0x8915,  # SIOCGIFADDR
-#        struct.pack('256s', ifname[:15])
-#    )[20:24])
-#my_ip = get_ip_address('eth0')
-
-my_ip = "10.42.0.151"
-print "my ip is =", my_ip
-
 
 global my_x ,my_y,my_z, my_cx,my_cy,my_cz,my_foc,my_pc_min,my_pc_max
         
-for i in range (3):
+for i in range (6):
     print VPs[i]['address']
     if (my_ip == VPs[i]['address']) :
         i_win= i
@@ -147,8 +145,12 @@ def on_draw():
     gluLookAt(my_x, my_y, my_z,my_cx, my_cy, my_cz,0., 0, 1.0)
     
     global s, vps, N
-    vps.trigger()
-    particlestest = vps.listen()#
+    try : 
+        vps.trigger()
+    except :
+        pass
+#    vps.trigger()
+    particlestest = vps.listen()
      
     if (particlestest!=None):
         #print 'ok dude',  particlestest.shape
@@ -187,8 +189,8 @@ def on_draw():
                 my_color = store_blob[10]/255.0
                 
     gl.glColor3f(my_color, my_color , my_color)
+    
 #    my_own_draw(placex , placey , scene, lateral,  witdh_line,  nbr_seg ,rx ,ry,rmin ,rmax)
-    gl.glColor3f(1,1,1)
 
 
     

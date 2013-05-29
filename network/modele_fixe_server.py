@@ -6,21 +6,19 @@ Script renvoyant des données de calibration au réseau des VPs.
 @author: BIOGENE&lolo
 
 """
-DEBUG = False
 
 import sys
 sys.path.append('..')
+from parametres import VPs, volume, p , run_thread_network_config, DEBUG
 
-import time
 import socket
-from parametres import VPs, volume, p , run_thread_network_config
-
 from_IP=run_thread_network_config['ip_to_line_res']
 from_PORT=run_thread_network_config['port_to_line_res']
 from_send = socket.socket( socket.AF_INET, socket.SOCK_DGRAM ) # UDP
 
 scenario = 'croix'
 #scenario = 'fan'
+scenario = 'croix'
 
 from scenarios import Scenario
 s = Scenario(p['N'], scenario, volume, VPs, p)

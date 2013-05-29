@@ -15,7 +15,7 @@ sys.path.append('..')
 import time
 import OSC
 import socket
-from parametres import VPs, volume, p, kinects_network_config , run_thread_network_config #,play
+from parametres import VPs, volume, p, kinects_network_config, run_thread_network_config, scenario
 
 send_sock = socket.socket( socket.AF_INET, socket.SOCK_DGRAM ) # UDP
 client = OSC.OSCClient()
@@ -33,10 +33,7 @@ if do_sock:
 else:
     positions = None
 
-scenario = 'leapfrog' 
-scenario = 'croix'
-scenario = 'fan'
-
+sys.path.append('..')
 from scenarios import Scenario
 #s = Scenario(p['N'], play, volume, VPs, p)
 s = Scenario(p['N'], scenario, volume, VPs, p)
