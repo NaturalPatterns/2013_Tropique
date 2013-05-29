@@ -20,6 +20,8 @@ Par convention, la position spatiale des VPs par rapport au centre du plan de re
 Par convention, la position de la croix est au centre de la salle: [d_x/2, d_y/2]
 
 """
+print sys.argv[0], sys.argv[1], sys.argv[2]
+
 # pour savoir si on imprime des messages d'erreur
 DEBUG  = False
 DEBUG  = True
