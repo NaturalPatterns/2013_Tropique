@@ -7,11 +7,11 @@ Created on Fri May 18 14:41:46 2012
 """
 import sys
 sys.path.append('..')
+from parametres import VPs, volume, p, run_thread_network_config
 
 import socket
 from network import VP
 import numpy as np
-from parametres import VPs, volume, p, run_thread_network_config
 
 vps= VP(run_thread_network_config['ip_to_line_res'] , 7005 , 7006)
 

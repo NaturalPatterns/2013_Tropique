@@ -44,10 +44,10 @@ foc =  foc_estim
 
 volume = [d_x, d_y, d_z]
 
-play = "leapfrog" # integration d'Euler améliorée pour simuler le champ
-#play = "croix" # calibration croix a x=d_x/2, y =d_y/2, z = 1.36
-#play = "fan"
-
+# scenario qui est joué par le modele physique
+scenario = "leapfrog" # integration d'Euler améliorée pour simuler le champ
+#scenario = "croix" # calibration croix a x=d_x/2, y =d_y/2, z = 1.36
+#scenario = "fan"
 
 # et direction d'angle de vue (cx, cy, cz) comme le point de fixation ainsi que le champ de vue (en deg)
 # distance des VPs du plan de reference
@@ -153,6 +153,7 @@ kinects_network_config = {
 }
 
 if __name__ == "__main__":
-    print foc
+    import sys
+    print sys.argv[0], str(sys.argv[1]), sys.argv[2] # nom du fichier, param1 , param2   
     #import explore
 

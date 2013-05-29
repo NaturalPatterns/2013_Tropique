@@ -1,4 +1,4 @@
 #!/bin/bash
 sleep 135
-cd /Users/tropic/Dropbox/TROPIQUE/pyTropique/projection/network/ 
-/Users/tropic/Dropbox/TROPIQUE/pyTropique/projection/network/run_thread_play.py
+cd /Users/tropic/Dropbox/TROPIQUE/pyTropique/network/ 
+/Users/tropic/Dropbox/TROPIQUE/pyTropique/network/modele_dynamique_server.py

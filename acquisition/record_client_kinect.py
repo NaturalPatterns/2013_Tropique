@@ -3,10 +3,10 @@
 """ le client centralise  l'ensemble des commandes a envoyé au différents serveur kinect difini dans myarc
 """
 import sys
-#sys.path.append('..')
+sys.path.append('..')
+from parametres import info_kinects , DEBUG
 import socket
 import os
-from parametres import info_kinects , DEBUG
 
 nbr_kinect = 0
 import time as time

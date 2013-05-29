@@ -3,10 +3,10 @@
 """ le client centralise  l'ensemble des commandes a envoyé au différents serveur kinect difini dans myarc
 """
 import sys
-sys.path.append('../../../projection/')
+sys.path.append('..')
+from parametres import info_kinects , DEBUG
 import socket
 import os
-from parametres import info_kinects , DEBUG
 
 nbr_kinect = 0
 import time as time
@@ -15,7 +15,7 @@ from threading import Thread
 
 global DEBUG
 global f
-f = open('/home/tropic/Dropbox/TROPIQUE/pyTropique/acquisition/enregistrements/record_her', 'w')
+f = open('./enregistrements/record_her', 'w')
 class testkin(Thread):
     def __init__ (self,ip, port):
         Thread.__init__(self)
