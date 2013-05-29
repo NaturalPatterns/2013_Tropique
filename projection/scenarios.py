@@ -533,8 +533,8 @@ class Scenario:
 #
 #
 
-        # pour les scenarios de controle du suivi, on centre autour de la position du premier player        
-        if not(positions == None) and not(positions == np.nan) and not(positions == []) and (self.scenario in ['croix', 'fan', '2fan', 'rotating-circle', 'calibration']): #  
+        # pour les scenarios de controle du suivi, on centre autour de la position du premier player
+        if not(positions == None) and not(positions == np.nan) and not(positions == []) and (self.scenario in ['croix', 'fan', '2fan', 'rotating-circle', 'calibration']): #
             # pour la calibration on centre le pattern autour de la premiere personne captée
             self.particles[0:3, :] -= self.croix[:, np.newaxis]
             self.particles[3:6, :] -= self.croix[:, np.newaxis]
