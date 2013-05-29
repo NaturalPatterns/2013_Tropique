@@ -20,6 +20,7 @@ Par convention, la position spatiale des VPs par rapport au centre du plan de re
 Par convention, la position de la croix est au centre de la salle: [d_x/2, d_y/2]
 
 """
+
 # pour savoir si on imprime des messages d'erreur
 DEBUG  = False
 DEBUG  = True
@@ -152,5 +153,6 @@ kinects_network_config = {
 }
 
 if __name__ == "__main__":
-    import explore
+    print foc
+    #import explore
 

@@ -15,7 +15,7 @@ from threading import Thread
 
 global DEBUG
 global f
-f = open('/home/tropic/Dropbox/TROPIQUE/pyTropique/acquisition/version1/record_her', 'w')
+f = open('/home/tropic/Dropbox/TROPIQUE/pyTropique/acquisition/enregistrements/record_her', 'w')
 class testkin(Thread):
     def __init__ (self,ip, port):
         Thread.__init__(self)
@@ -56,7 +56,7 @@ def stream_acqui():
     last_time = 0
     while (teston < 1) :
         a = time.time()
-        b = a - last_time 
+        b = a - last_time
 #        print "the time lapsed = ",b , 1/float(b)
         last_time = a
         serverkinects = []
@@ -70,7 +70,7 @@ def stream_acqui():
         for server in serverkinects:
             server.join()
             #print "Status from ",pingle.ip,"is",pingle.status
-            try: var = int(server.status)  
+            try: var = int(server.status)
             except:all_pos +=server.status
             else: pass
         all_pos = all_pos[0:(len(all_pos) -1)]
@@ -83,7 +83,7 @@ def stream_acqui():
 
 def segment():
     os.system('clear')
-    print "listen to kinects server "	
+    print "listen to kinects server "
     for kin in info_kinects :
         print kin['address'], kin['port']
         HOST = kin['address']
@@ -103,7 +103,7 @@ def send_kinect(com):
         if kin['address'] != last_kinect :
             print "send to", kin['address'] ," comm ", com
             sock.sendto(str(com) , (kin['address'], 3002))
-            last_kinect = kin['address']   
+            last_kinect = kin['address']
 def display():
     os.system('clear')
     print "display server "
@@ -147,13 +147,13 @@ if __name__ == "__main__":
 
         try:
             choice = input ( "que faire ??")
-        except: 
+        except:
             os.system('clear')
             print "mauvais choix"
         else:
             if choice == 0 :
                 os.system('clear')
-                break	
+                break
             if choice == 1 :
                 list_kinect()
             if choice == 5 :
