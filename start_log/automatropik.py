@@ -21,7 +21,7 @@ x_mouse=0
 y_mouse=0
 
 #sys.path.append('../projection/')
-#from parametres import  p, volume , info_kinects,d_y, d_z,d_x 
+#from parametres import  p, volume , info_kinects,d_y, d_z,d_x
 
 import sys
 x = int(sys.argv[1])*100.0
@@ -58,15 +58,15 @@ gl.glMatrixMode(gl.GL_MODELVIEW)
 gl.glLoadIdentity()
 
 gl.glClearColor(0.0, 0.0, 0.0, 0.0)
-  
-gl.glShadeModel(gl.GL_FLAT) 
+
+gl.glShadeModel(gl.GL_FLAT)
 
 def drawOneLine(x1, y1,z1, x2, y2,z2 ):
   gl.glBegin(gl.GL_LINES)
   gl.glVertex3f(x1, y1,z1)
   gl.glVertex3f(x2, y2,z2)
   gl.glEnd()
-    
+
 def decors():
     label = pyglet.text.Label('Hello, world',
                           font_name='Times New Roman',
@@ -85,18 +85,18 @@ def decors():
 #        x_mouse=x
 #        y_mouse=y
 #        changepv()
-#        
+#
 #def changepv():
 #    y = 100
-    drawOneLine(0,0,-500,0,0,500)    
-    
+    drawOneLine(0,0,-500,0,0,500)
+
     drawOneLine(0 , 0, 0, 0 , y , 0)
     drawOneLine(0 , y, 0 ,x , y , 0)
     drawOneLine(x , 0, 0 ,x , y , 0)
     drawOneLine(0 ,0, 0 ,x , 0 , 0)
 #{'address':'10.42.0.11', 'port': 9999, 'x':8.0, 'y':d_y, 'z': 1.3, 'az':9*pi/6 ,'max':475},#3
     total_dic=[]
-    
+
     if (y > 600):
         lenght = int (y / 2)
     else :
@@ -106,7 +106,7 @@ def decors():
     for k in range (100 , int(x) , dist_inter_kinect) :
         address = "10.42.0.1"+str(int( (k-100)/(dist_inter_kinect*2)) )
         port = str(9998+( (k-100)/dist_inter_kinect - ((k-100)/(dist_inter_kinect*2))*2) )
-#        print address,port  
+#        print address,port
         gl.glColor4f(0, 0, 1, 1)
         gl.glPointSize (16.0)
         gl.glBegin (gl.GL_POINTS)
@@ -126,7 +126,7 @@ def decors():
         for k in range (100 , int(x) , dist_inter_kinect)  :
             gl.glColor4f(0, 1, 0, 1)
             gl.glPointSize (16.0)
-        
+
             gl.glBegin (gl.GL_POINTS)
             gl.glVertex2f(k, y)
             gl.glEnd()
@@ -158,7 +158,7 @@ from pyglet.window import mouse
 
 #@win_0.event
 #def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
-#    
+#
 #    if buttons & mouse.LEFT:
 #        print "oyeeeeeeeeeeeee", x ,y
 
@@ -170,7 +170,7 @@ from pyglet.window import mouse
 #        gl.glRotatef(x_mouse, 1, 0, 0)
 
 
-    
+
 @win_0.event
 def on_draw():
     win_0.clear()
@@ -187,7 +187,7 @@ def on_draw():
 #    display_player()
 
 def callback(dt):
-    global rx, ry, rz 
+    global rx, ry, rz
     rx += dt/1
     rx %= 6.28
     ry += dt/10

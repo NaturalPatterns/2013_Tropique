@@ -80,7 +80,8 @@ class Scenario:
         self.volume = volume
         d_x, d_y, d_z = self.volume
         self.center = np.array([d_x/2., d_y/2, VPs[0]['z']], dtype='f') # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
-        self.croix = np.array([d_x/2., d_y/2., VPs[0]['z']], dtype='f') # definition de la position de la croix
+        self.croix = np.array([8.65, 3.67, 1.36], dtype='f') # definition de la position de la croix
+        self.croix = np.array([11.95, 2.2, 1.36], dtype='f') # definition de la position de la croix
         self.roger = np.array([d_x/2., d_y/2., 1.73], dtype='f') #  fixation dot  (AKA Roger?)
 #        self.origin = np.array([0., 0., 0.]) # origin
 
@@ -306,33 +307,26 @@ class Scenario:
 
 
         if self.scenario == 'croix':
-            #self.particles = np.zeros((6, self.N))
 
-            longueur_segments, undershoot_z = .8, .5
-#            longueur_segments, undershoot_z = .05, .0
+            longueur_segments = .8
 
             # ligne horizontale
-            self.particles[0, :self.N/2] = self.center[0] # on the reference plane
-            self.particles[1, :self.N/2] = self.center[1]
-            self.particles[2, :self.N/2] = self.center[2] - longueur_segments/2. - undershoot_z
-            self.particles[3, :self.N/2] = self.center[0] # on the reference plane
-            self.particles[4, :self.N/2] = self.center[1]
-            self.particles[5, :self.N/2] = self.center[2] + longueur_segments/2. - undershoot_z
+            self.particles[0, :self.N/2] = self.croix[0] # on the reference plane
+            self.particles[1, :self.N/2] = self.croix[1]
+            self.particles[2, :self.N/2] = self.croix[2] - longueur_segments/2.
+            self.particles[3, :self.N/2] = self.croix[0] # on the reference plane
+            self.particles[4, :self.N/2] = self.croix[1]
+            self.particles[5, :self.N/2] = self.croix[2] + longueur_segments/2.
             # ligne verticale
-            self.particles[0, self.N/2:] = self.center[0] # on the reference plane
-            self.particles[1, self.N/2:] = self.center[1] - longueur_segments/2.
-            self.particles[2, self.N/2:] = self.center[2] - undershoot_z
-            self.particles[3, self.N/2:] = self.center[0] # on the reference plane
-            self.particles[4, self.N/2:] = self.center[1] + longueur_segments/2.
-            self.particles[5, self.N/2:] = self.center[2] - undershoot_z
-            #            print self.particles.mean(axis=1)
-
+            self.particles[0, self.N/2:] = self.croix[0] # on the reference plane
+            self.particles[1, self.N/2:] = self.croix[1] - longueur_segments/2.
+            self.particles[2, self.N/2:] = self.croix[2]
+            self.particles[3, self.N/2:] = self.croix[0] # on the reference plane
+            self.particles[4, self.N/2:] = self.croix[1] + longueur_segments/2.
+            self.particles[5, self.N/2:] = self.croix[2]
 
         elif self.scenario == 'calibration':
-            #             self.particles = np.zeros((6, self.N))
-
-            longueur_segments, undershoot_z = .05, .5
-#            longueur_segments, undershoot_z = .05, .0
+            longueur_segments, undershoot_z = .05, .0
 
             # ligne horizontale
             self.particles[0, :self.N/2] = self.center[0] # on the reference plane
@@ -372,7 +366,7 @@ class Scenario:
 
 
         elif self.scenario == 'fan':
-            #             self.particles = np.zeros((6, self.N))
+            self.particles = np.zeros(self.particles.shape)
             frequency_plane = .005 # how fast the disk moves in Hz
             radius_min, radius_max = 2.0, 5.0
             radius, length_ratio = .2 * d_z, 1.4
@@ -393,7 +387,7 @@ class Scenario:
 #            self.particles[3:6, N_dots:] = self.origin[:, np.newaxis] + .0001 # très fin
 
         elif self.scenario == '2fan':
-            #             self.particles = np.zeros((6, self.N))
+            self.particles = np.zeros(self.particles.shape)
             frequency_rot, frequency_plane = .1, .05 # how fast the whole disk moves in Hz
             radius, length_ratio = .2 * d_z, 1.4
             N_dots = np.min(16, self.N)
@@ -538,10 +532,12 @@ class Scenario:
 #                     A=1
 #
 #
-        if not(positions == None) and not(positions == np.nan) and not(positions == []) and (self.scenario in ['croix', 'fan', '2fan', 'rotating-circle', 'calibration']):
+
+        # pour les scenarios de controle du suivi, on centre autour de la position du premier player        
+        if not(positions == None) and not(positions == np.nan) and not(positions == []) and (self.scenario in ['croix', 'fan', '2fan', 'rotating-circle', 'calibration']): #  
             # pour la calibration on centre le pattern autour de la premiere personne captée
-            self.particles[0:3, :] -= self.center[:, np.newaxis]
-            self.particles[3:6, :] -= self.center[:, np.newaxis]
+            self.particles[0:3, :] -= self.croix[:, np.newaxis]
+            self.particles[3:6, :] -= self.croix[:, np.newaxis]
             self.particles[0:3, :] += np.array(positions[0])[:, np.newaxis]
             self.particles[3:6, :] += np.array(positions[0])[:, np.newaxis]
 

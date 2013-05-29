@@ -37,7 +37,7 @@ class PjLinkError(Exception):
 		self.desc = desc
 	def __str__(self):
 		return repr(str(self.value) + " " + str(self.desc))
-  
+
 def run_command(ip,passwd,cmd):
     tn = None
     try:
@@ -82,19 +82,19 @@ def run_command(ip,passwd,cmd):
             print "Could not open socket: "# + message
         return int(-1)
     return result
- 
+
 # Fonction générant le hash md5 corespondant a la norme PJLINK
 def gen_md5(passwd,random_seq):
 	msg = str(random_seq) + str(passwd)
 	h = hashlib.md5()
 	h.update(msg)
 	return h.hexdigest()
- 
+
 
 while  True :
     Donnee, Client = from_send.recvfrom (512)
     print Donnee
-    
+
     ip = "10.42.0.15" + Donnee[2]
     print "ip cible =",ip    # The remote host
     PORT = 4352              # The same port as used by the server

@@ -15,7 +15,7 @@ sys.path.append('..')
 import time
 import OSC
 import socket
-from parametres import VPs, volume, p, kinects_network_config , run_thread_network_config ,play
+from parametres import VPs, volume, p, kinects_network_config , run_thread_network_config #,play
 
 send_sock = socket.socket( socket.AF_INET, socket.SOCK_DGRAM ) # UDP
 client = OSC.OSCClient()
@@ -33,8 +33,9 @@ if do_sock:
 else:
     positions = None
 
-scenario = 'leapfrog' #'rotating-circle'
-#scenario = 'croix' #'rotating-circle'
+scenario = 'leapfrog' 
+scenario = 'croix'
+scenario = 'fan'
 
 from scenarios import Scenario
 #s = Scenario(p['N'], play, volume, VPs, p)
@@ -45,11 +46,11 @@ positions = []
 positions.append([s.center[0], s.center[1] , s.center[2]]) # une personne dans un mouvement circulaire (elipse)
 test_positions = ([s.center[0], s.center[1] , s.center[2]]) # une personne dans un mouvement circulaire (elipse)
 
-global events
+#global events
 events = [1, 1, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
 
-if play == "croix":
-    positions.append([0, s.center[1] , 1.36 ])# une personne 
+#if play == "croix":
+#    positions.append([0, s.center[1] , 1.36 ])# une personne 
 #    do_sock=False
 #--------------------------OSC SERVER
 import OSC
@@ -93,14 +94,10 @@ st.daemon=True
 
 st.start()
 #----------------------
-
 start_time = time.time()
-
 #print events
-
-
 while True:
-    global events
+    #global events
     if DEBUG: 
         elapsed_time = time.time() - start_time
         start_time = time.time()
@@ -114,24 +111,26 @@ while True:
 #            print test_positions
             for position in test_positions:
                 positions.append([position[0], position[1],position[2] ])
-    else:
-        if play == "croix":
-                positions.append([0, s.center[1] , 1.36 ])# une personne 
-        # HACK pour simuler ROGER:
+#            print positions[0][1]
+#    else:
+#        if play == "croix":
+#                positions.append([0, s.center[1] , 1.36 ])# une personne 
+#        # HACK pour simuler ROGER:
+#
+#        from numpy import cos, pi
+#        positions = []
+#        T = 20. # periode en secondes
+#        phi = 10/9. #.5*( 1 + sqrt(5) )
+#        positions.append([s.center[0], s.center[1] * (1. + 1.2*cos(2*pi*s.t/T)), 1.1*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
+#        positions.append([s.center[0], s.center[1] * (1. + .0*cos(2*pi*s.t/T/phi)), 1.*s.center[2]]) # une autre personne dans un mouvement en phase
+##        positions.append([s.center[0], s.center[1] * (1. + .75*cos(2*pi*s.t/T)), 1.2*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
+##        positions.append([s.center[0], s.center[1] * (1. + .75*cos(2*pi*s.t/T)), 1.2*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
+##        positions.append([s.center[0], s.center[1] * (1. + .75*cos(2*pi*s.t/T)), 1.2*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
+##        positions.append([s.center[0], s.center[1] * (1. + .75*cos(2*pi*s.t/T)), 1.2*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
+##        positions.append([s.center[0], s.center[1] * (1. + .75*cos(2*pi*s.t/T)), 1.2*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
+##        positions.append([s.center[0], s.center[1] * (1. + .0*cos(2*pi*s.t/T/phi)),0.9*s.center[2]]) # une autre personne dans un mouvement en phase
+##        positions.append([s.center[0], s.volume[1]*.75, s.volume[2]*.75]) # une personne dans un mouvement circulaire (elipse)
 
-        from numpy import cos, pi
-        positions = []
-        T = 20. # periode en secondes
-        phi = 10/9. #.5*( 1 + sqrt(5) )
-        positions.append([s.center[0], s.center[1] * (1. + 1.2*cos(2*pi*s.t/T)), 1.1*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
-        positions.append([s.center[0], s.center[1] * (1. + .0*cos(2*pi*s.t/T/phi)), 1.*s.center[2]]) # une autre personne dans un mouvement en phase
-#        positions.append([s.center[0], s.center[1] * (1. + .75*cos(2*pi*s.t/T)), 1.2*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
-#        positions.append([s.center[0], s.center[1] * (1. + .75*cos(2*pi*s.t/T)), 1.2*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
-#        positions.append([s.center[0], s.center[1] * (1. + .75*cos(2*pi*s.t/T)), 1.2*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
-#        positions.append([s.center[0], s.center[1] * (1. + .75*cos(2*pi*s.t/T)), 1.2*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
-#        positions.append([s.center[0], s.center[1] * (1. + .75*cos(2*pi*s.t/T)), 1.2*s.center[2]]) # une personne dans un mouvement circulaire (elipse)
-#        positions.append([s.center[0], s.center[1] * (1. + .0*cos(2*pi*s.t/T/phi)),0.9*s.center[2]]) # une autre personne dans un mouvement en phase
-#        positions.append([s.center[0], s.volume[1]*.75, s.volume[2]*.75]) # une personne dans un mouvement circulaire (elipse)
     s.do_scenario(positions=positions, events=events)
     
     # envoi aux VPs

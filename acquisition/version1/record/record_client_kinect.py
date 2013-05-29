@@ -3,7 +3,7 @@
 """ le client centralise  l'ensemble des commandes a envoyé au différents serveur kinect difini dans myarc
 """
 import sys
-sys.path.append('../../projection/')
+sys.path.append('../../../projection/')
 import socket
 import os
 from parametres import info_kinects , DEBUG
@@ -15,8 +15,7 @@ from threading import Thread
 
 global DEBUG
 global f
-f = open('record_me', 'r')
-
+f = open('/home/tropic/Dropbox/TROPIQUE/pyTropique/acquisition/version1/record/record_her', 'w')
 class testkin(Thread):
     def __init__ (self,ip, port):
         Thread.__init__(self)
@@ -49,38 +48,39 @@ def list_kinect():
         print ligne, info_kinects[ligne]
 
 def stream_acqui():
-    global  f
-    os.system('clear')
-    print "listen to kinects server whou "
+#    os.system('clear')
+    print "listen to kinects server "
     # SOCK_DGRAM is the socket type to use for UDP sockets
 #    testit.lifeline = re.compile(r"(\d) received")
     teston =0
     last_time = 0
-    nbr_data = 0
-    i = 0
-    while (i==0) :
+    while (teston < 1) :
         a = time.time()
+        b = a - last_time 
+#        print "the time lapsed = ",b , 1/float(b)
+        last_time = a
         serverkinects = []
-        texttest = f.readline()
-        all_pos  = texttest
-        try : 
-            the_pos =  float(all_pos.partition("   ")[0])
-            nbr_data +=1
-            if the_pos <= 1 :
-                time.sleep(the_pos)
-            sock_pd.sendto((all_pos.partition("   ")[2] ), (my_host, my_port))
-            b = a - last_time 
-            print "the time lapsed = , for time ",b , the_pos, all_pos.partition("   ")[2]
-            last_time = a
-        except : 
-            f.close()
-            f = open('record_me', 'r')
-            print "reommence" ,  teston, nbr_data
-            teston +=1
-            nbr_data =0
-            
+        for kin in info_kinects :
+            ip = kin['address']
+            port = kin['port']
+            current = testkin(ip,port)
+            serverkinects.append(current)
+            current.start()
+        all_pos=""
+        for server in serverkinects:
+            server.join()
+            #print "Status from ",pingle.ip,"is",pingle.status
+            try: var = int(server.status)  
+            except:all_pos +=server.status
+            else: pass
         all_pos = all_pos[0:(len(all_pos) -1)]
-        
+        if all_pos !="":
+#            print "send  =", all_pos
+#            sock_pd.sendto((all_pos ), (host_affi, port_affi))
+            sock_pd.sendto((all_pos ), (my_host, my_port))
+#            f.write(str(b)+"   " + all_pos + " \n " )
+
+
 def segment():
     os.system('clear')
     print "listen to kinects server "	
@@ -126,12 +126,46 @@ if __name__ == "__main__":
     sock_pd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     host_pd = '89.226.106.164'
     port_pd = 3002
-    host_affi = '10.42.0.100'
+    host_affi = '10.42.0.101'
     port_affi = 3003
     my_host = '10.42.0.100'
     my_port = 3004
+    list_kinect()
+    print "send to ",my_host, my_port
     stream_acqui()
 
+    while 1 :
+        print "\n \t \t client.py = CLIENT KINECTS  in TROPIC \n"
+        print "0 - stop prog"
+        print "1 - liste des kinects"
+        print "..."
+        print "5 - start kinect DISPLAY = 1"
+        print "6 - start kinect"
+        print "7 - kill kinect"
+        print "8 - segmentation/calib"
+        print "9 - stream aquisition (ctrl-c to quit)"
+
+        try:
+            choice = input ( "que faire ??")
+        except: 
+            os.system('clear')
+            print "mauvais choix"
+        else:
+            if choice == 0 :
+                os.system('clear')
+                break	
+            if choice == 1 :
+                list_kinect()
+            if choice == 5 :
+                display()
+            if choice == 6 :
+                start_kinect()
+            if choice == 7 :
+                kill_kinect()
+            if choice ==8 :
+                segment()
+            if choice ==9 :
+                stream_acqui()
 
 
 
