@@ -10,7 +10,7 @@ import sys
 import fcntl
 import struct
 global my_thresholdarray
-sys.path.append('../../../projection/')
+sys.path.append('..')
 from parametres import info_kinects
 global fx_d , fy_d , cx_d , cy_d
 fx_d = 1.0 / 5.9421434211923247e+02;
@@ -18,12 +18,15 @@ fy_d = 1.0 / 5.9104053696870778e+02;
 cx_d = 3.3930780975300314e+02;
 cy_d = 2.4273913761751615e+02;
 
-global show
-show =True
-print('Press ESC in window to stop')
+#print sys.argv[0], sys.argv[1], sys.argv[2] # nom du fichier, param1 , param2
 
 global server_kin
-server_kin = 1
+server_kin = sys.argv[1]
+global show
+show=(sys.argv[2]==1)
+print('Press ESC in window to stop')
+
+
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     return socket.inet_ntoa(fcntl.ioctl(
@@ -37,7 +40,7 @@ my_ip = get_ip_address('eth0')
 global my_number  
 my_number= (int(my_ip[len(my_ip)-1])*2)+ server_kin
 string_name= str(my_ip) +","+str(my_number)
-print my_number, string_name
+
 #string_name="fenetre"
 #my_number = 0
 
@@ -246,7 +249,6 @@ def make_my_thresholdarray():
         
     dx,dy =0,0
     black, white = 0, 255
-    
     img_moy = np.zeros((480, 640), np.uint8)
     for long_test in range (10):
         the_depth, timestamp = freenect.sync_get_depth(server_kin)
@@ -266,10 +268,10 @@ def make_my_thresholdarray():
         a=0
         if long_test == 0:
             img_moy = my_array2
-#            print "long test 0000000000000000"
+            print "long test 0000000000000000"
         else :
-#            print img_moy.shape[0]
-#            print "long test 111111111111111111"
+            print img_moy.shape[0]
+            print "long test 111111111111111111"
             img_moy = np.add (img_moy, my_array2) 
 #        img_moy/=11
         img_moy = img_moy.astype(np.uint8)
@@ -277,12 +279,12 @@ def make_my_thresholdarray():
             cv2.imshow("img_moy", img_moy.astype(np.uint8))
 
 
-#    print img_moy.shape[0]
+    print img_moy.shape[0]
     print "long test 22222222"
     for i in range (0 ,img_moy.shape[0] , 1) :
-#        print i, img_moy.shape[0] , np.mean(img_moy[i,:])
+        print i, img_moy.shape[0] , np.mean(img_moy[i,:])
         if ( np.mean(img_moy[i,:]) >= 50 ):
-#            print "long test 333333333333"
+            print "long test 333333333333"
 
 #            print "ligne ",i,int(np.mean(my_array2[i,:]))
             if a==0:
@@ -292,8 +294,8 @@ def make_my_thresholdarray():
                 my_thresholdarray = np.append(my_thresholdarray, [ [i,int(np.mean(img_moy[i,:])) +10 ] ] , axis =0)
     if a==0:
         print "il ny a pas de my_thresholdarray"
-#    else :
-#        print"themy_thresholdarray",   my_thresholdarray , my_thresholdarray.shape, my_thresholdarray.shape[0]
+    else :
+        print"themy_thresholdarray",   my_thresholdarray , my_thresholdarray.shape, my_thresholdarray.shape[0]
     
 #    for i in range (my_thresholdarray)
     
