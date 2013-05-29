@@ -36,7 +36,7 @@ scenario = 'croix'
 scenario = 'cristal'
 #window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
 from parametres import VPs, volume, p, kinects_network_config, d_x, d_y, d_z
-from scenarios import Scenario
+from modele_dynamique import Scenario
 s = Scenario(p['N'], scenario, volume, VPs, p)
 ########################################
 do_firstperson, foc_fp, i_VP_fp, alpha_fp, int_fp, intB_fp, show_VP = False, 60., 1, .1, 1., 0.01, True

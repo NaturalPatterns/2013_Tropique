@@ -20,7 +20,7 @@ scenario = 'croix'
 #scenario = 'fan'
 scenario = 'croix'
 
-from scenarios import Scenario
+from modele_dynamique import Scenario
 s = Scenario(p['N'], scenario, volume, VPs, p)
 while True:
     s.do_scenario()#positions=[], events=events)
