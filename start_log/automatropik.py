@@ -6,6 +6,7 @@ Functional modes
 @author: BIOGENE
 
 """
+# TODO: script obsolete?
 global total_dic
 global dist_inter_kinect
 dist_inter_kinect=600
@@ -200,7 +201,7 @@ import datetime
 for dico in total_dic :
     print dico
 print total_dic
-f = open("new_parametres.py" , 'w')
+f = open("kinects_parametres.py" , 'w')
 f.writelines("#!/usr/bin/env python \n")
 f.writelines("# -*- coding: utf-8 -*- \n")
 f.writelines("# FICHIER PARAMETRES TROPIQUE  : " + str(datetime.date.today()) + "\n")
