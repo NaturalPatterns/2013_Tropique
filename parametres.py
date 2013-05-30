@@ -154,6 +154,6 @@ kinects_network_config = {
 
 if __name__ == "__main__":
     import sys
-    print sys.argv[0], str(sys.argv[1]), sys.argv[2] # nom du fichier, param1 , param2   
+    print sys.argv[0], str(sys.argv[1]), sys.argv[2] # nom du fichier, param1 , param2
     #import display_modele_dynamique
 
