@@ -218,15 +218,15 @@ class Scenario:
                     SC = (self.particles[0:3, :]+self.particles[3:6, :])/2-np.array(position)[:, np.newaxis]
                     distance_SC = np.sqrt(np.sum(SC**2, axis=0)) # en metres
                     gravity = - SC * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+3) # en metres
-                    force[0:3, :] += self.p['G_global'] * gravity
-                    force[3:6, :] += self.p['G_global'] * gravity
 
                     ind_assign = (distance_SC < distance_min)
                     gravity[:, ind_assign] = gravity_[:, ind_assign]
                     distance_min[ind_assign] = distance_SC[ind_assign]
 
-                force[0:3, :] += self.p['G_gravite'] * gravity
-                force[3:6, :] += self.p['G_gravite'] * gravity
+#                force[0:3, :] += self.p['G_gravite'] * gravity
+#                force[3:6, :] += self.p['G_gravite'] * gravity
+                force[0, :] += self.p['G_gravite'] * gravity[0]
+                force[3, :] += self.p['G_gravite'] * gravity[0]
 
         ## forces entres les particules
         if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche V dans display_modele_dynamique.py
