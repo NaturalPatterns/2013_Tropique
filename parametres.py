@@ -99,19 +99,19 @@ calibration = {
 p = {'N': 32,
      'distance_m': 0.60, # distance d'équilibre des segments autour d'une position de player
      'G_global': 200.0, # attraction globale vers les centres des positions
-      'G_rot': 150.,
-      'G_rot_hot': -.05,
+     'G_rot': 150.,
+     'G_rot_hot': -.05,
      'distance_tabou': 0.2, # distance tabou
      'distance_tabou_event': .93, # distance tabou
      'G_tabou': 1000.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
      'G_tabou_event': 10000.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
-     'G_poussee': .0, # parametre de poussee créateur de vortex
+     'G_poussee': .5, # parametre de poussee créateur de vortex
      'G_gravite': 100.0, # parametre d'attraction physique vers les players
-     'G_struct': .01, # force avec laquelle les bouts de segments s'attirent
+     'G_struct': .0, # force avec laquelle les bouts de segments s'attirent
      'G_struct_hot': .3, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .3, # distance pour laquelle les bouts de segments s'attirent
      'distance_struct_hot': .8, # distance pour laquelle les bouts de segments s'attirent
-     'G_repulsion': 0.015, # constante de répulsion entre les particules
+     'G_repulsion': 1.0, # constante de répulsion entre les particules
      'G_repulsion_hot': .5, # constante de répulsion entre les particules
      'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 80., 'l_seg_min': 0.7, 'l_seg_max': 4., # dureté et longueur des segments
@@ -119,9 +119,9 @@ p = {'N': 32,
      # parametres globaux
      'damp_hot': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_midle': .50,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-     'damp': .3,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp': .7,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'speed_0': .5, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
-     'scale': 40., # facteur global régler la saturation de la force
+     'scale': 20., # facteur global régler la saturation de la force
      'kurt' : 1., # 1 is normal gravity, higher makes the attraction more local
      'line_width': 2, # line width of segments
      'T_break': 6., # duration (secondes) of all three breaks
