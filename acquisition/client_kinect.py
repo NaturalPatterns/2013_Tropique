@@ -14,8 +14,8 @@ import time as time
 from threading import Thread
 
 global DEBUG
+#DEBUG = False
 global f
-f = open('./enregistrements/record_her', 'w')
 class testkin(Thread):
     def __init__ (self,ip, port):
         Thread.__init__(self)
@@ -78,8 +78,6 @@ def stream_acqui():
 #            print "send  =", all_pos
 #            sock_pd.sendto((all_pos ), (host_affi, port_affi))
             sock_pd.sendto((all_pos ), (my_host, my_port))
-#            f.write(str(b)+"   " + all_pos + " \n " )
-
 
 def segment():
     os.system('clear')

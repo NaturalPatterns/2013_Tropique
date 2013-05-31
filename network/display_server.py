@@ -7,7 +7,7 @@ Created on Fri May 18 14:41:46 2012
 """
 import sys
 sys.path.append('..')
-from parametres import VPs, volume, p, run_thread_network_config
+from parametres import VPs, volume, p, calibration, run_thread_network_config
 
 import socket
 from network import VP
@@ -22,7 +22,7 @@ listen_run_thread.bind(("", listen_run_thread_PORT))
 listen_run_thread.setblocking(0)
 
 from modele_dynamique import Scenario
-s = Scenario(p['N'], 'croix', volume, VPs, p)
+s = Scenario(p['N'], 'croix', volume, VPs, p, calibration)
 test_positions = ([s.center[0], s.center[1] , s.center[2]]) # une personne dans un mouvement circulaire (elipse)
 positions = []
 positions.append([s.center[0], s.center[1] , s.center[2]])

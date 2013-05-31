@@ -17,9 +17,9 @@ from parametres import VPs, p, volume , info_kinects,d_y, d_z,d_x, DEBUG
 # ------------------
 print d_y, d_z,d_x 
 if DEBUG: sys.path.append('../network/')
-from network import VP
-vps= VP("10.42.0.102" , 7005 , 7006)
-pdata = VP("10.42.0.1" , 9005 , 9006)
+#from network import VP
+#vps= VP("10.42.0.102" , 7005 , 7006)
+#pdata = VP("10.42.0.1" , 9005 , 9006)
 
 import numpy as np
 from math import pi , cos ,sin , tan , asin
@@ -281,7 +281,7 @@ def display_player():
                 sendz = player[2]
                 gl.glPointSize (16.0);
                 gl.glColor4f(0.5, 0.5, 1, 1);
-                makemedraw(sendx,sendy)
+                makemedraw(sendx,sendy,sendz)
                 pyglet.text.Label(str(the_player),font_size = 30, x=sendx- 10 , y=sendy - 20, anchor_y='bottom',color=(0, 255, 0, 255),batch=batch )
 
                 str_send += str( int(sendx) ) + "," + str( int(sendy) ) + "," + str( int(sendz) ) + ";"
@@ -364,10 +364,10 @@ def calc_angle(each, kin):
     z = each[3]
     if (z>= -100 and z<= 50) :
 #        print 150-z
-        z= z 
+        z= z +30
         test_players(x,y, 150-z)
-        gl.glPointSize (32.0);
-        gl.glColor4f(1, 0, 1, 1);
+        gl.glPointSize (32.0)
+        gl.glColor4f(1, 0, 1, 1)
 #        makemedraw(x,y)
 
 
@@ -376,10 +376,14 @@ def calc_angle(each, kin):
 #global x ,y
 #x = 0
 #y=0
-def makemedraw(x,y):
+def makemedraw(x,y,z):
+    z+=1
+    print "z=",z
+    zdraw = abs(float(z))/5.0
+    gl.glPointSize (zdraw);
     gl.glBegin (gl.GL_POINTS);
-    gl.glVertex2f(x, y);
-    gl.glEnd();
+    gl.glVertex2f(x, y)
+    gl.glEnd()
     
 @win_0.event
 def on_draw():
