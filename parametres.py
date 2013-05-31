@@ -39,7 +39,7 @@ from numpy import arctan2, pi
 hauteur_ecran, distance_ecran  = 0.94, 2.58
 # on calcule
 foc_estim = 2 * arctan2(hauteur_ecran/2, distance_ecran) * 180 / pi # ref P101L1
-print foc_estim
+#print foc_estim
 foc =  foc_estim
 
 volume = [d_x, d_y, d_z]
@@ -49,7 +49,7 @@ scenario = "fan" # une aura autour de la position du premier player
 scenario = 'rotating-circle'
 scenario = 'cristal'
 scenario = "leapfrog" # integration d'Euler améliorée pour simuler le champ
-scenario = "croix" # calibration autour de la croix
+#scenario = "croix" # calibration autour de la croix
 
 # et direction d'angle de vue (cx, cy, cz) comme le point de fixation ainsi que le champ de vue (en deg)
 # distance des VPs du plan de reference
@@ -97,34 +97,33 @@ calibration = {
 
 # parametres du champ
 p = {'N': 32,
-     'distance_m': 0.50, # distance d'équilibre des segments autour d'une position de player
-     'G_global': 50.0, # attraction globale vers les centres des positions
-      'G_rot': 50.,
+     'distance_m': 0.60, # distance d'équilibre des segments autour d'une position de player
+     'G_global': 200.0, # attraction globale vers les centres des positions
+      'G_rot': 150.,
       'G_rot_hot': -.05,
-     'distance_tabou': .4, # distance tabou
+     'distance_tabou': 0.2, # distance tabou
      'distance_tabou_event': .93, # distance tabou
-     'G_tabou': .30, # force tabou qui expulse tout segment qui rentre dans la zone tabou
-     'G_tabou_event': 1000.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
-
+     'G_tabou': 1000.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
+     'G_tabou_event': 10000.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
      'G_poussee': .0, # parametre de poussee créateur de vortex
+     'G_gravite': 100.0, # parametre d'attraction physique vers les players
      'G_struct': .01, # force avec laquelle les bouts de segments s'attirent
-     'G_struct_hot': -1.3, # force avec laquelle les bouts de segments s'attirent
+     'G_struct_hot': .3, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .3, # distance pour laquelle les bouts de segments s'attirent
      'distance_struct_hot': .8, # distance pour laquelle les bouts de segments s'attirent
-     'G_repulsion': 0.1, # constante de répulsion entre les particules
-     'G_repulsion_hot': -.5, # constante de répulsion entre les particules
+     'G_repulsion': 0.015, # constante de répulsion entre les particules
+     'G_repulsion_hot': .5, # constante de répulsion entre les particules
      'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
-     'G_spring': 80., 'l_seg_min': 0.9, 'l_seg_max': 4., # dureté et longueur des segments
+     'G_spring': 80., 'l_seg_min': 0.7, 'l_seg_max': 4., # dureté et longueur des segments
      'G_spring_hot': 1., 'l_seg_hot': 2.,  # dureté et longueur des segments dans un break
      # parametres globaux
-#      'damp': .20,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_hot': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_midle': .50,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-     'damp': .2,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp': .3,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'speed_0': .5, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 40., # facteur global régler la saturation de la force
      'kurt' : 1., # 1 is normal gravity, higher makes the attraction more local
-     'line_width': 3, # line width of segments
+     'line_width': 2, # line width of segments
      'T_break': 6., # duration (secondes) of all three breaks
      'A_break': 7.5, # amplitude du break #2 et #3
      'tau_break': .103, # duration du transient dans les breaks #2 et #3
@@ -135,15 +134,16 @@ from numpy import pi
 # une liste des kinects donnant leur adresse, port, position (x; y; z) et azimuth.
 # pour des kinects dans le segment (0, d_y) --- (d_x, d_y) alors  az : 11*pi/6 = a gauche , 9*pi/6 = tout droit, 7*pi/6 = a droite
 info_kinects = [
-		# on tourne les numeros de kinect dans le sens des aiguilles d'une montre en commencant par le point (0, 0)- le point de vue (az) donne l'ordre dans une colonne de kinects
+		# on tourne les numeros de kinect dans le sens des aiguilles d'une montre en commencant par
+           #  le point (0, 0)- le point de vue (az) donne l'ordre dans une colonne de kinects
 		# deuxieme  bloc
 		{'address':'10.42.0.14', 'port': 9998, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#1.1
-		{'address':'10.42.0.14', 'port': 9999, 'x':8.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':500}, #1.2
+		{'address':'10.42.0.14', 'port': 9999, 'x':8.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560}, #1.2
 		{'address':'10.42.0.15', 'port': 9998, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':5*pi/6 ,'max':560},#1.3
-		{'address':'10.42.0.15', 'port': 9999, 'x':14.2, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':500},#1.3
+		{'address':'10.42.0.15', 'port': 9999, 'x':14.2, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560},#1.3
 
 #		# premier  bloc
-        {'address':'10.42.0.17', 'port': 9998, 'x':3.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':500},#2.1
+        {'address':'10.42.0.17', 'port': 9998, 'x':3.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560},#2.1
 #		{'address':'10.42.0.12', 'port': 9999, 'x':8.0, 'y':0, 'z': 1.24, 'az':5*pi/6 ,'max':497},#2.2
 #		{'address':'10.42.0.13', 'port': 9998, 'x':8.0, 'y':d_y, 'z': 1.34, 'az':11*pi/6 ,'max':483},#2.3
 #		{'address':'10.42.0.12', 'port': 9998, 'x':12.0, 'y':d_y, 'z': 1.14, 'az':9*pi/6 ,'max':483},#2.4
@@ -175,6 +175,8 @@ kinects_network_config = {
 
 if __name__ == "__main__":
     import sys
-    print sys.argv[0], str(sys.argv[1]), sys.argv[2] # nom du fichier, param1 , param2
+#    print sys.argv[0], str(sys.argv[1]), sys.argv[2] # nom du fichier, param1 , param2
+    sys.path.append('network')
     #import display_modele_dynamique
+    import modele_dynamique_server
 
