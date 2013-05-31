@@ -208,6 +208,26 @@ class Scenario:
 
         # FORCES GLOBALES  dans l'espace physique
 
+        # TODO :  gravité vers le bas pour séparer 2 phases
+        if not(self.p['G_gravite'] == 0.):
+            if not(positions == None) and not(positions == np.nan):
+                distance_min = 1.e6 * np.ones((self.N)) # very big to begin with
+                gravity = np.empty((3, self.N))
+                for position in positions:
+                    # point C (centre) du segment
+                    SC = (self.particles[0:3, :]+self.particles[3:6, :])/2-np.array(position)[:, np.newaxis]
+                    distance_SC = np.sqrt(np.sum(SC**2, axis=0)) # en metres
+                    gravity = - SC * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+3) # en metres
+                    force[0:3, :] += self.p['G_global'] * gravity
+                    force[3:6, :] += self.p['G_global'] * gravity
+
+                    ind_assign = (distance_SC < distance_min)
+                    gravity[:, ind_assign] = gravity_[:, ind_assign]
+                    distance_min[ind_assign] = distance_SC[ind_assign]
+
+                force[0:3, :] += self.p['G_gravite'] * gravity
+                force[3:6, :] += self.p['G_gravite'] * gravity
+
         ## forces entres les particules
         if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche V dans display_modele_dynamique.py
             G_repulsion = self.p['G_repulsion']
@@ -253,16 +273,6 @@ class Scenario:
         force[3:6, :] += .5* G_struct * gravity
         # print G_struct, G_rot, G_repulsion
 
-#       # TODO :  gravité vers le bas pour séparer 2 phases
-#        if not(self.p['G_gravite']==0.):
-#            force[2, :] -= self.p['G_gravite']
-#            force[5, :] -= self.p['G_gravite']
-       # HACK: une force pour orienter les particule vers le plan vertical
-#        if not(self.p['G_gravite'] == 0.):
-#            AB_x = self.particles[0, :]-self.particles[3, :] # 1 x N
-#            force[0, :] = -self.p['G_gravite'] * AB_x
-#            force[3, :] = self.p['G_gravite'] * AB_x
-
         # ressort
         AB = self.particles[0:3, :]-self.particles[3:6, :] # 3 x N
         distance = np.sqrt(np.sum(AB**2, axis=0)) # en metres
@@ -281,7 +291,6 @@ class Scenario:
             force -= self.p['damp'] * modul * self.particles[6:12, :]/self.dt
 
         # normalisation des forces pour éviter le chaos
-
         if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
             if (events[-1] == 0): # break #2 or #3
                 if self.t > self.t_break + self.p['T_break']:
@@ -545,10 +554,9 @@ class Scenario:
         #  permet de ne pas sortir du volume (todo: créer un champ répulsif aux murs...)
         if (self.scenario == 'leapfrog') or (self.scenario == 'euler') :
             for i in range(6):
-                #                self.particles[i, (self.particles[i, :] > self.volume[i % 3]) ] = self.volume[i % 3]
-#                self.particles[i, (self.particles[i, :] < 0.) ] = 0.
                 self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
                 self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
+#                self.particles[i, (self.particles[i, :] < -.1*self.volume[i % 3]) ] = -.1*self.volume[i % 3]
 
 
 if __name__ == "__main__":
