@@ -193,7 +193,6 @@ class Scenario:
 #                    print np.sum(AB**2, axis=0)
                     sign_view = np.sign(OC[0]-OV[0])
                     rotation_ = -sign_view * np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
-                    #rotation_ =      -(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) # /(distance_SC + self.p['eps']) #
                     # print sign_view * np.sin(cap_SC-cap_AB)
                     # only assign on the indices that correspond to the minimal distance
                     ind_assign = (distance_SC < distance_min)
@@ -543,7 +542,7 @@ class Scenario:
 
         # todo : éviter plaquage le long des bords
         #  permet de ne pas sortir du volume (todo: créer un champ répulsif aux murs...)
-        if (self.scenario == 'leapfrog') or (self.scenario == 'euler') :
+        if False: #(self.scenario == 'leapfrog') or (self.scenario == 'euler') :
             for i in range(6):
                 #                self.particles[i, (self.particles[i, :] > self.volume[i % 3]) ] = self.volume[i % 3]
 #                self.particles[i, (self.particles[i, :] < 0.) ] = 0.
