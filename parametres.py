@@ -23,7 +23,7 @@ Par convention, la position de la croix est au centre de la salle: [d_x/2, d_y/2
 
 # pour savoir si on imprime des messages d'erreur
 DEBUG  = False
-DEBUG  = True
+#DEBUG  = True
 
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
@@ -45,9 +45,11 @@ foc =  foc_estim
 volume = [d_x, d_y, d_z]
 
 # scenario qui est joué par le modele physique
+scenario = "fan" # une aura autour de la position du premier player
+scenario = 'rotating-circle'
+scenario = 'cristal'
 scenario = "leapfrog" # integration d'Euler améliorée pour simuler le champ
-#scenario = "croix" # calibration croix a x=d_x/2, y =d_y/2, z = 1.36
-#scenario = "fan"
+scenario = "croix" # calibration autour de la croix
 
 # et direction d'angle de vue (cx, cy, cz) comme le point de fixation ainsi que le champ de vue (en deg)
 # distance des VPs du plan de reference
@@ -58,7 +60,6 @@ cy = d_y/2 # on regarde le centre du plan de reference
 cz = z # d_z/2
 # une liste des video projs donnant:
 # leur adresse, port, leurs parametres physiques
-
 VPs = [
         {'address':'10.42.0.56',
             'x':d_x, 'y':0.50, 'z': z,
@@ -85,6 +86,15 @@ VPs = [
              'cx':cx_1, 'cy':cy, 'cz': cz,
              'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         ]
+import numpy as np
+calibration = {
+        'center': np.array([d_x/2., d_y/2, VPs[0]['z']], dtype='f'), # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
+        'croix': np.array([8.65, 3.67, 1.36], dtype='f'), # definition de la position de la croix
+#        'croix': np.array([11.95, 2.2, 1.36], dtype='f'), # definition de la position de la croix
+        'roger': np.array([d_x/2., d_y/2., 1.73], dtype='f'), #  fixation dot  (AKA Roger?)
+        #        'origin': np.array([0., 0., 0.]) # origin
+                }
+
 # parametres du champ
 p = {'N': 32,
      'distance_m': 0.50, # distance d'équilibre des segments autour d'une position de player
@@ -93,7 +103,7 @@ p = {'N': 32,
       'G_rot_hot': -.05,
      'distance_tabou': .4, # distance tabou
      'distance_tabou_event': .93, # distance tabou
-     'G_tabou': 30.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
+     'G_tabou': .30, # force tabou qui expulse tout segment qui rentre dans la zone tabou
      'G_tabou_event': 1000.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
 
      'G_poussee': .0, # parametre de poussee créateur de vortex
@@ -127,13 +137,24 @@ from numpy import pi
 info_kinects = [
 		# on tourne les numeros de kinect dans le sens des aiguilles d'une montre en commencant par le point (0, 0)- le point de vue (az) donne l'ordre dans une colonne de kinects
 		# deuxieme  bloc
-		{'address':'10.42.0.14', 'port': 9998, 'x':8.8, 'y':0.29, 'z': 1.24, 'az':pi/6 ,'max':580},#1.1
-		{'address':'10.42.0.14', 'port': 9999, 'x':8.8, 'y':0.29, 'z': 1.14, 'az':3*pi/6 ,'max':600}, #1.2
-		{'address':'10.42.0.15', 'port': 9998, 'x':8.8, 'y':0.29, 'z': 1.24, 'az':5*pi/6 ,'max':560},#1.3
-		{'address':'10.42.0.15', 'port': 9999, 'x':14.2, 'y':0.29, 'z': 1.14, 'az':3*pi/6 ,'max':580},#1.3
+		{'address':'10.42.0.14', 'port': 9998, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#1.1
+		{'address':'10.42.0.14', 'port': 9999, 'x':8.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':500}, #1.2
+		{'address':'10.42.0.15', 'port': 9998, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':5*pi/6 ,'max':560},#1.3
+		{'address':'10.42.0.15', 'port': 9999, 'x':14.2, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':500},#1.3
 
 #		# premier  bloc
-        {'address':'10.42.0.17', 'port': 9998, 'x':3.8, 'y':0.29, 'z': 1.14, 'az':3*pi/6 ,'max':580}#2.1
+        {'address':'10.42.0.17', 'port': 9998, 'x':3.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':500},#2.1
+#		{'address':'10.42.0.12', 'port': 9999, 'x':8.0, 'y':0, 'z': 1.24, 'az':5*pi/6 ,'max':497},#2.2
+#		{'address':'10.42.0.13', 'port': 9998, 'x':8.0, 'y':d_y, 'z': 1.34, 'az':11*pi/6 ,'max':483},#2.3
+#		{'address':'10.42.0.12', 'port': 9998, 'x':12.0, 'y':d_y, 'z': 1.14, 'az':9*pi/6 ,'max':483},#2.4
+
+		{'address':'10.42.0.12', 'port': 9998, 'x':8.8, 'y':d_y-0.19, 'z': 1.24, 'az':7*pi/6 ,'max':560},#1.1
+		{'address':'10.42.0.12', 'port': 9999, 'x':8.8, 'y':d_y-0.19, 'z': 1.14, 'az':9*pi/6 ,'max':500}, #1.2
+		{'address':'10.42.0.13', 'port': 9998, 'x':8.8, 'y':d_y-0.19, 'z': 1.24, 'az':11*pi/6 ,'max':560},#1.3
+#		{'address':'10.42.0.13', 'port': 9999, 'x':14.2, 'y':d_y-0.19, 'z': 1.14, 'az':9*pi/6 ,'max':100},#1.3
+
+#		# premier  bloc
+        {'address':'10.42.0.18', 'port': 9998, 'x':3.8, 'y':d_y-0.19, 'z': 1.14, 'az':9*pi/6 ,'max':500}#2.1
 #		{'address':'10.42.0.12', 'port': 9999, 'x':8.0, 'y':0, 'z': 1.24, 'az':5*pi/6 ,'max':497},#2.2
 #		{'address':'10.42.0.13', 'port': 9998, 'x':8.0, 'y':d_y, 'z': 1.34, 'az':11*pi/6 ,'max':483},#2.3
 #		{'address':'10.42.0.12', 'port': 9998, 'x':12.0, 'y':d_y, 'z': 1.14, 'az':9*pi/6 ,'max':483},#2.4
