@@ -568,9 +568,10 @@ class Scenario:
         #  permet de ne pas sortir du volume (todo: créer un champ répulsif aux murs...)
         if (self.scenario == 'leapfrog') or (self.scenario == 'euler') :
             for i in range(6):
-                self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
-                self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
-#                self.particles[i, (self.particles[i, :] < -.1*self.volume[i % 3]) ] = -.1*self.volume[i % 3]
+                #self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
+                #self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
+                self.particles[i, (self.particles[i, :] > self.volume[i % 3]) ] = self.volume[i % 3]
+                self.particles[i, (self.particles[i, :] < -.0*self.volume[i % 3]) ] = -.0*self.volume[i % 3]
 
 
 if __name__ == "__main__":
