@@ -131,7 +131,7 @@ def know(x,y):
 	#my_players[nbr_player][4] /= 2
 	my_players[nbr_player][2] = 100
 
-def unknow(x,y):
+def unknow(x,y, z):
 #	print "unknow"
 	global my_players
 	global nbr_player
@@ -140,6 +140,8 @@ def unknow(x,y):
 			#print "good palce ", place
 			my_players[place][0] = x
 			my_players[place][1] = y
+   			my_players[place][2] = z
+
 			my_players[place][3] =25
 			my_players[place][4] = 45
 			my_players[place][11] =0
@@ -185,7 +187,7 @@ def test_players(x,y,z):
 			#nbr_player += 1
 
 #			print "nomatch for ", player
-			if (x >= 32): unknow(x,y)
+			if (x >= 32): unknow(x,y, z)
 			nbr_player += 1
 def send_osc(msg):
 	try :
@@ -363,7 +365,7 @@ def calc_angle(each, kin):
     y = kin['y']*100 + sin (alpha+ kin['az']) * each[4]
     z = each[3]
     if (z>= -100 and z<= 50) :
-#        print 150-z
+        print "first z =",z
         z= z +30
         test_players(x,y, 150-z)
         gl.glPointSize (32.0)
