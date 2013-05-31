@@ -163,8 +163,10 @@ class Scenario:
         # FORCES SUBJECTIVES  dans l'espace perceptuel
         # TODO :  les répulsions combinéees avec l'attraction centripete crée un fan puis transition a plusieurs anneaux / rotation?
         # point C (centre) du segment
-        OC = (self.particles[0:3, :]+self.particles[3:6, :])/2
-        CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
+        OA = self.particles[0:3, :]
+        OB = self.particles[3:6, :]
+        OC = (OA+OB)/2
+        #CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
         for OV in self.vps[:]:
             rae_VC = xyz2azel(OC, OV)
             rae_VA = xyz2azel(self.particles[:3, :], OV) # 3 x N
@@ -173,7 +175,8 @@ class Scenario:
 #            # attraction / repulsion des angles relatifs des segments
             if not(positions == None) and not(positions == np.nan):
                 distance_min = 1.e6 * np.ones((self.N)) # very big to begin with
-                rotation = np.empty((3, self.N))
+                rotation1 = np.empty((3, self.N))
+                rotation2 = np.empty((3, self.N))
                 gravity = np.empty((3, self.N))
                 for position in positions:
                     rae_VS = xyz2azel(np.array(position), OV)
@@ -182,38 +185,41 @@ class Scenario:
                                                arcdistance(rae_VS, rae_VC))), axis=0)
                     distance_SC = rae_VS[0]*np.sin(arcdis)
                     SC = OC - np.array(position)[:, np.newaxis]
-                    SC /= np.sqrt((SC**2).sum(axis=0)) # unit vector going from the player to the center of the segment
+                    SC_0 = SC / np.sqrt((SC**2).sum(axis=0)) # unit vector going from the player to the center of the segment
 
                     # TODO : diminuer la force du tabou dans le temps pour les personnes arrétées / parametre T_damp_global
-                    tabou = - SC * (distance_SC < distance_tabou) * (distance_SC**n - distance_tabou**n)/(distance_SC + self.p['eps'])**(n+3) # en metres
+                    tabou = - SC_0 * (distance_SC < distance_tabou) * (distance_SC**n - distance_tabou**n)/(distance_SC + self.p['eps'])**(n+3) # en metres
                     force[0:3, :] += G_tabou * tabou
                     force[3:6, :] += G_tabou * tabou
 
                     # TODO : réduire la dimension de profondeur à une simple convergence vers la position en x / reflète la perception
-                    gravity_ = - SC * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+3) # en metres
+                    gravity_ = - SC_0 * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+3) # en metres
 
                     # compute desired rotation
-                    cap_SC = orientation(rae_VS, rae_VC)
-                    cap_AB = orientation(rae_VA, rae_VB)
+                    #cap_SC = orientation(rae_VS, rae_VC)
+                    #cap_AB = orientation(rae_VA, rae_VB)
 
                     # TODO rotation aussi vers le plan perpendiculaire a l'acteur
                     # TODO résoudre le hack avec sign_view
                     # TODO : tuner les paramètres de rotation
                     AB = self.particles[3:6, :] - self.particles[0:3, :]# 3 x N
 #                    print np.sum(AB**2, axis=0)
-                    sign_view = np.sign(OC[0]-OV[0])
-                    rotation_ = -sign_view * np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
+                    #sign_view = np.sign(OC[0]-OV[0])
+                    #rotation_ = -sign_view * np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
+                    rotation_1 = OC + distance_SC * SC_0 - OA
+                    rotation_2 = OC + (distance_SC + self.l_seg)  * SC_0 - OB
                     # print sign_view * np.sin(cap_SC-cap_AB)
                     # only assign on the indices that correspond to the minimal distance
                     ind_assign = (distance_SC < distance_min)
                     gravity[:, ind_assign] = gravity_[:, ind_assign]
-                    rotation[:, ind_assign] = rotation_[:, ind_assign]
+                    rotation1[:, ind_assign] = rotation_1[:, ind_assign]
+                    rotation2[:, ind_assign] = rotation_2[:, ind_assign]
                     distance_min[ind_assign] = distance_SC[ind_assign]
 
                 force[0:3, :] += self.p['G_global'] / self.nvps * gravity
                 force[3:6, :] += self.p['G_global'] / self.nvps * gravity
-                force[0:3, :] += G_rot / self.nvps * rotation
-                force[3:6, :] -= G_rot / self.nvps * rotation
+                force[0:3, :] += G_rot / self.nvps * rotation1
+                force[3:6, :] -= G_rot / self.nvps * rotation2
 
         # FORCES GLOBALES  dans l'espace physique
 
@@ -238,10 +244,10 @@ class Scenario:
                 force[3, :] += self.p['G_gravite'] * gravity[0]
 
         ## forces entres les particules
+        OC = (self.particles[0:3, :]+self.particles[3:6, :])/2
+        CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
         if not(G_repulsion==0.):
             # repulsion entre les centres de de chaque paire de segments
-            OC = (self.particles[0:3, :]+self.particles[3:6, :])/2
-            CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
             distance = np.sqrt(np.sum(CC**2, axis=0)) # NxN ; en metres
             gravity = - np.sum(CC/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
             force[0:3, :] += G_repulsion * gravity
