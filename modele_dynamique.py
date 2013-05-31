@@ -234,12 +234,13 @@ class Scenario:
                     # point C (centre) du segment
                     SC = (self.particles[0:3, :]+self.particles[3:6, :])/2-np.array(position)[:, np.newaxis]
                     distance_SC = np.sqrt(np.sum(SC**2, axis=0)) # en metres
-                    gravity = - SC * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+3) # en metres
+                    SC_0 = SC / distance_SC # unit vector going from the player to the center of the segment
+                    gravity = - SC_0 * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+3) # en metres
 
                     rotation_1 = OC + distance_SC * SC_0 - OA
                     rotation_2 = OC + (distance_SC + self.l_seg)  * SC_0 - OB
-                    ind_assign = (distance_SC < distance_min)
 
+                    ind_assign = (distance_SC < distance_min)
                     gravity[:, ind_assign] = gravity_[:, ind_assign]
                     rotation1[:, ind_assign] = rotation_1[:, ind_assign]
                     rotation2[:, ind_assign] = rotation_2[:, ind_assign]
@@ -250,7 +251,7 @@ class Scenario:
                 force[0, :] += self.p['G_gravite'] * gravity[0]
                 force[3, :] += self.p['G_gravite'] * gravity[0]
                 force[0:3, :] += G_rot * rotation1
-                force[3:6, :] -= G_rot * rotation2
+                force[3:6, :] += G_rot * rotation2
 
         ## forces entres les particules
         OC = (self.particles[0:3, :]+self.particles[3:6, :])/2
