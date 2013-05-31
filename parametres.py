@@ -106,12 +106,12 @@ p = {'N': 32,
      'G_tabou': 1000.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
      'G_tabou_event': 10000.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
      'G_poussee': .0, # parametre de poussee créateur de vortex
-     'G_gravite': 1.0, # parametre d'attraction physique vers les players
-     'G_struct': .03, # force avec laquelle les bouts de segments s'attirent
+     'G_gravite': 100.0, # parametre d'attraction physique vers les players
+     'G_struct': .01, # force avec laquelle les bouts de segments s'attirent
      'G_struct_hot': .3, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .3, # distance pour laquelle les bouts de segments s'attirent
      'distance_struct_hot': .8, # distance pour laquelle les bouts de segments s'attirent
-     'G_repulsion': 0.05, # constante de répulsion entre les particules
+     'G_repulsion': 0.015, # constante de répulsion entre les particules
      'G_repulsion_hot': .5, # constante de répulsion entre les particules
      'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 80., 'l_seg_min': 0.7, 'l_seg_max': 4., # dureté et longueur des segments
