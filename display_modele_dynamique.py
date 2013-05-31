@@ -45,8 +45,8 @@ do_sock=True
 do_sock = False
 ########################################
 i_win = 0
+foc_VP = 50.
 foc_VP = VPs[i_win]['foc']
-foc_VP = 90.
 ########################################
 if do_sock:
     sys.path.append('../network/')
@@ -171,10 +171,10 @@ def on_draw():
         # pour simuler ROGER:
         positions = []
         amp, amp2 = .2, .5
-        T, T2 = 15., 30. # periode en secondes
-        positions.append([s.roger[0] * (1. + amp2*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp2*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
-        positions.append([s.roger[0], s.roger[1], s.roger[2]]) #  bouge pas, roger.
+        T, T2 = 25., 30. # periode en secondes
+        #positions.append([s.roger[0], s.roger[1], s.roger[2]]) #  bouge pas, roger.
         positions.append([s.roger[0] * (1. + amp*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
+        #positions.append([s.roger[0] * (1. + amp2*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp2*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
         # positions.append([s.roger[0] * (1. + amp*sin(2*pi*s.t/T2)), s.roger[1] * (1. + amp*sin(2*pi*s.t/T)), 1.2*s.roger[2]]) # une autre personne dans un mouvement en phase
         # positions.append([s.roger[0], s.roger[1] * (1. + amp2*cos(2*pi*s.t/T2)), 1.1*s.roger[2]]) # une personne dans un mouvement circulaire (elipse)
 
@@ -202,9 +202,9 @@ def on_draw():
                   x_fp + np.cos(s.heading_fp), y_fp + np.sin(s.heading_fp), z_fp,
                   0., 0, 1.0)
         # montre la salle comme un joli parallélipède bleu
-        gl.glPointSize(10)
-        gl.glColor3f(0., 0., 1.)
-        salle = [[0., 0., 0., d_x, 0., 0.], [0., 0., 0., 0., d_y, 0.], [0., 0., 0., 0., 0., d_z]]
+        #gl.glPointSize(10)
+        #gl.glColor3f(0., 0., 1.)
+        #salle = [[0., 0., 0., d_x, 0., 0.], [0., 0., 0., 0., d_y, 0.], [0., 0., 0., 0., 0., d_z]]
         #pyglet.graphics.draw(2*3, gl.GL_LINES, ('v3f', salle))¬
         for VP in VPs:
             # marque la postion de chaque VP par un joli carré vert
@@ -237,15 +237,14 @@ def on_draw():
 
     else:
         gl.glDisable(gl.GL_FOG)
-        gl.gluPerspective(VPs[i_VP]['foc'], 1.0*win_0.width/win_0.height,
+        gl.gluPerspective(foc_VP, 1.0*win_0.width/win_0.height,
                           VPs[i_VP]['pc_min'], VPs[i_VP]['pc_max'])
         gluLookAt(VPs[i_VP]['x'], VPs[i_VP]['y'], VPs[i_VP]['z'],
                   VPs[i_VP]['cx'], VPs[i_VP]['cy'], VPs[i_VP]['cz'],
                   0., 0, 1.0)
 
-
         # TODO: make an option to view particles from above
-        # gl.gluOrtho2D(0.0, d_y, 0., d_z)
+        #gl.gluOrtho2D(0.0, d_y, 0., d_z)
 
         gl.glLineWidth (p['line_width'])
         # marque la postion des personnes par un joli carré rouge
@@ -256,11 +255,11 @@ def on_draw():
 
         gl.glColor3f(1., 1., 1.)
 
-        int_p, alpha_p = 1., 1. #.5 + .5*np.sin(2*np.pi*0.2 * s.t)
-        colors_ = np.array([int_p, int_p, int_p, alpha_p, int_p, int_p, int_p, alpha_p])[:, np.newaxis] * np.ones((1, s.N))
-        # pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
-        pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()),
-                                 ('c4f', colors_.T.ravel().tolist()))
+        pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
+        #int_p, alpha_p = 1., 1. #.5 + .5*np.sin(2*np.pi*0.2 * s.t)
+        #colors_ = np.array([int_p, int_p, int_p, alpha_p, int_p, int_p, int_p, alpha_p])[:, np.newaxis] * np.ones((1, s.N))
+        #pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()),
+                                 #('c4f', colors_.T.ravel().tolist()))
 
 
 #    fps_text.draw()
@@ -292,7 +291,9 @@ try:
         ax, value = [], []
         n_key = len(p.keys())*1.
     #    print s.p.keys()
-        for i_key, key in enumerate(p.keys()):
+        liste_keys = p.keys()
+        liste_keys.sort()
+        for i_key, key in enumerate(liste_keys):
     #        print [0.1, 0.05+i_key/(n_key+1)*.9, 0.9, 0.05]
             ax.append(fig.add_axes([0.15, 0.05+i_key/(n_key-1)*.9, 0.6, 0.05], axisbg='lightgoldenrodyellow'))
             if p[key] > 0:
@@ -301,12 +302,12 @@ try:
                 value.append(slider_pylab(ax[i_key], key,  (p[key] + (p[key]==0)*1.)*10,  -(p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
 
         def update(val):
-            for i_key, key in enumerate(p.keys()):
+            for i_key, key in enumerate(liste_keys):
                 p[key]= value[i_key].val
                 print key, p[key]#, value[i_key].val
             plt.draw()
 
-        for i_key, key in enumerate(p.keys()): value[i_key].on_changed(update)
+        for i_key, key in enumerate(liste_keys): value[i_key].on_changed(update)
 
         plt.show(block=False) # il faut pylab.ion() pour pas avoir de blocage
 
@@ -317,11 +318,6 @@ try:
 except Exception, e:
     print('problem while importing sliders ! Error = ', e)
 
-#dt = 1./40 # interval between 2 captations
-#pyglet.clock.schedule_interval(callback, dt)
 pyglet.clock.schedule(callback)
-#pyglet.clock.schedule(lambda dt: None)
 pyglet.app.run()
 print 'Goodbye'
-
-

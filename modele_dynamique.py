@@ -135,6 +135,16 @@ class Scenario:
         else:
             G_rot = self.p['G_rot_hot']
 
+        if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche V dans display_modele_dynamique.py
+            G_repulsion = self.p['G_repulsion']
+        else:
+            G_repulsion = self.p['G_repulsion_hot']
+        if events[0] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche R dans display_modele_dynamique.py
+            G_struct = self.p['G_struct']
+            distance_struct = self.p['distance_struct']
+        else:
+            G_struct = self.p['G_struct_hot']
+            distance_struct = self.p['distance_struct_hot']
 
         # initialize t_break at the onset
         if (events[:6] == [1, 1, 1, 1, 1, 1]) and (self.t_break == 0.):
@@ -228,49 +238,42 @@ class Scenario:
                 force[3, :] += self.p['G_gravite'] * gravity[0]
 
         ## forces entres les particules
-        if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche V dans display_modele_dynamique.py
-            G_repulsion = self.p['G_repulsion']
-        else:
-            G_repulsion = self.p['G_repulsion_hot']
-        # repulsion entre les centres de de chaque paire de segments
-        OC = (self.particles[0:3, :]+self.particles[3:6, :])/2
-        CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
-        distance = np.sqrt(np.sum(CC**2, axis=0)) # NxN ; en metres
-        gravity = - np.sum(CC/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
-        force[0:3, :] += G_repulsion * gravity
-        force[3:6, :] += G_repulsion * gravity
-        # TODO attraction / repulsion des angles relatifs des segments
+        if not(G_repulsion==0.):
+            # repulsion entre les centres de de chaque paire de segments
+            OC = (self.particles[0:3, :]+self.particles[3:6, :])/2
+            CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
+            distance = np.sqrt(np.sum(CC**2, axis=0)) # NxN ; en metres
+            gravity = - np.sum(CC/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
+            force[0:3, :] += G_repulsion * gravity
+            force[3:6, :] += G_repulsion * gravity
+            # TODO attraction / repulsion des angles relatifs des segments
 
-        # poussee enrtainant une rotation lente et globale (cf p152)
-        ind_min = np.argmin(distance + np.eye(self.N)*1e6, axis=0)
-        speed_CC = (self.particles[6:9, :] + self.particles[6:9, ind_min]) + (self.particles[9:12, :] + self.particles[9:12, ind_min])
+        if not(self.p['G_poussee']==0.):
+            # poussee enrtainant une rotation lente et globale (cf p152)
+            ind_min = np.argmin(distance + np.eye(self.N)*1e6, axis=0)
+            speed_CC = (self.particles[6:9, :] + self.particles[6:9, ind_min]) + (self.particles[9:12, :] + self.particles[9:12, ind_min])
 #        print speed_CC.shape, ind_min, CC[:,:,ind_min].diagonal().shape, distance[:,ind_min].diagonal().shape
-        poussee =  np.sign(np.sum(speed_CC * CC[:,ind_min,:].diagonal(axis1=1, axis2=2), axis=0)) * CC[:,ind_min,:].diagonal(axis1=1, axis2=2) /(distance[:,ind_min].diagonal() + self.p['eps'])**3 # 3 x N; en metres
-        force[0:3, :] += self.p['G_poussee'] * poussee
-        force[3:6, :] += self.p['G_poussee'] * poussee
+            poussee =  np.sign(np.sum(speed_CC * CC[:,ind_min,:].diagonal(axis1=1, axis2=2), axis=0)) * CC[:,ind_min,:].diagonal(axis1=1, axis2=2) /(distance[:,ind_min].diagonal() + self.p['eps'])**3 # 3 x N; en metres
+            force[0:3, :] += self.p['G_poussee'] * poussee
+            force[3:6, :] += self.p['G_poussee'] * poussee
 
         # utiliser un damping = 0.1?
-        if events[0] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche R dans display_modele_dynamique.py
-            G_struct = self.p['G_struct']
-            distance_struct = self.p['distance_struct']
-        else:
-            G_struct = self.p['G_struct_hot']
-            distance_struct = self.p['distance_struct_hot']
         # attraction / repulsion des extremites des segments
-        AB = self.particles[0:3, :, np.newaxis]-self.particles[0:3, np.newaxis, :]
-        distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
-        gravity = - np.sum((distance < distance_struct) * AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
-        force[0:3, :] += G_struct * gravity
-        AB = self.particles[3:6, :, np.newaxis]-self.particles[3:6, np.newaxis, :]
-        distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
-        gravity = - np.sum((distance < distance_struct) * AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
-        force[3:6, :] += G_struct * gravity
-        AB = self.particles[0:3, :][:, :, np.newaxis]-self.particles[3:6, :][:, :, np.newaxis]
-        distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
-        gravity = - np.sum((distance < distance_struct) * AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
-        force[0:3, :] += .5* G_struct * gravity
-        force[3:6, :] += .5* G_struct * gravity
-        # print G_struct, G_rot, G_repulsion
+        if not(G_struct==0.):
+            AB = self.particles[0:3, :, np.newaxis]-self.particles[0:3, np.newaxis, :]
+            distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
+            gravity = - np.sum((distance < distance_struct) * AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
+            force[0:3, :] += G_struct * gravity
+            AB = self.particles[3:6, :, np.newaxis]-self.particles[3:6, np.newaxis, :]
+            distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
+            gravity = - np.sum((distance < distance_struct) * AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
+            force[3:6, :] += G_struct * gravity
+            AB = self.particles[0:3, :][:, :, np.newaxis]-self.particles[3:6, :][:, :, np.newaxis]
+            distance = np.sqrt(np.sum(AB**2, axis=0)) # NxN ; en metres
+            gravity = - np.sum((distance < distance_struct) * AB/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
+            force[0:3, :] += .5* G_struct * gravity
+            force[3:6, :] += .5* G_struct * gravity
+            # print G_struct, G_rot, G_repulsion
 
         # ressort
         AB = self.particles[0:3, :]-self.particles[3:6, :] # 3 x N
@@ -281,13 +284,10 @@ class Scenario:
         force[3:6, :] += G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
 
         # damping
-#        z_C = (self.particles[2, :]+self.particles[5, :])/2
-#        print z_C
-        modul = 1 #np.exp(- z_C* (z_C>0) / self.volume[2] / 4. )
         if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans display_modele_dynamique.py
-            force -= self.p['damp_hot'] * modul * self.particles[6:12, :]/self.dt
+            force -= self.p['damp_hot'] * self.particles[6:12, :]/self.dt
         else:
-            force -= self.p['damp'] * modul * self.particles[6:12, :]/self.dt
+            force -= self.p['damp'] * self.particles[6:12, :]/self.dt
 
         # normalisation des forces pour éviter le chaos
         if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
@@ -551,7 +551,7 @@ class Scenario:
 
         # todo : éviter plaquage le long des bords
         #  permet de ne pas sortir du volume (todo: créer un champ répulsif aux murs...)
-        if False: #(self.scenario == 'leapfrog') or (self.scenario == 'euler') :
+        if (self.scenario == 'leapfrog') or (self.scenario == 'euler') :
             for i in range(6):
                 self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
                 self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
