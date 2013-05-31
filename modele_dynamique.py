@@ -175,12 +175,12 @@ class Scenario:
                     SC /= np.sqrt((SC**2).sum(axis=0)) # unit vector going from the player to the center of the segment
 
                     # TODO : diminuer la force du tabou dans le temps pour les personnes arrétées / parametre T_damp_global
-                    tabou = - SC * (distance_SC < distance_tabou) * (distance_SC**n - distance_tabou**n)/(distance_SC + self.p['eps'])**(n+2) # en metres
+                    tabou = - SC * (distance_SC < distance_tabou) * (distance_SC**n - distance_tabou**n)/(distance_SC + self.p['eps'])**(n+3) # en metres
                     force[0:3, :] += G_tabou * tabou
                     force[3:6, :] += G_tabou * tabou
 
                     # TODO : réduire la dimension de profondeur à une simple convergence vers la position en x / reflète la perception
-                    gravity_ = - SC * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+2) # en metres
+                    gravity_ = - SC * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+3) # en metres
 
                     # compute desired rotation
                     cap_SC = orientation(rae_VS, rae_VC)

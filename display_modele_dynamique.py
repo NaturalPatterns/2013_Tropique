@@ -44,7 +44,10 @@ do_slider = True
 do_sock=True
 do_sock = False
 ########################################
-
+i_win = 0
+foc_VP = VPs[i_win]['foc']
+foc_VP = 90.
+########################################
 if do_sock:
     sys.path.append('../network/')
     from network import Kinects
@@ -102,13 +105,12 @@ def on_resize(width, height):
     gl.glDisable(gl.GL_CLIP_PLANE3)
     return pyglet.event.EVENT_HANDLED
 
-i_win = 0
 win_0.on_resize = on_resize
 win_0.set_visible(True)
 # win_0.set_mouse_visible(False)
 gl.glMatrixMode(gl.GL_MODELVIEW)
 gl.glLoadIdentity()
-gl.gluPerspective(VPs[i_win]['foc'], 1.0*win_0.width/win_0.height, VPs[i_win]['pc_min'], VPs[i_win]['pc_max'])
+gl.gluPerspective(foc_VP, 1.0*win_0.width/win_0.height, VPs[i_win]['pc_min'], VPs[i_win]['pc_max'])
 gluLookAt(VPs[i_win]['x'], VPs[i_win]['y'], VPs[i_win]['z'],
       VPs[i_win]['cx'], VPs[i_win]['cy'], VPs[i_win]['cz'],
       0., 0, 1.0)
@@ -282,7 +284,7 @@ try:
         mpl.rcParams['backend_fallback'] = True
         mpl.rcParams['toolbar'] = 'None'
         import pylab as plt
-        fig = pylab.figure(1)
+        fig = plt.figure(1)
     #    AX = fig.add_subplot(111)
         plt.ion()
         # turn interactive mode on for dynamic updates.  If you aren't in interactive mode, you'll need to use a GUI event handler/timer.
@@ -302,11 +304,11 @@ try:
             for i_key, key in enumerate(p.keys()):
                 p[key]= value[i_key].val
                 print key, p[key]#, value[i_key].val
-            pylab.draw()
+            plt.draw()
 
         for i_key, key in enumerate(p.keys()): value[i_key].on_changed(update)
 
-        pylab.show(block=False) # il faut pylab.ion() pour pas avoir de blocage
+        plt.show(block=False) # il faut pylab.ion() pour pas avoir de blocage
 
         return fig
 
