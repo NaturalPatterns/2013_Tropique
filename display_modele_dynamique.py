@@ -30,9 +30,9 @@ sys.modules['Image'] = PIL.Image
 # TODO: contrôle de la vitesse du mouvement de position simulé
 ########################################
 #window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
-from parametres import VPs, volume, p, kinects_network_config, d_x, d_y, d_z, scenario
+from parametres import VPs, volume, p, kinects_network_config, d_x, d_y, d_z, scenario, calibration
 from modele_dynamique import Scenario
-s = Scenario(p['N'], scenario, volume, VPs, p)
+s = Scenario(p['N'], scenario, volume, VPs, p, calibration)
 ########################################
 do_firstperson, foc_fp, i_VP_fp, alpha_fp, int_fp, intB_fp, show_VP = False, 60., 1, .1, 1., 0.01, True
 s.heading_fp, s.rot_heading_fp, s.inc_heading_fp = 0., 0., 0.1
