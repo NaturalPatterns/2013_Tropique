@@ -187,7 +187,7 @@ def test_players(x,y,z):
 			#nbr_player += 1
 
 #			print "nomatch for ", player
-			if (x >= 32): unknow(x,y, z)
+			if (x >= 32): unknow(x,y,z)
 			nbr_player += 1
 def send_osc(msg):
 	try :
@@ -363,13 +363,23 @@ def calc_angle(each, kin):
 #    print "alpha =" , alpha
     x = kin['x']*100 + cos (alpha+ kin['az']) * each[4]
     y = kin['y']*100 + sin (alpha+ kin['az']) * each[4]
-    z = each[3]
+    z = each[3] 
     if (z>= -100 and z<= 50) :
-        print "first z =",z
-        z= z +30
+        pourcent = ((y / ((d_y/2)-y ))/100)*1
+#        print "alpha=", alpha
+#        print "pourcent  =" ,pourcent
+        varz = (float(z) * (pourcent))
+#        print "first varz =",varz + z
+        z+=20
+
+        z= z+ varz 
+
         test_players(x,y, 150-z)
         gl.glPointSize (32.0)
         gl.glColor4f(1, 0, 1, 1)
+
+
+        
 #        makemedraw(x,y)
 
 
@@ -380,7 +390,8 @@ def calc_angle(each, kin):
 #y=0
 def makemedraw(x,y,z):
     z+=1
-    print "z=",z
+    if z==1:
+        print "erreur z=",z
     zdraw = abs(float(z))/5.0
     gl.glPointSize (zdraw);
     gl.glBegin (gl.GL_POINTS);
