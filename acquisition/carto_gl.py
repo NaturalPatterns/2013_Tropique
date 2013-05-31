@@ -74,7 +74,7 @@ N_screen = len(screens) # number of screens
 assert N_screen == 1 # we should be running on one screen only
   
 from pyglet.window import Window
-win_0 = Window(screen=screens[0], fullscreen=True, resizable=False, vsync = True)
+win_0 = Window(screen=screens[0], fullscreen=False, resizable=False, vsync = True)
 #win_0 = Window(screen=screens[0], fullscreen=False, resizable=True, vsync = True)
 #win_0.set_size(1900, 1080)
 import pyglet.gl as gl

@@ -223,7 +223,7 @@ def get_depth0():
 #    print "sendstring",send_string
     try :	
         Donnee, Client = PySocket.recvfrom (1024)
-#        print Donnee
+#        print "client is ", Client
     except :
          pass#		print "no need of data"
     else :
