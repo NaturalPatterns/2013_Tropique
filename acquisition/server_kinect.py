@@ -20,9 +20,10 @@ cy_d = 2.4273913761751615e+02;
 
 #print sys.argv[0], sys.argv[1], sys.argv[2] # nom du fichier, param1 , param2
 global server_kin
-server_kin = sys.argv[1]
+server_kin = int(sys.argv[1])
+print type(server_kin)
 global show
-show=(sys.argv[2]==1)
+show=(sys.argv[2]=="1")
 print('Press ESC in window to stop')
 
 

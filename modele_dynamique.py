@@ -74,15 +74,14 @@ def rae2xyz(rae, OV = np.zeros((3,))):
 
 
 class Scenario:
-    def __init__(self, N, scenario, volume, VPs, p):
+    def __init__(self, N, scenario, volume, VPs, p, calibration):
         self.t = time.time()
         self.scenario = scenario
         self.volume = volume
         d_x, d_y, d_z = self.volume
-        self.center = np.array([d_x/2., d_y/2, VPs[0]['z']], dtype='f') # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
-        self.croix = np.array([8.65, 3.67, 1.36], dtype='f') # definition de la position de la croix
-        self.croix = np.array([11.95, 2.2, 1.36], dtype='f') # definition de la position de la croix
-        self.roger = np.array([d_x/2., d_y/2., 1.73], dtype='f') #  fixation dot  (AKA Roger?)
+        self.center = calibration['center'] # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
+        self.croix =  calibration['croix'] # definition de la position de la croix
+        self.roger =  calibration['roger'] #  fixation dot  (AKA Roger?)
 #        self.origin = np.array([0., 0., 0.]) # origin
 
         self.VPs = VPs # le dictionnaire avec les characteristiques de tous les VPs

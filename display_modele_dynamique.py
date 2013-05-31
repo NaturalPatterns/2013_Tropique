@@ -29,13 +29,8 @@ sys.modules['Image'] = PIL.Image
 # TODO: paramètre scan pour rechercher des bifurcations (edge of chaos)
 # TODO: contrôle de la vitesse du mouvement de position simulé
 ########################################
-scenario = 'leapfrog'  # 'rotating-circle'
-scenario = 'rotating-circle'
-scenario = 'fan'
-scenario = 'croix'
-scenario = 'cristal'
 #window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
-from parametres import VPs, volume, p, kinects_network_config, d_x, d_y, d_z
+from parametres import VPs, volume, p, kinects_network_config, d_x, d_y, d_z, scenario
 from modele_dynamique import Scenario
 s = Scenario(p['N'], scenario, volume, VPs, p)
 ########################################
@@ -51,6 +46,7 @@ do_sock = False
 ########################################
 
 if do_sock:
+    sys.path.append('../network/')
     from network import Kinects
     k = Kinects(kinects_network_config)
 else:
@@ -105,9 +101,6 @@ def on_resize(width, height):
     gl.glDisable(gl.GL_CLIP_PLANE2)
     gl.glDisable(gl.GL_CLIP_PLANE3)
     return pyglet.event.EVENT_HANDLED
-
-
-
 
 i_win = 0
 win_0.on_resize = on_resize
@@ -206,8 +199,13 @@ def on_draw():
         gluLookAt(x_fp, y_fp, z_fp,
                   x_fp + np.cos(s.heading_fp), y_fp + np.sin(s.heading_fp), z_fp,
                   0., 0, 1.0)
-        # marque la postion de chaque VP par un joli carré vert
+        # montre la salle comme un joli parallélipède bleu
+        gl.glPointSize(10)
+        gl.glColor3f(0., 0., 1.)
+        salle = [[0., 0., 0., d_x, 0., 0.], [0., 0., 0., 0., d_y, 0.], [0., 0., 0., 0., 0., d_z]]
+        #pyglet.graphics.draw(2*3, gl.GL_LINES, ('v3f', salle))¬
         for VP in VPs:
+            # marque la postion de chaque VP par un joli carré vert
             if show_VP:
                 gl.glPointSize(10)
                 gl.glColor3f(0., 1., 0.)
