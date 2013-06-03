@@ -7,20 +7,20 @@ Exploration mode.
 
     Interaction keyboard:
     - TAB pour passer/sortir du fulscreen
-    - espace : passage en first-person persepective
+    - espace : passage en first-person perspective
 
-    Les interactions visuo - sonores sont simulées ici par des switches lançant les événements:
-    - R : rugosité G_struct distance_struct
+    Les interactions visuo - sonores sont simulées ici par des switches lançant des phases:
+    - R : rugosité physique G_struct distance_struct
+    - N : restore la config sans event = Neutre
+    - G : glissement = perceptif G_rot <> G_rot_hot
+    et des événements:
     - P : pulse (modif de la longueur et raideur des segments)
     - V : G_repulsion <> G_repulsion_hot
-    - G : G_rot <> G_rot_hot
-    - Q : restore la config sans event
     - B : break
     - D : Down
-    TODO: il reste de la place...
 
 """
-# HACK; to avoid the "AccessInit: hash collision: 3 for both 1 and 1" bug...
+# HACK to avoid the "AccessInit: hash collision: 3 for both 1 and 1" bug...
 # see http://forum.jetbrains.com/thread/PyCharm-938
 import sys
 import PIL.Image
@@ -29,7 +29,6 @@ sys.modules['Image'] = PIL.Image
 # TODO: paramètre scan pour rechercher des bifurcations (edge of chaos)
 # TODO: contrôle de la vitesse du mouvement de position simulé
 ########################################
-#window = pyglet.window.Window(fullscreen='-fs' in sys.argv, config=config)
 from parametres import VPs, volume, p, kinects_network_config, d_x, d_y, d_z, scenario, calibration
 from modele_dynamique import Scenario
 s = Scenario(p['N'], scenario, volume, VPs, p, calibration)
@@ -58,7 +57,6 @@ else:
 # Window information
 # ------------------
 import pyglet
-#pyglet.options['darwin_cocoa'] = True
 platform = pyglet.window.get_platform()
 print "platform" , platform
 display = platform.get_default_display()
@@ -67,14 +65,12 @@ screens = display.get_screens()
 print "screens" , screens
 for i, screen in enumerate(screens):
     print 'Screen %d: %dx%d at (%d,%d)' % (i, screen.width, screen.height, screen.x, screen.y)
-#screen   = screens[0]
 N_screen = len(screens) # number of screens
 N_screen = 1# len(screens) # number of screens
 assert N_screen == 1 # we should be running on one screen only
 
 
 from pyglet.window import Window
-#from pyglet import clock
 
 if do_fs:
     win_0 = Window(screen=screens[0], fullscreen=True, resizable=True)
@@ -82,7 +78,6 @@ else:
     win_0 = Window(width=screen.width*2/3, height=screen.height*2/3, screen=screens[0], fullscreen=False, resizable=True)
     win_0.set_location(screen.width/3, screen.height/3)
 
-#print screen.width
 import pyglet.gl as gl
 fps_text = pyglet.clock.ClockDisplay()
 from pyglet.gl.glu import gluLookAt
@@ -91,9 +86,7 @@ def on_resize(width, height):
     gl.glViewport(0, 0, width, height)
     gl.glEnable(gl.GL_BLEND)
     gl.glShadeModel(gl.GL_SMOOTH) #
-#     gl.glBlendFunc (gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
     gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE)
-#     gl.glHint(gl.GL_LINE_SMOOTH, gl.GL_NICEST)# gl.GL_FASTEST)# gl.GL_NICEST)# GL_DONT_CARE)#
     gl.glDepthFunc(gl.GL_LEQUAL)
     gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_NICEST)# gl.GL_FASTEST)# gl.GL_NICEST)# GL_DONT_CARE)#
     gl.glDisable(gl.GL_DEPTH_TEST)
@@ -107,15 +100,12 @@ def on_resize(width, height):
 
 win_0.on_resize = on_resize
 win_0.set_visible(True)
-# win_0.set_mouse_visible(False)
 gl.glMatrixMode(gl.GL_MODELVIEW)
 gl.glLoadIdentity()
 gl.gluPerspective(foc_VP, 1.0*win_0.width/win_0.height, VPs[i_win]['pc_min'], VPs[i_win]['pc_max'])
 gluLookAt(VPs[i_win]['x'], VPs[i_win]['y'], VPs[i_win]['z'],
       VPs[i_win]['cx'], VPs[i_win]['cy'], VPs[i_win]['cz'],
       0., 0, 1.0)
-#win_0.on_draw = on_draw
-# batch = pyglet.graphics.Batch()
 
 events = [0, 0, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
 
@@ -159,14 +149,13 @@ from numpy import sin, cos, pi
 @win_0.event
 def on_resize(width, height):
     print 'The window was resized to %dx%d' % (width, height)
-##if DEBUG: fps_display = pyglet.clock.ClockDisplay(color=(1., 1., 1., 1.))
 @win_0.event
 def on_draw():
     global s
     t = s.t
 
     if do_sock:
-        positions = k.read_sock() # TODO: c'est bien une liste de coordonnées [x, y, z] ?
+        positions = k.read_sock() #
     else:
         # pour simuler ROGER:
         positions = []
@@ -256,16 +245,7 @@ def on_draw():
         gl.glColor3f(1., 1., 1.)
 
         pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
-        #int_p, alpha_p = 1., 1. #.5 + .5*np.sin(2*np.pi*0.2 * s.t)
-        #colors_ = np.array([int_p, int_p, int_p, alpha_p, int_p, int_p, int_p, alpha_p])[:, np.newaxis] * np.ones((1, s.N))
-        #pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()),
-                                 #('c4f', colors_.T.ravel().tolist()))
-
         print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
-
-#    fps_text.draw()
-#     batch.draw()
-
 
     if do_sock: k.trigger()
 
@@ -286,10 +266,8 @@ try:
         import pylab as plt
         fig = plt.figure(1)
         f_manager = plt.get_current_fig_manager()
-        # f_manager.window.move(0, 0) dioes not work on MacOsX
-        f_manager.set_window_title(" Quand c'est trop c'est tropicoooo ")
-
-    #    AX = fig.add_subplot(111)
+        # f_manager.window.move(0, 0) does not work on MacOsX
+        f_manager.set_window_title(" Quand c'est trop c'est tropico, COCO ")
         plt.ion()
         # turn interactive mode on for dynamic updates.  If you aren't in interactive mode, you'll need to use a GUI event handler/timer.
         from matplotlib.widgets import Slider as slider_pylab
@@ -299,12 +277,13 @@ try:
         liste_keys = p.keys()
         liste_keys.sort()
         for i_key, key in enumerate(liste_keys):
-    #        print [0.1, 0.05+i_key/(n_key+1)*.9, 0.9, 0.05]
             ax.append(fig.add_axes([0.15, 0.05+i_key/(n_key-1)*.9, 0.6, 0.05], axisbg='lightgoldenrodyellow'))
             if p[key] > 0:
                 value.append(slider_pylab(ax[i_key], key, 0., (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
+            elif p[key] < 0:
+                value.append(slider_pylab(ax[i_key], key,  -(p[key] + (p[key]==0)*1.)*10, 0., valinit=p[key]))
             else:
-                value.append(slider_pylab(ax[i_key], key,  (p[key] + (p[key]==0)*1.)*10,  -(p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
+                value.append(slider_pylab(ax[i_key], key,  -(p[key] + (p[key]==0)*1.)*10, (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
 
         def update(val):
             for i_key, key in enumerate(liste_keys):
@@ -313,9 +292,7 @@ try:
             plt.draw()
 
         for i_key, key in enumerate(liste_keys): value[i_key].on_changed(update)
-
         plt.show(block=False) # il faut pylab.ion() pour pas avoir de blocage
-
         return fig
 
     if s.scenario=='leapfrog' and do_slider:
