@@ -48,8 +48,8 @@ volume = [d_x, d_y, d_z]
 scenario = "fan" # une aura autour de la position du premier player
 scenario = 'rotating-circle'
 scenario = 'cristal'
+scenario = "croix" # calibration autour de la croix
 scenario = "leapfrog" # integration d'Euler améliorée pour simuler le champ
-#scenario = "croix" # calibration autour de la croix
 
 # et direction d'angle de vue (cx, cy, cz) comme le point de fixation ainsi que le champ de vue (en deg)
 # distance des VPs du plan de reference
@@ -96,34 +96,34 @@ calibration = {
                 }
 
 # parametres du champ
-p = {'N': 16,
-     'distance_m': 0.60, # distance d'équilibre des segments autour d'une position de player
-     'G_global': 2.0, # attraction globale vers les centres des positions
-     'G_rot': 0.,
+p = {'N': 32,
+     'distance_m': 0.50, # distance d'équilibre des segments autour d'une position de player
+     'G_global': 50.0, # attraction globale vers les centres des positions
+     'G_rot': 50.,
      'G_rot_hot': -.05,
      'distance_tabou': 0.2, # distance tabou
      'distance_tabou_event': .93, # distance tabou
-     'G_tabou': 0.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
+     'G_tabou': 1.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
      'G_tabou_event': 10000.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
      'G_poussee': .0, # parametre de poussee créateur de vortex
      'G_gravite': 1.0, # parametre d'attraction physique vers les players
      'G_struct': .0, # force avec laquelle les bouts de segments s'attirent
      'G_struct_hot': .3, # force avec laquelle les bouts de segments s'attirent
-     'distance_struct': .3, # distance pour laquelle les bouts de segments s'attirent
-     'distance_struct_hot': .8, # distance pour laquelle les bouts de segments s'attirent
-     'G_repulsion': 0.0, # constante de répulsion entre les particules
+     'distance_struct': .3, # distance pour laquelle li'attraction des bouts de segments s'inverse
+     'distance_struct_hot': .8,
+     'G_repulsion': 1., # constante de répulsion entre les particules
      'G_repulsion_hot': .5, # constante de répulsion entre les particules
      'eps': 1.e-4, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
-     'G_spring': 1., 'l_seg_min': 0.7, 'l_seg_max': 4., # dureté et longueur des segments
+     'G_spring': 80., 'l_seg_min': 0.4, 'l_seg_max': 2., # dureté et longueur des segments
      'G_spring_hot': 1., 'l_seg_hot': 2.,  # dureté et longueur des segments dans un break
      # parametres globaux
+     'damp': .3,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_hot': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_midle': .50,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-     'damp': .3,  # facteur de damping / absorbe l'énergie / regle la viscosité
-     'speed_0': .5, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
-     'scale': 1., # facteur global régler la saturation de la force
-     'kurt' : 1., # 1 is normal gravity, higher makes the attraction more local
-     'line_width': 2, # line width of segments
+     'speed_0': .01, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'scale': 100., # facteur global régler la saturation de la force
+     'kurt' : .3, # 1 is normal gravity, higher makes the attraction more local
+     'line_width': 3, # line width of segments
      'T_break': 6., # duration (secondes) of all three breaks
      'A_break': 7.5, # amplitude du break #2 et #3
      'tau_break': .103, # duration du transient dans les breaks #2 et #3
