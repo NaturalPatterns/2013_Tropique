@@ -267,7 +267,7 @@ try:
         fig = plt.figure(1)
         f_manager = plt.get_current_fig_manager()
         # f_manager.window.move(0, 0) does not work on MacOsX
-        f_manager.set_window_title(" Quand c'est trop c'est tropico, COCO ")
+        f_manager.set_window_title(" oOOO, KIKI ")
         plt.ion()
         # turn interactive mode on for dynamic updates.  If you aren't in interactive mode, you'll need to use a GUI event handler/timer.
         from matplotlib.widgets import Slider as slider_pylab
