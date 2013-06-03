@@ -200,6 +200,7 @@ class Scenario:
                     rotation1[:, ind_assign] = rotation_1[:, ind_assign]
                     rotation2[:, ind_assign] = rotation_2[:, ind_assign]
                     distance_min[ind_assign] = distance_SC[ind_assign]
+                    #mettre un prior sur l'horizon
 
                 force[0:3, :] += self.p['G_global'] / self.nvps * gravity
                 force[3:6, :] += self.p['G_global'] / self.nvps * gravity
