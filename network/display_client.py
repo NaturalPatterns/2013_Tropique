@@ -102,7 +102,7 @@ center = np.array([0., d_y/2, d_z/2], dtype='f') # central point of the room  / 
 
 #VPs = VPs
 N = p['N']
-#print " the N= ", N
+print " the N= ", N
 
 order = 2
 particles = np.zeros((6*order, N), dtype='f') # x, y, z, u, v, w
@@ -155,7 +155,7 @@ def on_draw():
     if (particlestest!=None):
         #print 'ok dude',  particlestest.shape
         my_part = np.fromstring(particlestest, dtype='f')
-        
+    # print my_part.shape   
     gl.glLineWidth ( p['line_width'] )
     
     pyglet.graphics.draw(2*N, gl.GL_LINES, ('v3f', my_part.T.ravel().tolist()))
