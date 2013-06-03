@@ -92,26 +92,27 @@ calibration = {
         'croix': np.array([8.65, 3.67, 1.36], dtype='f'), # definition de la position de la croix
 #        'croix': np.array([11.95, 2.2, 1.36], dtype='f'), # definition de la position de la croix
         'roger': np.array([d_x/2., d_y/2., 1.73], dtype='f'), #  fixation dot  (AKA Roger?)
-        #        'origin': np.array([0., 0., 0.]) # origin
                 }
 
 # parametres du champ
 p = {'N': 32,
+     # parametres perceptifs
      'distance_m': 0.50, # distance d'équilibre des segments autour d'une position de player
-     'G_global': 50.0, # attraction globale vers les centres des positions
-     'G_rot': 50.,
+     'G_global': 10.0, # attraction globale vers les centres des positions
+     'G_rot': 10.,
      'G_rot_hot': -.05,
      'distance_tabou': 0.2, # distance tabou
      'distance_tabou_event': .93, # distance tabou
      'G_tabou': 1.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
      'G_tabou_event': 10000.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
+     'G_gravite': .0, # parametre d'attraction physique vers les players
+     # parametres physiques
      'G_poussee': .0, # parametre de poussee créateur de vortex
-     'G_gravite': 1.0, # parametre d'attraction physique vers les players
      'G_struct': .0, # force avec laquelle les bouts de segments s'attirent
      'G_struct_hot': .3, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .3, # distance pour laquelle li'attraction des bouts de segments s'inverse
      'distance_struct_hot': .8,
-     'G_repulsion': 1., # constante de répulsion entre les particules
+     'G_repulsion': 1.0, # constante de répulsion entre les particules
      'G_repulsion_hot': .5, # constante de répulsion entre les particules
      'eps': 1.e-4, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 80., 'l_seg_min': 0.4, 'l_seg_max': 2., # dureté et longueur des segments
@@ -122,7 +123,7 @@ p = {'N': 32,
      'damp_midle': .50,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'speed_0': .01, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 100., # facteur global régler la saturation de la force
-     'kurt' : .3, # 1 is normal gravity, higher makes the attraction more local
+     'kurt' : 1., # 1 is normal gravity, higher makes the attraction more local
      'line_width': 3, # line width of segments
      'T_break': 6., # duration (secondes) of all three breaks
      'A_break': 7.5, # amplitude du break #2 et #3
