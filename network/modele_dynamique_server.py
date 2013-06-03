@@ -92,40 +92,7 @@ st.start()
 do_slider = True
 #----------------------
 try:
-    def sliders(p):
-        import matplotlib as mpl
-        mpl.rcParams['interactive'] = True
-        mpl.rcParams['backend'] = 'macosx'
-        #mpl.rcParams['backend_fallback'] = True
-        mpl.rcParams['toolbar'] = 'None'
-        import pylab as plt
-        fig = plt.figure(1)
-    #    AX = fig.add_subplot(111)
-        plt.ion()
-        # turn interactive mode on for dynamic updates.  If you aren't in interactive mode, you'll need to use a GUI event handler/timer.
-        from matplotlib.widgets import Slider as slider_pylab
-        ax, value = [], []
-        n_key = len(p.keys())*1.
-    #    print s.p.keys()
-        for i_key, key in enumerate(p.keys()):
-    #        print [0.1, 0.05+i_key/(n_key+1)*.9, 0.9, 0.05]
-            ax.append(fig.add_axes([0.15, 0.05+i_key/(n_key-1)*.9, 0.6, 0.05], axisbg='lightgoldenrodyellow'))
-            if p[key] > 0:
-                value.append(slider_pylab(ax[i_key], key, 0., (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
-            else:
-                value.append(slider_pylab(ax[i_key], key,  (p[key] + (p[key]==0)*1.)*10,  -(p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
-
-        def update(val):
-            for i_key, key in enumerate(p.keys()):
-                p[key]= value[i_key].val
-                print key, p[key]#, value[i_key].val
-            plt.draw()
-
-        for i_key, key in enumerate(p.keys()): value[i_key].on_changed(update)
-
-        plt.show(block=False) # il faut plt.ion() pour pas avoir de blocage
-
-        return fig
+    from parametres import sliders
 
     if s.scenario=='leapfrog' and do_slider:
         fig = sliders(s.p)

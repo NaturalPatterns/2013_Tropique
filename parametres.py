@@ -214,7 +214,7 @@ except Exception, e:
 if __name__ == "__main__":
     import sys
 #    print sys.argv[0], str(sys.argv[1]), sys.argv[2] # nom du fichier, param1 , param2
-    sys.path.append('network')
-    #import display_modele_dynamique
-    import modele_dynamique_server
+    import display_modele_dynamique
+    #sys.path.append('network')
+    #import modele_dynamique_server
 
