@@ -218,8 +218,8 @@ class Scenario:
 
                 force[0:3, :] += self.p['G_global'] / self.nvps * gravity
                 force[3:6, :] += self.p['G_global'] / self.nvps * gravity
-                #force[0:3, :] += G_rot / self.nvps * rotation1
-                #force[3:6, :] -= G_rot / self.nvps * rotation2
+                force[0:3, :] += G_rot / self.nvps * rotation1
+                force[3:6, :] -= G_rot / self.nvps * rotation2
 
         # FORCES GLOBALES  dans l'espace physique
 
@@ -250,8 +250,8 @@ class Scenario:
 #                force[3:6, :] += self.p['G_gravite'] * gravity
                 force[0, :] += self.p['G_gravite'] * gravity[0]
                 force[3, :] += self.p['G_gravite'] * gravity[0]
-                force[0:3, :] += G_rot * rotation1
-                force[3:6, :] += G_rot * rotation2
+                #force[0:3, :] += G_rot * rotation1
+                #force[3:6, :] += G_rot * rotation2
 
         ## forces entres les particules
         OC = (self.particles[0:3, :]+self.particles[3:6, :])/2
@@ -569,10 +569,10 @@ class Scenario:
         #  permet de ne pas sortir du volume (todo: créer un champ répulsif aux murs...)
         if (self.scenario == 'leapfrog') or (self.scenario == 'euler') :
             for i in range(6):
-                #self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
-                #self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
-                self.particles[i, (self.particles[i, :] > self.volume[i % 3]) ] = self.volume[i % 3]
-                self.particles[i, (self.particles[i, :] < -.0*self.volume[i % 3]) ] = -.0*self.volume[i % 3]
+                self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
+                self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
+                #self.particles[i, (self.particles[i, :] > self.volume[i % 3]) ] = self.volume[i % 3]
+                #self.particles[i, (self.particles[i, :] < -.0*self.volume[i % 3]) ] = -.0*self.volume[i % 3]
 
 
 if __name__ == "__main__":
