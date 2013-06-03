@@ -173,12 +173,12 @@ class Scenario:
                     SC_0 = SC / np.sqrt((SC**2).sum(axis=0)) # unit vector going from the player to the center of the segment
 
                     # TODO : diminuer la force du tabou dans le temps pour les personnes arrétées / parametre T_damp_global
-                    tabou = - SC_0 * (distance_SC < distance_tabou) * (distance_SC**n - distance_tabou**n)/(distance_SC + self.p['eps'])**(n+3) # en metres
+                    tabou = - SC_0 * (distance_SC < distance_tabou) * (distance_SC**n - distance_tabou**n)/(distance_SC + self.p['eps'])**(n+2) # en metres
                     force[0:3, :] += G_tabou * tabou
                     force[3:6, :] += G_tabou * tabou
 
                     # TODO : réduire la dimension de profondeur à une simple convergence vers la position en x / reflète la perception
-                    gravity_ = - SC_0 * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+3) # en metres
+                    gravity_ = - SC_0 * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+2) # en metres
 
                     # compute desired rotation
                     #cap_SC = orientation(rae_VS, rae_VC)
@@ -220,7 +220,7 @@ class Scenario:
                     SC = (self.particles[0:3, :]+self.particles[3:6, :])/2-np.array(position)[:, np.newaxis]
                     distance_SC = np.sqrt(np.sum(SC**2, axis=0)) # en metres
                     SC_0 = SC / distance_SC # unit vector going from the player to the center of the segment
-                    gravity = - SC_0 * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+3) # en metres
+                    gravity = - SC_0 * (distance_SC**n - self.p['distance_m']**n)/(distance_SC + self.p['eps'])**(n+2) # en metres
 
                     rotation_1 = OC + distance_SC * SC_0 - OA
                     rotation_2 = OC + (distance_SC + self.l_seg)  * SC_0 - OB
@@ -254,8 +254,7 @@ class Scenario:
             # poussee entrainant une rotation lente et globale (cf p152)
             ind_min = np.argmin(distance + np.eye(self.N)*1e6, axis=0)
             speed_CC = (self.particles[6:9, :] + self.particles[6:9, ind_min]) + (self.particles[9:12, :] + self.particles[9:12, ind_min])
-#        print speed_CC.shape, ind_min, CC[:,:,ind_min].diagonal().shape, distance[:,ind_min].diagonal().shape
-            poussee =  np.sign(np.sum(speed_CC * CC[:,ind_min,:].diagonal(axis1=1, axis2=2), axis=0))**n * CC[:,ind_min,:].diagonal(axis1=1, axis2=2)**n /(distance[:,ind_min].diagonal() + self.p['eps'])**(n+3) # 3 x N; en metres
+            poussee =  np.sign(np.sum(speed_CC * CC[:,ind_min,:].diagonal(axis1=1, axis2=2), axis=0)) * CC[:,ind_min,:].diagonal(axis1=1, axis2=2) /(distance[:,ind_min].diagonal() + self.p['eps'])**(n+2) # 3 x N; en metres
             force[0:3, :] += self.p['G_poussee'] * poussee
             force[3:6, :] += self.p['G_poussee'] * poussee
 
@@ -264,15 +263,15 @@ class Scenario:
         if not(G_struct==0.):
             AA_ = self.particles[0:3, :, np.newaxis]-self.particles[0:3, np.newaxis, :]
             distance = np.sqrt(np.sum(AA_**2, axis=0)) # NxN ; en metres
-            gravity = - np.sum((distance < distance_struct) * AA_**n /(distance.T + self.p['eps'])**(n+3), axis=1) # 3 x N; en metres
+            gravity = - np.sum((distance < distance_struct) * AA_ /(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
             force[0:3, :] += G_struct * gravity
             AB_ = self.particles[3:6, :, np.newaxis]-self.particles[3:6, np.newaxis, :]
             distance = np.sqrt(np.sum(AB_**2, axis=0)) # NxN ; en metres
-            gravity = - np.sum((distance < distance_struct) * AB_**n/(distance.T + self.p['eps'])**(n+3), axis=1) # 3 x N; en metres
+            gravity = - np.sum((distance < distance_struct) * AB_/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
             force[3:6, :] += G_struct * gravity
             BB_ = self.particles[0:3, :][:, :, np.newaxis]-self.particles[3:6, :][:, :, np.newaxis]
             distance = np.sqrt(np.sum(BB_**2, axis=0)) # NxN ; en metres
-            gravity = - np.sum((distance < distance_struct) * BB_**n/(distance.T + self.p['eps'])**(n+3), axis=1) # 3 x N; en metres
+            gravity = - np.sum((distance < distance_struct) * BB_/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
             force[0:3, :] += .5 * G_struct * gravity
             force[3:6, :] += .5 * G_struct * gravity
             # print G_struct, G_rot, G_repulsion
@@ -280,8 +279,6 @@ class Scenario:
         # ressort
         AB = self.particles[0:3, :]-self.particles[3:6, :] # 3 x N
         distance = np.sqrt(np.sum(AB**2, axis=0)) # en metres
-#            print distance[-2:]
-#        print force.shape, (distance[np.newaxis, :] - l_seg).shape, D_ij.shape, self.particles[6:12, :].shape, self.l_seg
         force[0:3, :] -= G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
         force[3:6, :] += G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
 
