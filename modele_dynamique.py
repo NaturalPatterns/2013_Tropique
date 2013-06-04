@@ -132,30 +132,30 @@ class Scenario:
             G_spring = self.p['G_spring_hot']
 
         # événements (breaks)
-        #if events[1] == 0 and not(events[:6] == [1, 1, 1, 1, 1, 1]): # phase avec la touche P dans display_modele_dynamique.py
-            #self.l_seg[:-2] = self.p['l_seg_min'] * np.ones(self.N-2)
-            #self.l_seg[-2:] = self.p['l_seg_max']
-            #G_spring = self.p['G_spring']
-        #else:
-            #self.l_seg[:-2] = self.p['l_seg_hot'] * np.ones(self.N-2)
-            #self.l_seg[-6:] = self.p['l_seg_max']
-            #G_spring = self.p['G_spring_hot']
-#
-        #if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche V dans display_modele_dynamique.py
-            #G_repulsion = self.p['G_repulsion']
-        #else:
-            #G_repulsion = self.p['G_repulsion_hot']
+        if events[1] == 0 and not(events[:6] == [1, 1, 1, 1, 1, 1]): # phase avec la touche P dans display_modele_dynamique.py
+            self.l_seg[:-2] = self.p['l_seg_min'] * np.ones(self.N-2)
+            self.l_seg[-2:] = self.p['l_seg_max']
+            G_spring = self.p['G_spring']
+        else:
+            self.l_seg[:-2] = self.p['l_seg_hot'] * np.ones(self.N-2)
+            self.l_seg[-6:] = self.p['l_seg_max']
+            G_spring = self.p['G_spring_hot']
+
+        if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche V dans display_modele_dynamique.py
+            G_repulsion = self.p['G_repulsion']
+        else:
+            G_repulsion = self.p['G_repulsion_hot']
         # initialize t_break at the onset
-        #if (events[:6] == [1, 1, 1, 1, 1, 1]) and (self.t_break == 0.):
-            #self.t_break = self.t
-#
+        if (events[:6] == [1, 1, 1, 1, 1, 1]) and (self.t_break == 0.):
+            self.t_break = self.t
+
         # reset the break after T_break seconds AND receiveing the restting signal
-        #if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
+        if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
 #             print self.t_break, self.t
-            #if (events[:6] == [0, 0, 0, 0, 0, 0]):
-                #if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
-        #if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans display_modele_dynamique.py
-            #damp = self.p['damp_hot']
+            if (events[:6] == [0, 0, 0, 0, 0, 0]):
+                if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
+        if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans display_modele_dynamique.py
+            damp = self.p['damp_hot']
         ###################################################################################################################################
         force = np.zeros((6, self.N)) # one vector per point
         n = self.p['kurt']
