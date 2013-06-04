@@ -128,8 +128,8 @@ class Scenario:
             G_gravite = self.p['G_gravite']
             G_struct = self.p['G_struct_hot']
             distance_struct = self.p['distance_struct_hot']
-            G_repulsion =  0. #self.p['G_repulsion_hot']
-            #G_spring = self.p['G_spring_hot']
+            G_repulsion =  self.p['G_repulsion_hot']
+            G_spring = self.p['G_spring_hot']
 
         # événements (breaks)
         #if events[1] == 0 and not(events[:6] == [1, 1, 1, 1, 1, 1]): # phase avec la touche P dans display_modele_dynamique.py
