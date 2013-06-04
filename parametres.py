@@ -101,9 +101,9 @@ p = {'N': 32,
      'G_global': 3.0, # attraction globale vers les centres des positions
      'G_rot': 2.,
      'G_rot_hot': 5.,
-     'distance_tabou': 0.2, # distance tabou
+     'distance_tabou': 0.02, # distance tabou
      'G_tabou': 0.5, # force tabou qui expulse tout segment qui rentre dans la zone tabou
-     'G_gravite': 1.0, # parametre d'attraction physique vers les players
+     'G_gravite': 3.0, # parametre d'attraction physique vers les players
      # parametres physiques
      'G_poussee': .10, # parametre de poussee créateur de vortex
      'G_struct': .1, # force avec laquelle les bouts de segments s'attirent
@@ -118,9 +118,9 @@ p = {'N': 32,
      # parametres globaux
      'damp': .2,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_hot': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-     'speed_0': .1, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_0': .5, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 1., # facteur global régler la saturation de la force
-     'kurt' : .0, # 1 is normal gravity, higher makes the attraction more local
+     'kurt' : -1., # 0 is normal gravity, higher makes the attraction more local, lower more global (-3 for something like a spring)
      'line_width': 3, # line width of segments
      'T_break': 6., # duration (secondes) of all three breaks
      'A_break': 7.5, # amplitude du break #2 et #3
@@ -192,9 +192,9 @@ try:
         liste_keys.sort()
         for i_key, key in enumerate(liste_keys):
             ax.append(fig.add_axes([0.15, 0.05+i_key/(n_key-1)*.9, 0.6, 0.05], axisbg='lightgoldenrodyellow'))
-            if p[key] > 0:
+            if False: #p[key] > 0:
                 value.append(slider_pylab(ax[i_key], key, 0., (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
-            elif p[key] < 0:
+            elif False: #p[key] < 0:
                 value.append(slider_pylab(ax[i_key], key,  -(p[key] + (p[key]==0)*1.)*10, 0., valinit=p[key]))
             else:
                 value.append(slider_pylab(ax[i_key], key,  -(p[key] + (p[key]==0)*1.)*10, (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
