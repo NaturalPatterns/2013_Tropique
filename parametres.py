@@ -98,19 +98,20 @@ calibration = {
 p = {'N': 32,
      # parametres perceptifs
      'distance_m': 0.50, # distance d'équilibre des segments autour d'une position de player
-     'G_global': 3.0, # attraction globale vers les centres des positions
-     'G_rot': 2.,
-     'G_rot_hot': 5.,
+     'G_gravite_perc': 3.0, # attraction globale vers les centres des positions
+     'G_gravite_perc_hot': 8.0, # attraction globale vers les centres des positions
+     'G_rot_perc': 2.,
+     'G_rot_perc_hot': 5.,
      'distance_tabou': 0.02, # distance tabou
      'G_tabou': 0.5, # force tabou qui expulse tout segment qui rentre dans la zone tabou
      'G_gravite': 3.0, # parametre d'attraction physique vers les players
      # parametres physiques
      'G_poussee': .10, # parametre de poussee créateur de vortex
      'G_struct': .1, # force avec laquelle les bouts de segments s'attirent
-     'G_struct_hot': .3, # force avec laquelle les bouts de segments s'attirent
+     'G_struct_hot': .2, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .3, # distance pour laquelle li'attraction des bouts de segments s'inverse
      'distance_struct_hot': .8,
-     'G_repulsion': 1.0, # constante de répulsion entre les particules
+     'G_repulsion': .2, # constante de répulsion entre les particules
      'G_repulsion_hot': .5, # constante de répulsion entre les particules
      'eps': 1.e-4, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 3., 'l_seg_min': 0.4, 'l_seg_max': 2., # dureté et longueur des segments
