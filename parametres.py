@@ -22,8 +22,8 @@ Par convention, la position de la croix est au centre de la salle: [d_x/2, d_y/2
 """
 
 # pour savoir si on imprime des messages d'erreur
-DEBUG  = False
 DEBUG  = True
+DEBUG  = False
 
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
@@ -99,11 +99,11 @@ p = {'N': 32,
      # parametres perceptifs
      'distance_m': 0.50, # distance d'équilibre des segments autour d'une position de player
      'G_gravite_perc': 3.0, # attraction globale vers les centres des positions
-     'G_gravite_perc_hot': 8.0, # attraction globale vers les centres des positions
+     'G_gravite_perc_hot': 18.0, # attraction globale vers les centres des positions
      'G_rot_perc': 2.,
      'G_rot_perc_hot': 5.,
-     'distance_tabou': 0.02, # distance tabou
-     'G_tabou': 0.5, # force tabou qui expulse tout segment qui rentre dans la zone tabou
+     'distance_tabou': 0.2, # distance tabou
+     'G_tabou': 10., # force tabou qui expulse tout segment qui rentre dans la zone tabou
      'G_gravite': 3.0, # parametre d'attraction physique vers les players
      # parametres physiques
      'G_poussee': .10, # parametre de poussee créateur de vortex
@@ -120,7 +120,7 @@ p = {'N': 32,
      'damp': .2,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_hot': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'speed_0': .5, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
-     'scale': 1., # facteur global régler la saturation de la force
+     'scale': 10., # facteur global régler la saturation de la force
      'kurt' : -1., # 0 is normal gravity, higher makes the attraction more local, lower more global (-3 for something like a spring)
      'line_width': 3, # line width of segments
      'T_break': 6., # duration (secondes) of all three breaks
@@ -167,7 +167,7 @@ run_thread_network_config = {
 kinects_network_config = {
     'UDP_IP' : "",
     'UDP_PORT' : 3003,
-    'send_UDP_IP' : "10.42.0.100",
+    'send_UDP_IP' : "10.42.0.70",
     'send_UDP_PORT' : 3005,
     'para_data' : [1 , 10, 50, 350, 5 ],
 }
