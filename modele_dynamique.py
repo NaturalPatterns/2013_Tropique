@@ -153,10 +153,10 @@ class Scenario:
         if (events[:6] == [1, 1, 1, 1, 1, 1]) and (self.t_break == 0.):
             self.t_break = self.t
 
-        print self.t_break, self.t
+        #print self.t_break, self.t
         # reset the break after T_break seconds AND receiving the resetting signal
         if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
-            if True: #(events[:6] == [0, 0, 0, 0, 0, 0]):
+            if (events[:6] == [0, 0, 0, 0, 0, 0]):
                 if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
         if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
             if (events[-1] == 0): # break #2 or #3
@@ -314,7 +314,7 @@ class Scenario:
         force -= damp * self.particles[6:12, :]/self.dt
 
         # normalisation des forces pour éviter le chaos
-        force = self.p['scale'] * np.tanh(force/self.p['scale'])
+        if self.p['scale'] < 20: force = self.p['scale'] * np.tanh(force/self.p['scale'])
         force *= speed_0
         return force
 

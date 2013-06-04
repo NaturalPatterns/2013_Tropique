@@ -97,13 +97,13 @@ calibration = {
 # parametres du champ
 p = {'N': 32,
      # parametres perceptifs
-     'distance_m': 0.50, # distance d'équilibre des segments autour d'une position de player
+     'distance_m': 0.30, # distance d'équilibre des segments autour d'une position de player
      'G_gravite_perc': 3.0, # attraction globale vers les centres des positions
      'G_gravite_perc_hot': 18.0, # attraction globale vers les centres des positions
      'G_rot_perc': 2.,
      'G_rot_perc_hot': 5.,
-     'distance_tabou': 0.2, # distance tabou
-     'G_tabou': 10., # force tabou qui expulse tout segment qui rentre dans la zone tabou
+     'distance_tabou': 0.30, # distance tabou
+     'G_tabou': 50., # force tabou qui expulse tout segment qui rentre dans la zone tabou
      'G_gravite': 3.0, # parametre d'attraction physique vers les players
      # parametres physiques
      'G_poussee': .10, # parametre de poussee créateur de vortex
@@ -117,15 +117,15 @@ p = {'N': 32,
      'G_spring': 3., 'l_seg_min': 0.4, 'l_seg_max': 2., # dureté et longueur des segments
      'G_spring_hot': .1, 'l_seg_hot': .80,  # dureté et longueur des segments dans un break
      # parametres globaux
-     'damp': .2,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp': .1,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_hot': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'speed_0': .5, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'speed_hot': 5., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
-     'scale': 10., # facteur global régler la saturation de la force
-     'kurt' : -1., # 0 is normal gravity, higher makes the attraction more local, lower more global (-3 for something like a spring)
+     'scale': 25., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
+     'kurt' : -.5, # 0 is normal gravity, higher makes the attraction more local, lower more global
      'line_width': 3, # line width of segments
      'T_break': 6., # duration (secondes) of all three breaks
-     'A_break': 7.5, # amplitude du break #2 et #3
+     'A_break': 7.5, # amplitude de l'amplification de speed_0 dans les break #2 et #3
      'tau_break': .103, # duration du transient dans les breaks #2 et #3
 }
 
