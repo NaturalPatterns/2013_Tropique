@@ -23,7 +23,7 @@ Par convention, la position de la croix est au centre de la salle: [d_x/2, d_y/2
 
 # pour savoir si on imprime des messages d'erreur
 DEBUG  = False
-#DEBUG  = True
+DEBUG  = True
 
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
@@ -98,14 +98,14 @@ calibration = {
 p = {'N': 32,
      # parametres perceptifs
      'distance_m': 0.50, # distance d'équilibre des segments autour d'une position de player
-     'G_global': 10.0, # attraction globale vers les centres des positions
-     'G_rot': 10.,
-     'G_rot_hot': 12.,
+     'G_global': 3.0, # attraction globale vers les centres des positions
+     'G_rot': 2.,
+     'G_rot_hot': 5.,
      'distance_tabou': 0.2, # distance tabou
-     'G_tabou': 0.0, # force tabou qui expulse tout segment qui rentre dans la zone tabou
+     'G_tabou': 0.5, # force tabou qui expulse tout segment qui rentre dans la zone tabou
      'G_gravite': 1.0, # parametre d'attraction physique vers les players
      # parametres physiques
-     'G_poussee': 1.0, # parametre de poussee créateur de vortex
+     'G_poussee': .10, # parametre de poussee créateur de vortex
      'G_struct': .1, # force avec laquelle les bouts de segments s'attirent
      'G_struct_hot': .3, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .3, # distance pour laquelle li'attraction des bouts de segments s'inverse
@@ -113,14 +113,14 @@ p = {'N': 32,
      'G_repulsion': 1.0, # constante de répulsion entre les particules
      'G_repulsion_hot': .5, # constante de répulsion entre les particules
      'eps': 1.e-4, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
-     'G_spring': 8., 'l_seg_min': 0.4, 'l_seg_max': 2., # dureté et longueur des segments
+     'G_spring': 3., 'l_seg_min': 0.4, 'l_seg_max': 2., # dureté et longueur des segments
      'G_spring_hot': 1., 'l_seg_hot': 2.,  # dureté et longueur des segments dans un break
      # parametres globaux
-     'damp': .0,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp': .2,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_hot': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'speed_0': .1, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 1., # facteur global régler la saturation de la force
-     'kurt' : 1., # 1 is normal gravity, higher makes the attraction more local
+     'kurt' : .0, # 1 is normal gravity, higher makes the attraction more local
      'line_width': 3, # line width of segments
      'T_break': 6., # duration (secondes) of all three breaks
      'A_break': 7.5, # amplitude du break #2 et #3
@@ -200,6 +200,7 @@ try:
                 value.append(slider_pylab(ax[i_key], key,  -(p[key] + (p[key]==0)*1.)*10, (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
 
         def update(val):
+            print '-'*80
             for i_key, key in enumerate(liste_keys):
                 p[key]= value[i_key].val
                 print key, p[key]#, value[i_key].val
