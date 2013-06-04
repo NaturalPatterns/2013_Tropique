@@ -8,11 +8,12 @@ Exploration mode.
     Interaction keyboard:
     - TAB pour passer/sortir du fulscreen
     - espace : passage en first-person perspective
+    - U : more players
 
     Les interactions visuo - sonores sont simulées ici par des switches lançant des phases:
     - R : rugosité physique G_struct distance_struct
-    - N : restore la config sans event = Neutre
     - G : glissement = perceptif G_rot <> G_rot_hot
+    - N : restore la config sans event = Neutre
     et des événements:
     - P : pulse (modif de la longueur et raideur des segments)
     - V : G_repulsion <> G_repulsion_hot
@@ -29,7 +30,7 @@ sys.modules['Image'] = PIL.Image
 # TODO: paramètre scan pour rechercher des bifurcations (edge of chaos)
 # TODO: contrôle de la vitesse du mouvement de position simulé
 ########################################
-from parametres import VPs, volume, p, kinects_network_config, d_x, d_y, d_z, scenario, calibration
+from parametres import sliders, VPs, volume, p, kinects_network_config, d_x, d_y, d_z, scenario, calibration, DEBUG
 from modele_dynamique import Scenario
 s = Scenario(p['N'], scenario, volume, VPs, p, calibration)
 ########################################
@@ -46,6 +47,7 @@ do_sock = False
 i_win = 0
 foc_VP = 50.
 foc_VP = VPs[i_win]['foc']
+n_players = 1
 ########################################
 if do_sock:
     sys.path.append('../network/')
@@ -111,7 +113,7 @@ events = [0, 0, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
 
 @win_0.event
 def on_key_press(symbol, modifiers):
-    global events, do_firstperson, s
+    global events, do_firstperson, s, n_players
     if symbol == pyglet.window.key.TAB:
         if win_0.fullscreen:
             win_0.set_fullscreen(False)
@@ -122,24 +124,27 @@ def on_key_press(symbol, modifiers):
         do_firstperson = not(do_firstperson)
     elif symbol == pyglet.window.key.LEFT:
         s.rot_heading_fp += s.inc_heading_fp
-        # print s.rot_heading_fp
     elif symbol == pyglet.window.key.RIGHT:
         s.rot_heading_fp -= s.inc_heading_fp
-        # print s.rot_heading_fp
-    elif symbol == pyglet.window.key.B:
-        events = [1, 1, 1, 1, 1, 1, 1, 0] # 8 types d'événéments
-    elif symbol == pyglet.window.key.D:
-        events = [0, 0, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
+    elif symbol == pyglet.window.key.N:
+        events = [0, 0, 0, 0, 0, 0, 0, 0]
     elif symbol == pyglet.window.key.R:
-        events[0] = 1 - events[0]
+        events = [1, 0, 0, 0, 0, 0, 0, 0]
+        #events[0] = 1 - events[0]
+    elif symbol == pyglet.window.key.G:
+        events = [0, 0, 0, 1, 0, 0, 0, 0]
+        #events[4] = 1 - events[4]
+    elif symbol == pyglet.window.key.B:
+        events = [1, 1, 1, 1, 1, 1, 1, 0]
     elif symbol == pyglet.window.key.P:
         events[1] = 1 - events[1]
     elif symbol == pyglet.window.key.V:
         events[2] = 1 - events[2]
-    elif symbol == pyglet.window.key.G:
-        events[4] = 1 - events[4]
     elif symbol == pyglet.window.key.S:
         events[7] = 1 - events[7]
+    elif symbol == pyglet.window.key.U:
+        n_players = (n_players + 1) %5
+        print n_players
     else:
         print symbol
     print events
@@ -151,21 +156,24 @@ def on_resize(width, height):
     print 'The window was resized to %dx%d' % (width, height)
 @win_0.event
 def on_draw():
-    global s
+    global s, n_players
     t = s.t
 
     if do_sock:
         positions = k.read_sock() #
     else:
         # pour simuler ROGER:
-        positions = []
-        amp, amp2 = .2, .5
+        amp, amp2 = .02, .5
         T, T2 = 25., 30. # periode en secondes
-        #positions.append([s.roger[0], s.roger[1], s.roger[2]]) #  bouge pas, roger.
-        positions.append([s.roger[0] * (1. + amp*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
-        #positions.append([s.roger[0] * (1. + amp*sin(2*pi*s.t/T2)), s.roger[1] * (1. + amp*sin(2*pi*s.t/T)), 1.2*s.roger[2]]) # une autre personne dans un mouvement en phase
-        #positions.append([s.roger[0] * (1. + amp2*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp2*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
-        # positions.append([s.roger[0], s.roger[1] * (1. + amp2*cos(2*pi*s.t/T2)), 1.1*s.roger[2]]) # une personne dans un mouvement circulaire (elipse)
+        positions_ = []
+        positions_.append([s.roger[0], s.roger[1], s.roger[2]]) #  bouge pas, roger.
+        positions_.append([s.roger[0] * (1. + amp*cos(2*pi*s.t/T2)), s.roger[1] * (.8 + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
+        positions_.append([s.roger[0] * (1. + amp*sin(2*pi*s.t/T2)), s.roger[1] * (1.2 + amp*sin(2*pi*s.t/T)), 1.2*s.roger[2]]) # une autre personne dans un mouvement en phase
+        positions_.append([s.roger[0] * (1. + amp2*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp2*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
+        positions_.append([s.roger[0], s.roger[1] * (1. + amp2*cos(2*pi*s.t/T2)), .9*s.roger[2]]) # une personne dans un mouvement circulaire (elipse)
+        positions = []
+        for position in positions_[:n_players]:
+            positions.append(position)
 
 
     s.do_scenario(positions=positions, events=events)
@@ -245,7 +253,7 @@ def on_draw():
         gl.glColor3f(1., 1., 1.)
 
         pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
-        print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
+        if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
 
     if do_sock: k.trigger()
 
@@ -256,49 +264,8 @@ def callback(dt):
     except :
         pass
 
-try:
-    def sliders(p):
-        import matplotlib as mpl
-        mpl.rcParams['interactive'] = True
-        mpl.rcParams['backend'] = 'macosx'
-        mpl.rcParams['backend_fallback'] = True
-        mpl.rcParams['toolbar'] = 'None'
-        import pylab as plt
-        fig = plt.figure(1)
-        f_manager = plt.get_current_fig_manager()
-        # f_manager.window.move(0, 0) does not work on MacOsX
-        f_manager.set_window_title(" oOOO, KIKI ")
-        plt.ion()
-        # turn interactive mode on for dynamic updates.  If you aren't in interactive mode, you'll need to use a GUI event handler/timer.
-        from matplotlib.widgets import Slider as slider_pylab
-        ax, value = [], []
-        n_key = len(p.keys())*1.
-    #    print s.p.keys()
-        liste_keys = p.keys()
-        liste_keys.sort()
-        for i_key, key in enumerate(liste_keys):
-            ax.append(fig.add_axes([0.15, 0.05+i_key/(n_key-1)*.9, 0.6, 0.05], axisbg='lightgoldenrodyellow'))
-            if p[key] > 0:
-                value.append(slider_pylab(ax[i_key], key, 0., (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
-            elif p[key] < 0:
-                value.append(slider_pylab(ax[i_key], key,  -(p[key] + (p[key]==0)*1.)*10, 0., valinit=p[key]))
-            else:
-                value.append(slider_pylab(ax[i_key], key,  -(p[key] + (p[key]==0)*1.)*10, (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
-
-        def update(val):
-            for i_key, key in enumerate(liste_keys):
-                p[key]= value[i_key].val
-                print key, p[key]#, value[i_key].val
-            plt.draw()
-
-        for i_key, key in enumerate(liste_keys): value[i_key].on_changed(update)
-        plt.show(block=False) # il faut pylab.ion() pour pas avoir de blocage
-        return fig
-
-    if s.scenario=='leapfrog' and do_slider:
-        fig = sliders(s.p)
-except Exception, e:
-    print('problem while importing sliders ! Error = ', e)
+if s.scenario=='leapfrog' and do_slider:
+    fig = sliders(s.p)
 
 pyglet.clock.schedule(callback)
 pyglet.app.run()
