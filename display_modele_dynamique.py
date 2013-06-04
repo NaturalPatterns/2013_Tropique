@@ -8,7 +8,7 @@ Exploration mode.
     Interaction keyboard:
     - TAB pour passer/sortir du fulscreen
     - espace : passage en first-person perspective
-    - M : more players
+    - U : more players
 
     Les interactions visuo - sonores sont simulées ici par des switches lançant des phases:
     - R : rugosité physique G_struct distance_struct
@@ -129,9 +129,11 @@ def on_key_press(symbol, modifiers):
     elif symbol == pyglet.window.key.N:
         events = [0, 0, 0, 0, 0, 0, 0, 0]
     elif symbol == pyglet.window.key.R:
-        events[0] = 1 - events[0]
+        events = [1, 0, 0, 0, 0, 0, 0, 0]
+        #events[0] = 1 - events[0]
     elif symbol == pyglet.window.key.G:
-        events[4] = 1 - events[4]
+        events = [0, 0, 0, 1, 0, 0, 0, 0]
+        #events[4] = 1 - events[4]
     elif symbol == pyglet.window.key.B:
         events = [1, 1, 1, 1, 1, 1, 1, 0]
     elif symbol == pyglet.window.key.P:
@@ -140,7 +142,7 @@ def on_key_press(symbol, modifiers):
         events[2] = 1 - events[2]
     elif symbol == pyglet.window.key.S:
         events[7] = 1 - events[7]
-    elif symbol == pyglet.window.key.M:
+    elif symbol == pyglet.window.key.U:
         n_players = (n_players + 1) %5
         print n_players
     else:
@@ -165,8 +167,8 @@ def on_draw():
         T, T2 = 25., 30. # periode en secondes
         positions_ = []
         positions_.append([s.roger[0], s.roger[1], s.roger[2]]) #  bouge pas, roger.
-        positions_.append([s.roger[0] * (1. + amp*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
-        positions_.append([s.roger[0] * (1. + amp*sin(2*pi*s.t/T2)), s.roger[1] * (1. + amp*sin(2*pi*s.t/T)), 1.2*s.roger[2]]) # une autre personne dans un mouvement en phase
+        positions_.append([s.roger[0] * (1. + amp*cos(2*pi*s.t/T2)), s.roger[1] * (.8 + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
+        positions_.append([s.roger[0] * (1. + amp*sin(2*pi*s.t/T2)), s.roger[1] * (1.2 + amp*sin(2*pi*s.t/T)), 1.2*s.roger[2]]) # une autre personne dans un mouvement en phase
         positions_.append([s.roger[0] * (1. + amp2*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp2*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
         positions_.append([s.roger[0], s.roger[1] * (1. + amp2*cos(2*pi*s.t/T2)), .9*s.roger[2]]) # une personne dans un mouvement circulaire (elipse)
         positions = []
