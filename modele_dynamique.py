@@ -287,7 +287,7 @@ class Scenario:
             gravity = - np.sum((distance < distance_struct) * BB_/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
             force[0:3, :] += .5 * G_struct * gravity
             force[3:6, :] += .5 * G_struct * gravity
-        print G_gravite, G_gravite_perc, G_struct, G_rot_perc, G_repulsion
+        #print G_gravite, G_gravite_perc, G_struct, G_rot_perc, G_repulsion
 
         # ressort
         AB = self.particles[0:3, :]-self.particles[3:6, :] # 3 x N

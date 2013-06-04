@@ -90,6 +90,7 @@ st.daemon=True
 
 st.start()
 do_slider = True
+do_slider = False
 #----------------------
 try:
     from parametres import sliders
