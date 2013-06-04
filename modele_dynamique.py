@@ -115,10 +115,11 @@ class Scenario:
         distance_struct = self.p['distance_struct']
         G_poussee = self.p['G_poussee']
         G_gravite = self.p['G_gravite']
+        damp = self.p['damp']
         # phases
         if events[4] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # phase avec la touche G dans display_modele_dynamique.py
-            G_rot = self.p['G_rot_hot']
-            G_global = self.p['G_global']
+            G_rot = 0.#self.p['G_rot_hot']
+            G_global = 0.# self.p['G_global']
             G_struct, G_poussee = 0., 0.
             G_gravite = self.p['G_gravite']
             G_repulsion = 0.
@@ -132,33 +133,30 @@ class Scenario:
             G_spring = self.p['G_spring_hot']
 
         # événements (breaks)
-        if events[1] == 0 and not(events[:6] == [1, 1, 1, 1, 1, 1]): # phase avec la touche P dans display_modele_dynamique.py
-            self.l_seg[:-2] = self.p['l_seg_min'] * np.ones(self.N-2)
-            self.l_seg[-2:] = self.p['l_seg_max']
-            G_spring = self.p['G_spring']
-        else:
-            self.l_seg[:-2] = self.p['l_seg_hot'] * np.ones(self.N-2)
-            self.l_seg[-6:] = self.p['l_seg_max']
-            G_spring = self.p['G_spring_hot']
-
-        if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche V dans display_modele_dynamique.py
-            G_repulsion = self.p['G_repulsion']
-        else:
-            G_repulsion = self.p['G_repulsion_hot']
+        #if events[1] == 0 and not(events[:6] == [1, 1, 1, 1, 1, 1]): # phase avec la touche P dans display_modele_dynamique.py
+            #self.l_seg[:-2] = self.p['l_seg_min'] * np.ones(self.N-2)
+            #self.l_seg[-2:] = self.p['l_seg_max']
+            #G_spring = self.p['G_spring']
+        #else:
+            #self.l_seg[:-2] = self.p['l_seg_hot'] * np.ones(self.N-2)
+            #self.l_seg[-6:] = self.p['l_seg_max']
+            #G_spring = self.p['G_spring_hot']
+#
+        #if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche V dans display_modele_dynamique.py
+            #G_repulsion = self.p['G_repulsion']
+        #else:
+            #G_repulsion = self.p['G_repulsion_hot']
         # initialize t_break at the onset
-        if (events[:6] == [1, 1, 1, 1, 1, 1]) and (self.t_break == 0.):
-            self.t_break = self.t
-
+        #if (events[:6] == [1, 1, 1, 1, 1, 1]) and (self.t_break == 0.):
+            #self.t_break = self.t
+#
         # reset the break after T_break seconds AND receiveing the restting signal
-        if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
+        #if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
 #             print self.t_break, self.t
-            if (events[:6] == [0, 0, 0, 0, 0, 0]):
-                if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
-        if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans display_modele_dynamique.py
-            damp = self.p['damp_hot']
-        else:
-            damp = self.p['damp']
-
+            #if (events[:6] == [0, 0, 0, 0, 0, 0]):
+                #if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
+        #if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans display_modele_dynamique.py
+            #damp = self.p['damp_hot']
         ###################################################################################################################################
         force = np.zeros((6, self.N)) # one vector per point
         n = self.p['kurt']
@@ -236,7 +234,7 @@ class Scenario:
                     SC = (self.particles[0:3, :]+self.particles[3:6, :])/2-np.array(position)[:, np.newaxis]
                     distance_SC = np.sqrt(np.sum(SC**2, axis=0)) # en metres
                     SC_0 = SC / distance_SC # unit vector going from the player to the center of the segment
-                    gravity = - SC_0 * (distance_SC - self.p['distance_m'])/(distance_SC + self.p['eps'])**(n+2) # en metres
+                    gravity =  SC_0 * (distance_SC - self.p['distance_m'])/(distance_SC + self.p['eps'])**(n+2) # en metres
 
                     rotation_1 = OC + distance_SC * SC_0 - OA
                     rotation_2 = OC + (distance_SC + self.l_seg)  * SC_0 - OB
@@ -247,10 +245,10 @@ class Scenario:
                     rotation2[:, ind_assign] = rotation_2[:, ind_assign]
                     distance_min[ind_assign] = distance_SC[ind_assign]
 
-#                force[0:3, :] += self.p['G_gravite'] * gravity
-#                force[3:6, :] += self.p['G_gravite'] * gravity
-                force[0, :] += G_gravite * gravity[0]
-                force[3, :] += G_gravite * gravity[0]
+                force[0:3, :] += G_gravite * gravity
+                force[3:6, :] += G_gravite * gravity
+#                force[0, :] += G_gravite * gravity[0]
+#                force[3, :] += G_gravite * gravity[0]
                 #force[0:3, :] += G_rot * rotation1
                 #force[3:6, :] += G_rot * rotation2
 
@@ -289,7 +287,7 @@ class Scenario:
             gravity = - np.sum((distance < distance_struct) * BB_/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
             force[0:3, :] += .5 * G_struct * gravity
             force[3:6, :] += .5 * G_struct * gravity
-            # print G_struct, G_rot, G_repulsion
+        print G_gravite, G_global, G_struct, G_rot, G_repulsion
 
         # ressort
         AB = self.particles[0:3, :]-self.particles[3:6, :] # 3 x N
