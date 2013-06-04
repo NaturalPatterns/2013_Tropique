@@ -1,0 +1,56 @@
+#N canvas 364 210 804 460 10;
+#X text 635 14 TouchOSC;
+#X text 636 29 http://hexler.net/touchosc;
+#X obj 634 179 sendOSC;
+#X obj 32 75 dumpOSC 8000;
+#X text 636 44 basic.pd v1.0;
+#X msg 634 113 connect 10.10.10.10 9000;
+#X msg 671 145 send /1/fader1 1;
+#X text 787 146 Use osc address of control. OSC messages are constructed
+like this: /pagenumber/controlname;
+#X text 634 69 Sending values to the iPhone on port 9000 Replace 10.10.10.10
+with the ip-address of the iPhone;
+#X text 29 19 Receiving values on port 8000 from the iPhone. Send values
+from the iPhone to see the osc adress of the control for sending values
+;
+#X obj 143 72 spigot;
+#X obj 193 55 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 221 95 print all;
+#X obj 27 106 routeOSC /accxyz /1;
+#X obj 92 160 print fader;
+#X obj 92 138 route /fader1 /toggle1 /toggle2 /toggle3;
+#X obj 151 228 pack f f;
+#X msg 269 200 1;
+#X msg 269 177 2;
+#X msg 269 157 3;
+#X obj 151 249 print total;
+#X msg 80 294 disconnect;
+#X obj 134 320 netsend 1;
+#X floatatom 134 347 0 0 0 0 - - -;
+#X msg 77 271 connect localhost 30001;
+#X msg 151 295 send \$1 \$2;
+#X connect 3 0 10 0;
+#X connect 3 0 13 0;
+#X connect 5 0 2 0;
+#X connect 6 0 2 0;
+#X connect 10 0 12 0;
+#X connect 11 0 10 1;
+#X connect 13 1 15 0;
+#X connect 15 0 14 0;
+#X connect 15 1 17 0;
+#X connect 15 1 16 0;
+#X connect 15 2 18 0;
+#X connect 15 2 16 0;
+#X connect 15 3 19 0;
+#X connect 15 3 16 0;
+#X connect 16 0 20 0;
+#X connect 16 0 25 0;
+#X connect 17 0 16 1;
+#X connect 18 0 16 1;
+#X connect 19 0 16 1;
+#X connect 21 0 22 0;
+#X connect 22 0 23 0;
+#X connect 24 0 22 0;
+#X connect 25 0 22 0;
+#X coords 0 0 1 1 85 60 0;
