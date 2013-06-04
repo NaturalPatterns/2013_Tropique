@@ -163,7 +163,7 @@ def on_draw():
         positions = k.read_sock() #
     else:
         # pour simuler ROGER:
-        amp, amp2 = .2, .5
+        amp, amp2 = .02, .5
         T, T2 = 25., 30. # periode en secondes
         positions_ = []
         positions_.append([s.roger[0], s.roger[1], s.roger[2]]) #  bouge pas, roger.
