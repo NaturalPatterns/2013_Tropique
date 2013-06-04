@@ -115,11 +115,12 @@ p = {'N': 32,
      'G_repulsion_hot': .5, # constante de répulsion entre les particules
      'eps': 1.e-4, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 3., 'l_seg_min': 0.4, 'l_seg_max': 2., # dureté et longueur des segments
-     'G_spring_hot': .1, 'l_seg_hot': 2.,  # dureté et longueur des segments dans un break
+     'G_spring_hot': .1, 'l_seg_hot': .80,  # dureté et longueur des segments dans un break
      # parametres globaux
      'damp': .2,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_hot': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'speed_0': .5, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_hot': 5., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 10., # facteur global régler la saturation de la force
      'kurt' : -1., # 0 is normal gravity, higher makes the attraction more local, lower more global (-3 for something like a spring)
      'line_width': 3, # line width of segments
