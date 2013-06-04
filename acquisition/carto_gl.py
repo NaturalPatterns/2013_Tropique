@@ -71,7 +71,7 @@ print "screens" , screens
 for i, screen in enumerate(screens):
     print 'Screen %d: %dx%d at (%d,%d)' % (i, screen.width, screen.height, screen.x, screen.y)
 N_screen = len(screens) # number of screens
-assert N_screen == 1 # we should be running on one screen only
+#assert N_screen == 1 # we should be running on one screen only
   
 from pyglet.window import Window
 win_0 = Window(screen=screens[0], fullscreen=False, resizable=False, vsync = True)
@@ -114,9 +114,6 @@ global tour
 tour =0
 global nbr_player
 nbr_player = 0
-
-global caca
-caca = 0
 
 global detect
 detect =250
@@ -206,7 +203,6 @@ def display_player():
     global tour
     global my_ghost
     #print my_players
-    global caca
     global goodsend
     global freq_network
     global compt_freq_network
