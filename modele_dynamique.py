@@ -153,7 +153,7 @@ class Scenario:
         if (events[:6] == [1, 1, 1, 1, 1, 1]) and (self.t_break == 0.):
             self.t_break = self.t
 
-        print self.t_break, self.t
+        #print self.t_break, self.t
         # reset the break after T_break seconds AND receiving the resetting signal
         if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
             if True: #(events[:6] == [0, 0, 0, 0, 0, 0]):
