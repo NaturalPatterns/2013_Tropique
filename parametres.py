@@ -104,8 +104,9 @@ p = {'N': 32,
      'G_rot_perc_hot': 5.,
      'distance_tabou': 0.30, # distance tabou
      'G_tabou': 50., # force tabou qui expulse tout segment qui rentre dans la zone tabou
-     'G_gravite': 3.0, # parametre d'attraction physique vers les players
      # parametres physiques
+     'G_gravite': 3.0, # parametre d'attraction physique vers les players
+     'G_gravite_hot': 13.0, # parametre d'attraction physique vers les players
      'G_poussee': .20, # parametre de poussee créateur de vortex
      'G_poussee_hot': 15., # parametre de poussee créateur de vortex
      'G_struct': .1, # force avec laquelle les bouts de segments s'attirent
@@ -114,7 +115,7 @@ p = {'N': 32,
      'distance_struct_hot': .8,
      'G_repulsion': .2, # constante de répulsion entre les particules
      'G_repulsion_hot': .5, # constante de répulsion entre les particules
-     'eps': 1.e-4, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
+     'eps': 1.e-3, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 3., 'l_seg_min': 0.4, 'l_seg_max': 2., # dureté et longueur des segments
      'G_spring_hot': 20., 'l_seg_hot': .80,  # dureté et longueur des segments dans un break
      # parametres globaux
@@ -196,9 +197,9 @@ try:
         liste_keys.sort()
         for i_key, key in enumerate(liste_keys):
             ax.append(fig.add_axes([0.15, 0.05+i_key/(n_key-1)*.9, 0.6, 0.05], axisbg='lightgoldenrodyellow'))
-            if False: #p[key] > 0:
+            if p[key] > 0:
                 value.append(slider_pylab(ax[i_key], key, 0., (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
-            elif False: #p[key] < 0:
+            elif p[key] < 0:
                 value.append(slider_pylab(ax[i_key], key,  -(p[key] + (p[key]==0)*1.)*10, 0., valinit=p[key]))
             else:
                 value.append(slider_pylab(ax[i_key], key,  -(p[key] + (p[key]==0)*1.)*10, (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
