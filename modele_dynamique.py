@@ -177,6 +177,7 @@ class Scenario:
 
         ###################################################################################################################################
         force = np.zeros((6, self.N)) # one vector per point
+        print positions
         n = self.p['kurt']
         # point C (centre) du segment
         OA = self.particles[0:3, :]
@@ -190,8 +191,8 @@ class Scenario:
                 rae_VA = xyz2azel(self.particles[:3, :], OV) # 3 x N
                 rae_VB = xyz2azel(self.particles[3:6, :], OV) # 3 x N
 
-#            # attraction / repulsion des angles relatifs des segments
-                if not(positions == None) and not(positions == np.nan):
+                # attraction / repulsion des angles relatifs des segments
+                if not(positions == None) and not(positions == []):
                     distance_min = 1.e6 * np.ones((self.N)) # very big to begin with
                     rotation = np.empty((3, self.N))
                     rotation1 = np.empty((3, self.N))
@@ -222,7 +223,6 @@ class Scenario:
                         # TODO résoudre le hack avec sign_view
                         # TODO : tuner les paramètres de rotation
                         AB = self.particles[3:6, :] - self.particles[0:3, :]# 3 x N
-#                    print np.sum(AB**2, axis=0)
                         sign_view = np.sign(OC[0]-OV[0])
                         rotation_ = -sign_view * np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
                         #rotation_1 = OC + distance_SC * SC_0 - OA
@@ -243,7 +243,8 @@ class Scenario:
 
         # FORCES GLOBALES  dans l'espace physique
         if not(G_gravite == 0.):# and  not(G_rot == 0.):
-            if not(positions == None) and not(positions == np.nan):
+            if not(positions == None) and not(positions == []):
+                print 'beep', positions
                 distance_min = 1.e6 * np.ones((self.N)) # very big to begin with
                 rotation1 = np.empty((3, self.N))
                 rotation2 = np.empty((3, self.N))

@@ -48,7 +48,7 @@ do_sock = False
 i_win = 0
 foc_VP = 50.
 foc_VP = VPs[i_win]['foc']
-n_players = 1
+n_players = 0
 ########################################
 if do_sock:
     sys.path.append('../network/')
