@@ -159,22 +159,21 @@ class Scenario:
 
         #print self.t_break, self.t
         # reset the break after T_break seconds AND receiving the resetting signal
+        if not(self.t_break == 0.) and (events[:6] == [0, 0, 0, 0, 0, 0]):
+            if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
         if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
-            if (events[:6] == [0, 0, 0, 0, 0, 0]):
-                if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
-        if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
-            if (events[-1] == 0): # break #2 or #3
+            if (events[-1] == 0): # break #2 or #3 - touche B
                 if self.t > self.t_break + self.p['T_break']:
                     speed_0 = self.p['speed_0']
                 else:
                     speed_0 = self.p['speed_0'] *((self.p['A_break']-1) * np.exp(-(self.p['T_break'] - (self.t - self.t_break)) / self.p['tau_break']) + 1)
 #                     print speed_0
-            else: # break 1
+            else: # break 1 - touche J
                 G_poussee = self.p['G_poussee_hot']
                 speed_0 = self.p['speed_0']
+                damp = self.p['damp_middle']
         else:
             speed_0 = self.p['speed_0']
-
 
         ###################################################################################################################################
         force = np.zeros((6, self.N)) # one vector per point
@@ -287,7 +286,8 @@ class Scenario:
             # poussee entrainant une rotation lente et globale (cf p152)
             ind_min = np.argmin(distance + np.eye(self.N)*1e6, axis=0)
             speed_CC = (self.particles[6:9, :] + self.particles[6:9, ind_min]) + (self.particles[9:12, :] + self.particles[9:12, ind_min])
-            poussee =  np.sign(np.sum(speed_CC * CC[:,ind_min,:].diagonal(axis1=1, axis2=2), axis=0)) * CC[:,ind_min,:].diagonal(axis1=1, axis2=2) /(distance[:,ind_min].diagonal() + self.p['eps'])**(n+2) # 3 x N; en metres
+            poussee =  np.sign(np.sum(speed_CC * CC[:,ind_min,:].diagonal(axis1=1, axis2=2), axis=0)) * CC[:,ind_min,:].diagonal(axis1=1, axis2=2)
+            poussee /= (distance[:,ind_min].diagonal() + self.p['eps'])**(n+2) # 3 x N; en metres
             force[0:3, :] += G_poussee * poussee
             force[3:6, :] += G_poussee * poussee
 

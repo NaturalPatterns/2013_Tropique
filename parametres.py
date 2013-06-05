@@ -106,7 +106,8 @@ p = {'N': 32,
      'G_tabou': 50., # force tabou qui expulse tout segment qui rentre dans la zone tabou
      'G_gravite': 3.0, # parametre d'attraction physique vers les players
      # parametres physiques
-     'G_poussee': .10, # parametre de poussee créateur de vortex
+     'G_poussee': .20, # parametre de poussee créateur de vortex
+     'G_poussee_hot': 15., # parametre de poussee créateur de vortex
      'G_struct': .1, # force avec laquelle les bouts de segments s'attirent
      'G_struct_hot': .2, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .3, # distance pour laquelle li'attraction des bouts de segments s'inverse
@@ -118,6 +119,7 @@ p = {'N': 32,
      'G_spring_hot': 20., 'l_seg_hot': .80,  # dureté et longueur des segments dans un break
      # parametres globaux
      'damp': .1,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp_middle': .96,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_hot': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'speed_0': .5, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'speed_hot': 5., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
