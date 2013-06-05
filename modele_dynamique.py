@@ -4,7 +4,7 @@ Scenarios
 
 
 """
-
+from parametres import DEBUG
 import numpy as np
 import time
 
@@ -178,13 +178,11 @@ class Scenario:
 
         ###################################################################################################################################
         force = np.zeros((6, self.N)) # one vector per point
-        print positions
         n = self.p['kurt']
         # point C (centre) du segment
         OA = self.particles[0:3, :]
         OB = self.particles[3:6, :]
         OC = (OA+OB)/2
-
         # FORCES SUBJECTIVES  dans l'espace perceptuel
         if not(G_gravite_perc==0.) and not(G_rot_perc==0.) and not(G_tabou==0.):
             for OV in self.vps[:]:
@@ -245,7 +243,7 @@ class Scenario:
         # FORCES GLOBALES  dans l'espace physique
         if not(G_gravite == 0.):# and  not(G_rot == 0.):
             if not(positions == None) and not(positions == []):
-                print 'beep', positions
+                if DEBUG: print 'positions', positions
                 distance_min = 1.e6 * np.ones((self.N)) # very big to begin with
                 rotation1 = np.empty((3, self.N))
                 rotation2 = np.empty((3, self.N))
@@ -256,14 +254,12 @@ class Scenario:
                     distance_SC = np.sqrt(np.sum(SC**2, axis=0)) # en metres
                     SC_0 = SC / (np.sqrt((SC**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
                     gravity_ = - SC_0 * (distance_SC - self.p['distance_m'])/(distance_SC + self.p['eps'])**(n+2) # en metres
-
-                    rotation_1 = OC + distance_SC * SC_0 - OA
-                    rotation_2 = OC + (distance_SC + self.l_seg)  * SC_0 - OB
-
+                    #rotation_1 = OC + distance_SC * SC_0 - OA
+                    #rotation_2 = OC + (distance_SC + self.l_seg)  * SC_0 - OB
                     ind_assign = (distance_SC < distance_min)
                     gravity[:, ind_assign] = gravity_[:, ind_assign]
-                    rotation1[:, ind_assign] = rotation_1[:, ind_assign]
-                    rotation2[:, ind_assign] = rotation_2[:, ind_assign]
+                    #rotation1[:, ind_assign] = rotation_1[:, ind_assign]
+                    #rotation2[:, ind_assign] = rotation_2[:, ind_assign]
                     distance_min[ind_assign] = distance_SC[ind_assign]
 
                 force[0:3, :] += G_gravite * gravity
@@ -550,17 +546,8 @@ class Scenario:
             # application de l'acceleration calculée sur les positions
             self.particles[:6, :] += self.particles[6:12, :] * self.dt
 
-#         # routines on the position
-#         if not(positions==None) and not(positions==np.nan) :
-#             for position in positions:
-#                 for VP in self.VPs:
-#                     # TODO : fonction tabou dans les scenarios: zone d'évitement des bords: passer en coordonnées perceptuelles / utiliser la position des VPs / utiliser la position des VPs
-#                     A=1
-#
-#
-
         # pour les scenarios de controle du suivi, on centre autour de la position du premier player
-        if not(positions == None) and not(positions == np.nan) and not(positions == []) and (self.scenario in ['croix', 'fan', '2fan', 'rotating-circle', 'calibration']): #
+        if not(positions == None) and not(positions == []) and (self.scenario in ['croix', 'fan', '2fan', 'rotating-circle', 'calibration']):
             # pour la calibration on centre le pattern autour de la premiere personne captée
             self.particles[0:3, :] -= self.croix[:, np.newaxis]
             self.particles[3:6, :] -= self.croix[:, np.newaxis]
@@ -568,7 +555,6 @@ class Scenario:
             self.particles[3:6, :] += np.array(positions[0])[:, np.newaxis]
 
 
-        # todo : éviter plaquage le long des bords
         #  permet de ne pas sortir du volume (todo: créer un champ répulsif aux murs...)
         if (self.scenario == 'leapfrog') or (self.scenario == 'euler') :
             for i in range(6):
@@ -577,7 +563,6 @@ class Scenario:
                 self.particles[i+6, (self.particles[i, :] < -1*self.volume[i % 3]) ] = 0.
                 self.particles[i+6, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 0.
                 #self.particles[i, (self.particles[i, :] < -.0*self.volume[i % 3]) ] = -.0*self.volume[i % 3]
-
 
 if __name__ == "__main__":
     import display_modele_dynamique
