@@ -17,7 +17,8 @@ Exploration mode.
     et des événements:
     - P : pulse (modif de la longueur et raideur des segments)
     - V : G_repulsion <> G_repulsion_hot
-    - B : break
+    - B : break 2&3
+    - J : break 1
     - D : Down
 
 """
@@ -136,6 +137,8 @@ def on_key_press(symbol, modifiers):
         #events[4] = 1 - events[4]
     elif symbol == pyglet.window.key.B:
         events = [1, 1, 1, 1, 1, 1, 1, 0]
+    elif symbol == pyglet.window.key.J:
+        events = [1, 1, 1, 1, 1, 1, 1, 1]
     elif symbol == pyglet.window.key.P:
         events[1] = 1 - events[1]
     elif symbol == pyglet.window.key.V:

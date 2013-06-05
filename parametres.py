@@ -22,8 +22,8 @@ Par convention, la position de la croix est au centre de la salle: [d_x/2, d_y/2
 """
 
 # pour savoir si on imprime des messages d'erreur
-DEBUG  = True
 DEBUG  = False
+DEBUG  = True
 
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
@@ -115,7 +115,7 @@ p = {'N': 32,
      'G_repulsion_hot': .5, # constante de répulsion entre les particules
      'eps': 1.e-4, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 3., 'l_seg_min': 0.4, 'l_seg_max': 2., # dureté et longueur des segments
-     'G_spring_hot': .1, 'l_seg_hot': .80,  # dureté et longueur des segments dans un break
+     'G_spring_hot': 20., 'l_seg_hot': .80,  # dureté et longueur des segments dans un break
      # parametres globaux
      'damp': .1,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_hot': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude

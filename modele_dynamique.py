@@ -131,6 +131,14 @@ class Scenario:
             G_spring = self.p['G_spring_hot']
 
         # événements (breaks)
+        if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]):
+            damp = self.p['damp']
+        else: # event avec la touche V dans display_modele_dynamique.py
+            damp = 0.
+            speed_0 = self.p['speed_hot']
+            #G_repulsion = self.p['G_repulsion_hot']
+        if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans display_modele_dynamique.py
+            damp = self.p['damp_hot']
         if events[1] == 0 and not(events[:6] == [1, 1, 1, 1, 1, 1]): # cas général
             self.l_seg[:-2] = self.p['l_seg_min'] * np.ones(self.N-2)
             self.l_seg[-2:] = self.p['l_seg_max']
@@ -140,14 +148,10 @@ class Scenario:
             self.l_seg[-6:] = self.p['l_seg_max']
             G_spring = self.p['G_spring_hot']
 
-        if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]):
-            damp = self.p['damp']
-        else: # event avec la touche V dans display_modele_dynamique.py
-            damp = 0.
-            speed_0 = self.p['speed_hot']
-            #G_repulsion = self.p['G_repulsion_hot']
-        if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans display_modele_dynamique.py
-            damp = self.p['damp_hot']
+        # les breaks sont signés par events[:6] == [1, 1, 1, 1, 1, 1], puis 1 =
+        # 1 : events[6:] == [1, 1]
+        # 2 : events[6:] == [1, 0]
+        # 3 : events[6:] == [0, 0]
 
         # initialize t_break at the onset - touche B
         if (events[:6] == [1, 1, 1, 1, 1, 1]) and (self.t_break == 0.):
@@ -165,7 +169,8 @@ class Scenario:
                 else:
                     speed_0 = self.p['speed_0'] *((self.p['A_break']-1) * np.exp(-(self.p['T_break'] - (self.t - self.t_break)) / self.p['tau_break']) + 1)
 #                     print speed_0
-            else:
+            else: # break 1
+                G_poussee = self.p['G_poussee_hot']
                 speed_0 = self.p['speed_0']
         else:
             speed_0 = self.p['speed_0']
@@ -536,6 +541,8 @@ class Scenario:
             # application de l'acceleration calculée sur les positions
             self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
 #            self.positions_old = np.array(positions)
+            if np.isnan(self.particles[:6, :]).any():
+                raise ValueError("some values are NaN breads")
 
         elif self.scenario == 'euler':
             force = self.champ(positions=positions, events=events)
