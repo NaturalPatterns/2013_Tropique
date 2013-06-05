@@ -9,6 +9,7 @@ Functional modes
 import sys
 sys.path.append('..')
 import time
+start_time = time.time()
 from time import gmtime, strftime
 import OSC
 import socket
@@ -61,17 +62,16 @@ try:
 except Exception, e:
     print('problem while importing sliders ! Error = ', e)
 #----------------------
-start_time = time.time()
 while True:
     #global events
     if DEBUG:
         elapsed_time = time.time() - start_time
         start_time = time.time()
-        print "FPS =" , int (1/elapsed_time)
+        if elapsed_time>0: print "FPS =" , int (1/elapsed_time)
 
     k.trigger()
     positions = []
-    test_positions = k.read_sock() # TODO: c'est bien une liste de coordonnées [x, y, z] ?
+    test_positions = k.read_sock()
     if (test_positions!=None):
         for position in test_positions:
             positions.append([position[0], position[1],position[2] ])
