@@ -97,7 +97,7 @@ calibration = {
 # parametres du champ
 p = {'N': 32,
      # parametres perceptifs
-     'distance_m': 0.30, # distance d'équilibre des segments autour d'une position de player
+     'distance_m': 0.25, # distance d'équilibre des segments autour d'une position de player
      'G_gravite_perc': 3.0, # attraction globale vers les centres des positions
      'G_gravite_perc_hot': 18.0, # attraction globale vers les centres des positions
      'G_rot_perc': 2.,
@@ -105,7 +105,7 @@ p = {'N': 32,
      'distance_tabou': 0.30, # distance tabou
      'G_tabou': 50., # force tabou qui expulse tout segment qui rentre dans la zone tabou
      # parametres physiques
-     'G_gravite': 3.0, # parametre d'attraction physique vers les players
+     'G_gravite': 5.0, # parametre d'attraction physique vers les players
      'G_gravite_hot': 13.0, # parametre d'attraction physique vers les players
      'G_poussee': .20, # parametre de poussee créateur de vortex
      'G_poussee_hot': 15., # parametre de poussee créateur de vortex
@@ -116,8 +116,8 @@ p = {'N': 32,
      'G_repulsion': .2, # constante de répulsion entre les particules
      'G_repulsion_hot': .5, # constante de répulsion entre les particules
      'eps': 1.e-3, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
-     'G_spring': 3., 'l_seg_min': 0.4, 'l_seg_max': 2., # dureté et longueur des segments
-     'G_spring_hot': 20., 'l_seg_hot': .80,  # dureté et longueur des segments dans un break
+     'G_spring': 3., 'l_seg_min': 0.35, 'l_seg_max': 2., # dureté et longueur des segments
+     'G_spring_hot': 20., 'l_seg_hot': .45,  # dureté et longueur des segments dans un break
      # parametres globaux
      'damp': .1,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_middle': .96,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
