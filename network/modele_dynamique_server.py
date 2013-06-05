@@ -1,11 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Particle-like simulation. Just the simulation.
-Functional modes
-@author: BIOGENE&lolo
-
-"""
 import sys
 sys.path.append('..')
 import time
@@ -27,9 +21,6 @@ k = Kinects(kinects_network_config)
 #----------------------
 from modele_dynamique import Scenario
 s = Scenario(p['N'], scenario, volume, VPs, p, calibration)
-positions = []
-positions.append([s.center[0], s.center[1] , s.center[2]])
-test_positions = ([s.center[0], s.center[1] , s.center[2]])
 #--------------------------OSC SERVER
 import threading
 # tupple with ip, port. i dont use the () but maybe you want -> send_address = ('127.0.0.1', 9000)
@@ -63,12 +54,10 @@ except Exception, e:
     print('problem while importing sliders ! Error = ', e)
 #----------------------
 while True:
-    #global events
     if DEBUG:
         elapsed_time = time.time() - start_time
         start_time = time.time()
         if elapsed_time>0: print "FPS =" , int (1/elapsed_time)
-
     k.trigger()
     positions = []
     test_positions = k.read_sock()
@@ -78,16 +67,13 @@ while True:
     if DEBUG: print test_positions, positions, events
     s.do_scenario(positions=positions, events=events)
     if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
-
     # envoi aux VPs
     str_send = s.particles[0:6, :].tostring('F')
     from_send.sendto(str_send, (from_IP, from_PORT) )
-
     # envoi à OSC
     msg = OSC.OSCMessage()
     msg.setAddress("/segment")
     msg.append((s.particles[0:6, -2:].T))
-
     try :
         client.send(msg)
     except KeyboardInterrupt :
