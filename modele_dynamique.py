@@ -205,7 +205,7 @@ class Scenario:
                                                 arcdistance(rae_VS, rae_VC))), axis=0)
                         distance_SC = rae_VS[0]*np.sin(arcdis)
                         SC = OC - np.array(position)[:, np.newaxis]
-                        SC_0 = SC / np.sqrt((SC**2).sum(axis=0)) # unit vector going from the player to the center of the segment
+                        SC_0 = SC / (np.sqrt((SC**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
 
                         # TODO : diminuer la force du tabou dans le temps pour les personnes arrétées / parametre T_damp_global
                         tabou = - SC_0 * (distance_SC < distance_tabou) * (distance_SC - distance_tabou)/(distance_SC + self.p['eps'])**(n+2) # en metres
