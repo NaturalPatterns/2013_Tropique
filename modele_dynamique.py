@@ -116,11 +116,11 @@ class Scenario:
         G_poussee = self.p['G_poussee']
         G_gravite = self.p['G_gravite']
         # phases
-        if events == [0, 0, 0, 1, 0, 0, 0, 0]: # phase avec la touche G dans display_modele_dynamique.py
+        if events == [0, 0, 0, 0, 1, 0, 0, 0]: # phase avec la touche G dans display_modele_dynamique.py
             G_rot_perc = self.p['G_rot_perc_hot']
             G_gravite_perc = self.p['G_gravite_perc_hot']
-            G_struct, G_poussee = 0., 0.
-            G_gravite = self.p['G_gravite']
+            G_struct = 0.
+            #G_poussee = 0.
             G_repulsion = 0.
         elif events == [1, 0, 0, 0, 0, 0, 0, 0]: # phase avec la touche R dans display_modele_dynamique.py
             G_gravite_perc, G_rot_perc = 0., 0.
@@ -128,7 +128,7 @@ class Scenario:
             G_struct = self.p['G_struct_hot']
             distance_struct = self.p['distance_struct_hot']
             G_repulsion =  self.p['G_repulsion_hot']
-            G_spring = self.p['G_spring_hot']
+            #G_spring = self.p['G_spring_hot']
 
         # événements (breaks)
         if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]):
@@ -145,7 +145,7 @@ class Scenario:
             G_spring = self.p['G_spring']
         else:  # événement Pulse avec la touche P dans display_modele_dynamique.py (Pulse)
             self.l_seg[:-2] = self.p['l_seg_hot'] * np.ones(self.N-2)
-            self.l_seg[-6:] = self.p['l_seg_max']
+            self.l_seg[-2:] = self.p['l_seg_max']
             G_spring = self.p['G_spring_hot']
 
         # les breaks sont signés par events[:6] == [1, 1, 1, 1, 1, 1], puis 1 =
@@ -161,6 +161,7 @@ class Scenario:
         # reset the break after T_break seconds AND receiving the resetting signal
         if not(self.t_break == 0.) and (events[:6] == [0, 0, 0, 0, 0, 0]):
             if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
+
         if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
             if (events[-1] == 0): # break #2 or #3 - touche B
                 if self.t > self.t_break + self.p['T_break']:
@@ -572,7 +573,8 @@ class Scenario:
             for i in range(6):
                 self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
                 self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
-                #self.particles[i, (self.particles[i, :] > self.volume[i % 3]) ] = self.volume[i % 3]
+                self.particles[i+6, (self.particles[i, :] < -1*self.volume[i % 3]) ] = 0.
+                self.particles[i+6, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 0.
                 #self.particles[i, (self.particles[i, :] < -.0*self.volume[i % 3]) ] = -.0*self.volume[i % 3]
 
 

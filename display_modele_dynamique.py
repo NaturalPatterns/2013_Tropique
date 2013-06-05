@@ -133,7 +133,7 @@ def on_key_press(symbol, modifiers):
         events = [1, 0, 0, 0, 0, 0, 0, 0]
         #events[0] = 1 - events[0]
     elif symbol == pyglet.window.key.G:
-        events = [0, 0, 0, 1, 0, 0, 0, 0]
+        events = [0, 0, 0, 0, 1, 0, 0, 0]
         #events[4] = 1 - events[4]
     elif symbol == pyglet.window.key.B:
         events = [1, 1, 1, 1, 1, 1, 1, 0]
@@ -180,6 +180,7 @@ def on_draw():
 
 
     s.do_scenario(positions=positions, events=events)
+    if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
 
     win_0.clear()
     gl.glMatrixMode(gl.GL_MODELVIEW)
@@ -256,7 +257,6 @@ def on_draw():
         gl.glColor3f(1., 1., 1.)
 
         pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
-        if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
 
     if do_sock: k.trigger()
 
