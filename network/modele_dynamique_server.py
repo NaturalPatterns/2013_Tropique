@@ -64,9 +64,10 @@ while True:
     if (test_positions!=None):
         for position in test_positions:
             positions.append([position[0], position[1],position[2] ])
-    if DEBUG: print test_positions, positions, events
+    #if DEBUG: print positions, events
+    if DEBUG: print events
     s.do_scenario(positions=positions, events=events)
-    if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
+    #if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
     # envoi aux VPs
     str_send = s.particles[0:6, :].tostring('F')
     from_send.sendto(str_send, (from_IP, from_PORT) )
@@ -74,9 +75,9 @@ while True:
     msg = OSC.OSCMessage()
     msg.setAddress("/segment")
     msg.append((s.particles[0:6, -2:].T))
-    try :
+    try:
         client.send(msg)
-    except KeyboardInterrupt :
+    except KeyboardInterrupt:
         print "\nClosing OSCServer."
         s.close()
         print "Waiting for Server-thread to finish"
