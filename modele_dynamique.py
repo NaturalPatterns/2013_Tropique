@@ -124,7 +124,7 @@ class Scenario:
             G_repulsion = 0.
         elif events == [1, 0, 0, 0, 0, 0, 0, 0]: # phase avec la touche R dans display_modele_dynamique.py
             G_gravite_perc, G_rot_perc = 0., 0.
-            G_gravite = self.p['G_gravite']
+            G_gravite = self.p['G_gravite_hot']
             G_struct = self.p['G_struct_hot']
             distance_struct = self.p['distance_struct_hot']
             G_repulsion =  self.p['G_repulsion_hot']
@@ -252,7 +252,7 @@ class Scenario:
                     # point C (centre) du segment
                     SC = (self.particles[0:3, :]+self.particles[3:6, :])/2-np.array(position)[:, np.newaxis]
                     distance_SC = np.sqrt(np.sum(SC**2, axis=0)) # en metres
-                    SC_0 = SC / distance_SC # unit vector going from the player to the center of the segment
+                    SC_0 = SC / (np.sqrt((SC**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
                     gravity_ = - SC_0 * (distance_SC - self.p['distance_m'])/(distance_SC + self.p['eps'])**(n+2) # en metres
 
                     rotation_1 = OC + distance_SC * SC_0 - OA
@@ -272,15 +272,15 @@ class Scenario:
                 #force[3:6, :] += G_rot * rotation2
 
         ## forces entres les particules
-        #OC = (self.particles[0:3, :]+self.particles[3:6, :])/2
         CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
         if not(G_repulsion==0.):
-            # repulsion entre les centres de de chaque paire de segments
+            # repulsion entre les centres de chaque paire de segments
             distance = np.sqrt(np.sum(CC**2, axis=0)) # NxN ; en metres
             gravity = - np.sum(CC/(distance.T + self.p['eps'])**(n+2), axis=1) # 3 x N; en metres
             force[0:3, :] += G_repulsion * gravity
             force[3:6, :] += G_repulsion * gravity
             # TODO attraction / repulsion des angles relatifs des segments
+
         if not(G_poussee==0.):
             distance = np.sqrt(np.sum(CC**2, axis=0)) # NxN ; en metres
             # poussee entrainant une rotation lente et globale (cf p152)
@@ -331,9 +331,7 @@ class Scenario:
 
 
         if self.scenario == 'croix':
-
             longueur_segments = .8
-
             # ligne horizontale
             self.particles[0, :self.N/2] = self.croix[0] # on the reference plane
             self.particles[1, :self.N/2] = self.croix[1]
@@ -542,7 +540,7 @@ class Scenario:
             self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
 #            self.positions_old = np.array(positions)
             if np.isnan(self.particles[:6, :]).any():
-                raise ValueError("some values are NaN breads")
+                raise ValueError("some values like NaN breads")
 
         elif self.scenario == 'euler':
             force = self.champ(positions=positions, events=events)
