@@ -105,7 +105,7 @@ p = {'N': 32,
      'distance_tabou': 0.30, # distance tabou
      'G_tabou': 50., # force tabou qui expulse tout segment qui rentre dans la zone tabou
      # parametres physiques
-     'G_gravite': 5.0, # parametre d'attraction physique vers les players
+     'G_gravite': 3.0, # parametre d'attraction physique vers les players
      'G_gravite_hot': 13.0, # parametre d'attraction physique vers les players
      'G_poussee': .20, # parametre de poussee créateur de vortex
      'G_poussee_hot': 15., # parametre de poussee créateur de vortex
