@@ -116,8 +116,8 @@ p = {'N': 32,
      'G_repulsion': .2, # constante de répulsion entre les particules
      'G_repulsion_hot': .5, # constante de répulsion entre les particules
      'eps': 1.e-3, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
-     'G_spring': 3., 'l_seg_min': 0.35, 'l_seg_max': 2., # dureté et longueur des segments
-     'G_spring_hot': 20., 'l_seg_hot': .45,  # dureté et longueur des segments dans un break
+     'G_spring': 3., 'l_seg_min': 0.35, 'l_seg_max': 2., 'N_max': 2, # dureté et longueur des segments
+     'G_spring_hot': 20., 'l_seg_hot': .45, 'N_max_hot': 6,  # dureté et longueur des segments dans un break
      # parametres globaux
      'damp': .1,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_middle': .96,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
