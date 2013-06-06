@@ -120,7 +120,7 @@ class Scenario:
             G_rot_perc = self.p['G_rot_perc_hot']
             G_gravite_perc = self.p['G_gravite_perc_hot']
             G_struct = 0.
-            G_poussee = 0.
+            #G_poussee = 0.
             G_repulsion = 0.
         elif events == [1, 0, 0, 0, 0, 0, 0, 0]: # phase avec la touche R dans display_modele_dynamique.py
             G_gravite_perc, G_rot_perc = 0., 0.
@@ -128,7 +128,7 @@ class Scenario:
             G_struct = self.p['G_struct_hot']
             distance_struct = self.p['distance_struct_hot']
             G_repulsion =  self.p['G_repulsion_hot']
-            G_spring = self.p['G_spring_hot']
+            #G_spring = self.p['G_spring_hot']
 
         # événements (breaks)
         if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]):
@@ -175,7 +175,7 @@ class Scenario:
                 damp = self.p['damp_middle']
         else:
             speed_0 = self.p['speed_0']
-        if DEBUG: print 'positions', positions
+
         ###################################################################################################################################
         force = np.zeros((6, self.N)) # one vector per point
         n = self.p['kurt']
@@ -184,13 +184,14 @@ class Scenario:
         OB = self.particles[3:6, :]
         OC = (OA+OB)/2
         # FORCES SUBJECTIVES  dans l'espace perceptuel
-        if not(G_gravite_perc==0.) and not(G_rot_perc==0.) and not(G_tabou==0.):
+        if not(G_gravite_perc==0.) or not(G_rot_perc==0.) or not(G_tabou==0.):
             for OV in self.vps[:]:
                 rae_VC = xyz2azel(OC, OV)
                 rae_VA = xyz2azel(self.particles[:3, :], OV) # 3 x N
                 rae_VB = xyz2azel(self.particles[3:6, :], OV) # 3 x N
+
                 # attraction / repulsion des angles relatifs des segments
-                if not(positions == []):
+                if not(positions == None) and not(positions == []):
                     distance_min = 1.e6 * np.ones((self.N)) # very big to begin with
                     rotation = np.empty((3, self.N))
                     rotation1 = np.empty((3, self.N))
@@ -240,8 +241,9 @@ class Scenario:
                     force[3:6, :] -= G_rot_perc / self.nvps * rotation#2
 
         # FORCES GLOBALES  dans l'espace physique
-        if not(G_gravite == 0.):# and  not(G_rot == 0.):
-            if not(positions == []):
+        if not(G_gravite == 0.):# or  not(G_rot == 0.):
+            if not(positions == None) and not(positions == []):
+                if DEBUG: print 'positions', positions
                 distance_min = 1.e6 * np.ones((self.N)) # very big to begin with
                 rotation1 = np.empty((3, self.N))
                 rotation2 = np.empty((3, self.N))
