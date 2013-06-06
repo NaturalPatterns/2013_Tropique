@@ -184,7 +184,7 @@ class Scenario:
         OB = self.particles[3:6, :]
         OC = (OA+OB)/2
         # FORCES SUBJECTIVES  dans l'espace perceptuel
-        if not(G_gravite_perc==0.) and not(G_rot_perc==0.) and not(G_tabou==0.):
+        if not(G_gravite_perc==0.) or not(G_rot_perc==0.) or not(G_tabou==0.):
             for OV in self.vps[:]:
                 rae_VC = xyz2azel(OC, OV)
                 rae_VA = xyz2azel(self.particles[:3, :], OV) # 3 x N
@@ -241,7 +241,7 @@ class Scenario:
                     force[3:6, :] -= G_rot_perc / self.nvps * rotation#2
 
         # FORCES GLOBALES  dans l'espace physique
-        if not(G_gravite == 0.):# and  not(G_rot == 0.):
+        if not(G_gravite == 0.):# or  not(G_rot == 0.):
             if not(positions == None) and not(positions == []):
                 if DEBUG: print 'positions', positions
                 distance_min = 1.e6 * np.ones((self.N)) # very big to begin with
