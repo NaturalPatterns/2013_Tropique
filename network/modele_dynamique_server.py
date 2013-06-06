@@ -53,11 +53,12 @@ try:
 except Exception, e:
     print('problem while importing sliders ! Error = ', e)
 #----------------------
+positions_old = []
 while True:
-    if DEBUG:
-        elapsed_time = time.time() - start_time
-        start_time = time.time()
-        if elapsed_time>0: print "FPS =" , int (1/elapsed_time)
+    #if DEBUG:
+        #elapsed_time = time.time() - start_time
+        #start_time = time.time()
+        #if elapsed_time>0: print "FPS =" , int (1/elapsed_time)
     k.trigger()
     positions = []
     test_positions = k.read_sock()
@@ -65,6 +66,9 @@ while True:
         for position in test_positions:
             positions.append([position[0], position[1],position[2] ])
     #if DEBUG: print positions, events
+    # HACK pour pas perdre de trames de detection
+    if positions == []: positions = positions_old
+    else: positions_old = positions
     if DEBUG: print events
     s.do_scenario(positions=positions, events=events)
     #if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
