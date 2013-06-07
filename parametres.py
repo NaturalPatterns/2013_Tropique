@@ -103,11 +103,11 @@ p = {'N': 32,
      'G_gravite_perc_G': 20.0, # attraction globale vers les centres des positions
      'G_rot_perc': 8.,
      'G_rot_perc_G': 15.,
-     'distance_tabou': 0.45, # distance tabou
-     'G_tabou': 50., # force tabou qui expulse tout segment qui rentre dans la zone tabou
+     'distance_tabou': 0.6, # distance tabou
+     'G_tabou': 10., # force tabou qui expulse tout segment qui rentre dans la zone tabou
      # parametres physiques
      'G_gravite': 30.0, # parametre d'attraction physique vers les players
-     'G_gravite_R': 30.0, # parametre d'attraction physique vers les players
+     'G_gravite_R': 50.0, # parametre d'attraction physique vers les players
      'G_gravite_G': 30.0, # parametre d'attraction physique vers les players
      'G_poussee': .10, # parametre de poussee créateur de vortex
      'G_poussee_break': .5, # parametre de poussee créateur de vortex
@@ -127,11 +127,11 @@ p = {'N': 32,
      'damp': .2,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_break23': .4,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_break1': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-     'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_0': .1, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'speed_break': 2., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
-     'scale': 25., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
+     'scale': 10., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
      'kurt' : .0, # 0 is normal gravity, higher makes the attraction more local, lower more global
-     'line_width': 3, # line width of segments
+     'line_width': 1, # line width of segments
      'T_break': 6., # duration (secondes) of breaks 2&3
      'A_break': 4., # amplitude de l'amplification de speed_0 dans les break #2 et #3
      'tau_break': .103, # duration du transient dans les breaks #2 et #3
