@@ -207,7 +207,7 @@ class Scenario:
 
                         # TODO : diminuer la force du tabou dans le temps pour les personnes arrétées / parametre T_damp_global
                         tabou = - SC_0 * (distance_SC < distance_tabou) * (distance_SC - distance_tabou)/(distance_SC + self.p['eps'])**(n+2) # en metres
-                        modul = 1. - np.exp(-rae_VS[0] / 1. )
+                        modul = 1. - np.exp(-rae_VS[0] / self.p['distance_notabou'] )
                         force[0:3, :] += G_tabou * modul * tabou
                         force[3:6, :] += G_tabou * modul * tabou
 
