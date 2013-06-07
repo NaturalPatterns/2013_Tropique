@@ -27,7 +27,7 @@ DEBUG  = True
 
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
-d_y, d_z = 6.6, 6.
+d_y, d_z = 6.6, 4.
 d_x = 16.9 # en metres
 
 # mesures au telemetre
