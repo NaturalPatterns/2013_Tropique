@@ -117,62 +117,61 @@ class Scenario:
         G_gravite = self.p['G_gravite']
         # phases
         if events == [0, 0, 0, 0, 1, 0, 0, 0]: # phase avec la touche G dans display_modele_dynamique.py
-            G_rot_perc = self.p['G_rot_perc_hot']
-            G_gravite_perc = self.p['G_gravite_perc_hot']
-            G_struct = 0.
+            G_rot_perc = self.p['G_rot_perc_G']
+            G_gravite_perc = self.p['G_gravite_perc_G']
+            G_struct = self.p['G_struct_G']
             #G_poussee = 0.
-            G_repulsion = 0.
+            G_gravite = self.p['G_gravite_G']
+            G_repulsion = self.p['G_repulsion_G']
         elif events == [1, 0, 0, 0, 0, 0, 0, 0]: # phase avec la touche R dans display_modele_dynamique.py
             G_gravite_perc, G_rot_perc = 0., 0.
-            G_gravite = self.p['G_gravite_hot']
-            G_struct = self.p['G_struct_hot']
-            distance_struct = self.p['distance_struct_hot']
-            G_repulsion =  self.p['G_repulsion_hot']
+            G_gravite = self.p['G_gravite_R']
+            G_struct = self.p['G_struct_R']
+            distance_struct = self.p['distance_struct_R']
+            G_repulsion =  self.p['G_repulsion_R']
+            G_poussee = 0.
             #G_spring = self.p['G_spring_hot']
 
         # événements (breaks)
         if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]):
             damp = self.p['damp']
-        else: # event avec la touche V dans display_modele_dynamique.py
+        else: # event avec la touche V dans display_modele_dynamique.py TODO: obsolete?
             damp = 0.
-            speed_0 = self.p['speed_hot']
+            speed_0 = self.p['speed_break']
             #G_repulsion = self.p['G_repulsion_hot']
         if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans display_modele_dynamique.py
-            damp = self.p['damp_hot']
+            damp = self.p['damp_break1']
         if events[1] == 0 and not(events[:6] == [1, 1, 1, 1, 1, 1]): # cas général
-            self.l_seg[:-2] = self.p['l_seg_min'] * np.ones(self.N-2)
-            self.l_seg[-2:] = self.p['l_seg_max']
+            self.l_seg[:-self.p['N_max']] = self.p['l_seg_min'] * np.ones(self.N-self.p['N_max'])
+            self.l_seg[-self.p['N_max']:] = self.p['l_seg_max']
             G_spring = self.p['G_spring']
         else:  # événement Pulse avec la touche P dans display_modele_dynamique.py (Pulse)
-            self.l_seg[:-2] = self.p['l_seg_hot'] * np.ones(self.N-2)
-            self.l_seg[-2:] = self.p['l_seg_max']
-            G_spring = self.p['G_spring_hot']
+            self.l_seg[:-self.p['N_max_pulse']] = self.p['l_seg_pulse'] * np.ones(self.N-self.p['N_max_pulse'])
+            self.l_seg[-self.p['N_max_pulse']:] = self.p['l_seg_max']
+            G_spring = self.p['G_spring_pulse']
 
         # les breaks sont signés par events[:6] == [1, 1, 1, 1, 1, 1], puis 1 =
         # 1 : events[6:] == [1, 1]
         # 2 : events[6:] == [1, 0]
         # 3 : events[6:] == [0, 0]
 
-        # initialize t_break at the onset - touche B
+        # initialize t_break at its onset - touche B
         if (events[:6] == [1, 1, 1, 1, 1, 1]) and (self.t_break == 0.):
             self.t_break = self.t
 
         #print self.t_break, self.t
-        # reset the break after T_break seconds AND receiving the resetting signal
-        if not(self.t_break == 0.) and (events[:6] == [0, 0, 0, 0, 0, 0]):
-            if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
+        if not(self.t_break == 0.):# and not(events[:6] == [0, 0, 0, 0, 0, 0]):
 
-        if not(self.t_break == 0):# and (events[:6] == [0, 0, 0, 0, 0, 0]):
             if (events[-1] == 0): # break #2 or #3 - touche B
-                if self.t > self.t_break + self.p['T_break']:
-                    speed_0 = self.p['speed_0']
-                else:
-                    speed_0 = self.p['speed_0'] *((self.p['A_break']-1) * np.exp(-(self.p['T_break'] - (self.t - self.t_break)) / self.p['tau_break']) + 1)
-#                     print speed_0
+                speed_0 = self.p['speed_0'] *((self.p['A_break']-1) * np.exp(-(self.p['T_break'] - (self.t - self.t_break)) / self.p['tau_break']) + 1)
+                damp = self.p['damp_break23']
             else: # break 1 - touche J
-                G_poussee = self.p['G_poussee_hot']
+                G_poussee = self.p['G_poussee_break']
                 speed_0 = self.p['speed_0']
-                damp = self.p['damp_middle']
+                damp = self.p['damp_break1']
+            # reset the break after T_break seconds AND receiving the resetting signal
+            if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
+            if DEBUG: print self.t - self.t_break, speed_0
         else:
             speed_0 = self.p['speed_0']
 
@@ -243,7 +242,7 @@ class Scenario:
         # FORCES GLOBALES  dans l'espace physique
         if not(G_gravite == 0.):# or  not(G_rot == 0.):
             if not(positions == None) and not(positions == []):
-                if DEBUG: print 'positions', positions
+                #if DEBUG: print 'positions', positions
                 distance_min = 1.e6 * np.ones((self.N)) # very big to begin with
                 rotation1 = np.empty((3, self.N))
                 rotation2 = np.empty((3, self.N))
@@ -557,12 +556,23 @@ class Scenario:
 
         #  permet de ne pas sortir du volume (todo: créer un champ répulsif aux murs...)
         if (self.scenario == 'leapfrog') or (self.scenario == 'euler') :
-            for i in range(6):
-                self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
-                self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
-                self.particles[i+6, (self.particles[i, :] < -1*self.volume[i % 3]) ] = 0.
-                self.particles[i+6, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 0.
-                #self.particles[i, (self.particles[i, :] < -.0*self.volume[i % 3]) ] = -.0*self.volume[i % 3]
+            if True: #
+                for i in range(6):
+                    self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
+                    self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
+                    self.particles[i+6, (self.particles[i, :] < -1*self.volume[i % 3]) ] *= -1.
+                    self.particles[i+6, (self.particles[i, :] > 2* self.volume[i % 3]) ] *= -1.
+                    #self.particles[i, (self.particles[i, :] < -.0*self.volume[i % 3]) ] = -.0*self.volume[i % 3]
+            else:
+                for i_N in range(self.N):
+                    #print self.particles[:3, i], self.volume
+                    #print (self.particles[:3, i] < -1*self.volume)
+                    if (self.particles[:3, i_N] < -.5*self.volume).any() or (self.particles[:3, i_N] > 1.5* self.volume).any()\
+                       or (self.particles[3:6, i_N] < -.5*self.volume).any() or (self.particles[3:6, i_N] > 1.5* self.volume).any():
+                        self.particles[:3, i_N] = self.center + .01*np.random.randn(3)*self.volume
+                        self.particles[3:6, i_N] = self.particles[:3, i_N]
+                        self.particles[6:, i_N] = 0.
+
 
 if __name__ == "__main__":
     import display_modele_dynamique

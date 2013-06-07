@@ -88,9 +88,9 @@ def segment():
         try :
             received = sock.recv(1024)
         except :
-            print "PROBLEME no data in ", HOST, PORT
+            if DEBUG: print "PROBLEME no data in ", HOST, PORT
         else :
-            print "Received: %s" % received
+            if DEBUG: print "Received: %s" % received
 
 def send_kinect(com):
     last_kinect=""
@@ -101,15 +101,15 @@ def send_kinect(com):
             last_kinect = kin['address']
 def display():
     os.system('clear')
-    print "display server "
+    if DEBUG: print "display server "
     send_kinect(2)
 def start_kinect():
     os.system('clear')
-    print "try to start kinects server "
+    if DEBUG: print "try to start kinects server "
     send_kinect(1)
 def kill_kinect():
     os.system('clear')
-    print "try to kill kinects server "
+    if DEBUG: print "try to kill kinects server "
     send_kinect(0)
 
 
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     affi_host = 'localhost'
     affi_port = 3004
     list_kinect()
-    print "send to ",affi_host, affi_port
+    if DEBUG: print "send to ",affi_host, affi_port
     stream_acqui()
 
     while 1 :
@@ -157,8 +157,3 @@ if __name__ == "__main__":
                 segment()
             if choice ==9 :
                 stream_acqui()
-
-
-
-
-
