@@ -117,6 +117,7 @@ p = {'N': 32,
      'G_struct_R': .3, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .3, # distance pour laquelle l'attraction des bouts de segments s'inverse
      'distance_struct_R': .4,
+     'G_volume': 1.,
      'G_repulsion': .2, # constante de répulsion entre les particules
      'G_repulsion_R': .35, # constante de répulsion entre les particules
      'eps': 1.e-1, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
@@ -126,7 +127,7 @@ p = {'N': 32,
      'damp': .2,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_break23': .4,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_break1': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-     'speed_0': .5, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'speed_break': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 25., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
      'kurt' : -1., # 0 is normal gravity, higher makes the attraction more local, lower more global
