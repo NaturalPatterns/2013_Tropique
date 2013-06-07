@@ -324,12 +324,12 @@ class Scenario:
         force[0:3, :] -= G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
         force[3:6, :] += G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
 
-        # volume
+        # volume : TODO :check
         if not(self.p['G_volume']==0.): #
             SC = (self.particles[0:3, :]+self.particles[3:6, :])/2-self.center[:, np.newaxis]
             distance_SC = np.sqrt(np.sum(SC**2, axis=0)) # en metres
             SC_0 = SC / (distance_SC + self.p['eps']) # unit vector going from the player to the center of the segment
-            gravity = -SC_0 *  (distance_SC[np.newaxis, :]/ self.volume[:, np.newaxis]) **4  # en metres
+            gravity = -SC_0 *  (distance_SC[np.newaxis, :]/ self.volume[:, np.newaxis])**2  # en metres
             force[0:3, :] += self.p['G_volume'] * gravity
             force[3:6, :] += self.p['G_volume'] * gravity
             #print distance_SC.mean(), SC[2, :].mean(), gravity[2, :].mean(), force[2, :].mean()

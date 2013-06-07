@@ -99,28 +99,28 @@ calibration = {
 p = {'N': 32,
      # parametres perceptifs
      'distance_m': 0.5, # distance d'équilibre des segments autour d'une position de player
-     'G_gravite_perc': 3.0, # attraction globale vers les centres des positions
+     'G_gravite_perc': 10.0, # attraction globale vers les centres des positions
      'G_gravite_perc_G': 20.0, # attraction globale vers les centres des positions
-     'G_rot_perc': 2.,
+     'G_rot_perc': 8.,
      'G_rot_perc_G': 15.,
-     'distance_tabou': 0.35, # distance tabou
+     'distance_tabou': 0.45, # distance tabou
      'G_tabou': 50., # force tabou qui expulse tout segment qui rentre dans la zone tabou
      # parametres physiques
-     'G_gravite': 4.0, # parametre d'attraction physique vers les players
-     'G_gravite_R': 28.0, # parametre d'attraction physique vers les players
-     'G_gravite_G': 28.0, # parametre d'attraction physique vers les players
+     'G_gravite': 30.0, # parametre d'attraction physique vers les players
+     'G_gravite_R': 30.0, # parametre d'attraction physique vers les players
+     'G_gravite_G': 30.0, # parametre d'attraction physique vers les players
      'G_poussee': .10, # parametre de poussee créateur de vortex
      'G_poussee_break': .5, # parametre de poussee créateur de vortex
      'G_struct_G': .0, # force avec laquelle les bouts de segments s'attirent
-     'G_struct': .1, # force avec laquelle les bouts de segments s'attirent
-     'G_struct_R': .3, # force avec laquelle les bouts de segments s'attirent
+     'G_struct': .5, # force avec laquelle les bouts de segments s'attirent
+     'G_struct_R': 4., # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .3, # distance pour laquelle l'attraction des bouts de segments s'inverse
-     'distance_struct_R': .4,
-     'G_volume': .1, # force qui permet de rester dans le volume - lente et active surtout quand il n'y a personne
-     'G_repulsion': .2, # constante de répulsion entre les particules
-     'G_repulsion_G': .5, # force avec laquelle les bouts de segments s'attirent
-     'G_repulsion_R': .35, # constante de répulsion entre les particules
-     'eps': 1.e-3, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
+     'distance_struct_R': .3,
+     'G_volume': .0, # force qui permet de rester dans le volume - lente et active surtout quand il n'y a personne
+     'G_repulsion': .8, # constante de répulsion entre les particules
+     'G_repulsion_G': 1., # force avec laquelle les bouts de segments s'attirent
+     'G_repulsion_R': .6, # constante de répulsion entre les particules
+     'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 3., 'l_seg_min': 0.35, 'l_seg_max': 2., 'N_max': 2, # dureté et longueur des segments
      'G_spring_pulse': 50., 'l_seg_pulse': .9, 'N_max_pulse': 6,  # dureté et longueur des segments dans un break
      # parametres globaux
@@ -128,12 +128,12 @@ p = {'N': 32,
      'damp_break23': .4,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_break1': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
-     'speed_break': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_break': 2., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 25., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
      'kurt' : .0, # 0 is normal gravity, higher makes the attraction more local, lower more global
      'line_width': 3, # line width of segments
      'T_break': 6., # duration (secondes) of breaks 2&3
-     'A_break': 2.5, # amplitude de l'amplification de speed_0 dans les break #2 et #3
+     'A_break': 4., # amplitude de l'amplification de speed_0 dans les break #2 et #3
      'tau_break': .103, # duration du transient dans les breaks #2 et #3
 }
 
