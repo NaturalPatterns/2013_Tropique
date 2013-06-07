@@ -207,8 +207,9 @@ class Scenario:
 
                         # TODO : diminuer la force du tabou dans le temps pour les personnes arrétées / parametre T_damp_global
                         tabou = - SC_0 * (distance_SC < distance_tabou) * (distance_SC - distance_tabou)/(distance_SC + self.p['eps'])**(n+2) # en metres
-                        force[0:3, :] += G_tabou * tabou
-                        force[3:6, :] += G_tabou * tabou
+                        modul = 1. - np.exp(-rae_VS[0] / 1. )
+                        force[0:3, :] += G_tabou * modul * tabou
+                        force[3:6, :] += G_tabou * modul * tabou
 
                         # TODO : réduire la dimension de profondeur à une simple convergence vers la position en x / reflète la perception
                         gravity_ = - SC_0 * (distance_SC - self.p['distance_m'])/(distance_SC + self.p['eps'])**(n+2) # en metres
@@ -338,6 +339,7 @@ class Scenario:
         force -= damp * self.particles[6:12, :]/self.dt
 
         # normalisation des forces pour éviter le chaos
+        if DEBUG: print force.mean(axis=1)
         if self.p['scale'] < 20: force = self.p['scale'] * np.tanh(force/self.p['scale'])
         force *= speed_0
         return force
