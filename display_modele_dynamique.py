@@ -197,7 +197,8 @@ def on_draw():
 
         gl.gluPerspective(foc_fp, 1.0*win_0.width/win_0.height,
                           VPs[i_VP_fp]['pc_min'], VPs[i_VP_fp]['pc_max'])
-        x_fp, y_fp, z_fp = positions[0][0], positions[0][1], positions[0][2]
+        #x_fp, y_fp, z_fp = positions[0][0], positions[0][1], positions[0][2]
+        x_fp, y_fp, z_fp = s.center
         s.heading_fp += s.rot_heading_fp * (s.t -t) # 2* pi * s.t / 30
         gluLookAt(x_fp, y_fp, z_fp,
                   x_fp + np.cos(s.heading_fp), y_fp + np.sin(s.heading_fp), z_fp,
