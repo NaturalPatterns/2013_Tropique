@@ -244,8 +244,8 @@ class Scenario:
             if not(positions == None) and not(positions == []):
                 #if DEBUG: print 'positions', positions
                 distance_min = 1.e6 * np.ones((self.N)) # very big to begin with
-                rotation1 = np.empty((3, self.N))
-                rotation2 = np.empty((3, self.N))
+                #rotation1 = np.empty((3, self.N))
+                #rotation2 = np.empty((3, self.N))
                 gravity = np.empty((3, self.N))
                 for position in positions:
                     # point C (centre) du segment
@@ -272,7 +272,16 @@ class Scenario:
         CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
         if not(G_repulsion==0.):
             # repulsion entre les centres de chaque paire de segments
-            distance = np.sqrt(np.sum(CC**2, axis=0)) # NxN ; en metres
+            distance_CC = np.sqrt(np.sum(CC**2, axis=0)) # NxN ; en metres
+            AA_ = self.particles[0:3, :, np.newaxis]-self.particles[0:3, np.newaxis, :]
+            distance_AA = np.sqrt(np.sum(AA_**2, axis=0)) # NxN ; en metres
+            AB_ = self.particles[3:6, :, np.newaxis]-self.particles[3:6, np.newaxis, :]
+            distance_AB = np.sqrt(np.sum(AB_**2, axis=0)) # NxN ; en metres
+            BB_ = self.particles[0:3, :, np.newaxis]-self.particles[3:6, np.newaxis, :]
+            distance_BB = np.sqrt(np.sum(BB_**2, axis=0)) # NxN ; en metres
+            #print distance_AA.shape, distance_CC.shape, distance_AB.shape, distance_BB.shape
+            distance = np.concatenate((distance_CC[np.newaxis,:,:], distance_AB[np.newaxis,:,:], \
+					distance_AA[np.newaxis,:,:], distance_BB[np.newaxis,:,:]), axis=0).min(axis=0)
             gravity = - np.sum(CC/(distance.T + self.p['eps'])**(n+2), axis=1) # 3 x N; en metres
             force[0:3, :] += G_repulsion * gravity
             force[3:6, :] += G_repulsion * gravity
@@ -295,22 +304,35 @@ class Scenario:
             distance = np.sqrt(np.sum(AA_**2, axis=0)) # NxN ; en metres
             gravity = - np.sum((distance < distance_struct) * AA_ /(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
             force[0:3, :] += G_struct * gravity
-            AB_ = self.particles[3:6, :, np.newaxis]-self.particles[3:6, np.newaxis, :]
+            AB_ = self.particles[0:3, :, np.newaxis]-self.particles[3:6, np.newaxis, :]
             distance = np.sqrt(np.sum(AB_**2, axis=0)) # NxN ; en metres
             gravity = - np.sum((distance < distance_struct) * AB_/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
             force[3:6, :] += G_struct * gravity
-            BB_ = self.particles[0:3, :][:, :, np.newaxis]-self.particles[3:6, :][:, :, np.newaxis]
+            BB_ = self.particles[3:6, :, np.newaxis]-self.particles[3:6, np.newaxis, :]
+            #BB_ = self.particles[0:3, :][:, :, np.newaxis]-self.particles[3:6, :][:, :, np.newaxis]
             distance = np.sqrt(np.sum(BB_**2, axis=0)) # NxN ; en metres
+            gravity = - np.sum((distance < distance_struct) * BB_/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
+            distance = np.sqrt(np.sum(CC**2, axis=0)) # NxN ; en metres
             gravity = - np.sum((distance < distance_struct) * BB_/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
             force[0:3, :] += .5 * G_struct * gravity
             force[3:6, :] += .5 * G_struct * gravity
-        #print G_gravite, G_gravite_perc, G_struct, G_rot_perc, G_repulsion
+        #if DEBUG: print G_gravite, G_gravite_perc, G_struct, G_rot_perc, G_repulsion
 
         # ressort
         AB = self.particles[0:3, :]-self.particles[3:6, :] # 3 x N
         distance = np.sqrt(np.sum(AB**2, axis=0)) # en metres
         force[0:3, :] -= G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
         force[3:6, :] += G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
+
+        # volume
+        if not(self.p['G_volume']==0.): #
+            SC = (self.particles[0:3, :]+self.particles[3:6, :])/2-self.center[:, np.newaxis]
+            distance_SC = np.sqrt(np.sum(SC**2, axis=0)) # en metres
+            SC_0 = SC / (distance_SC + self.p['eps']) # unit vector going from the player to the center of the segment
+            gravity = -SC_0 *  (distance_SC[np.newaxis, :]/ self.volume[:, np.newaxis]) **4  # en metres
+            force[0:3, :] += self.p['G_volume'] * gravity
+            force[3:6, :] += self.p['G_volume'] * gravity
+            #print distance_SC.mean(), SC[2, :].mean(), gravity[2, :].mean(), force[2, :].mean()
 
         # damping
         force -= damp * self.particles[6:12, :]/self.dt
@@ -527,15 +549,11 @@ class Scenario:
             self.particles[3:6, :] += self.center[:, np.newaxis]
 
         elif self.scenario == 'leapfrog':
-            #            distance = np.sqrt((np.array(positions) - self.positions_old)**2).sum()
-            #TODO : use simpy
             self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
             force = self.champ(positions=positions, events=events)
             self.particles[6:12, :] += force * self.dt
-            # TODO normalize spped?
             # application de l'acceleration calculée sur les positions
             self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
-#            self.positions_old = np.array(positions)
             if np.isnan(self.particles[:6, :]).any():
                 raise ValueError("some values like NaN breads")
 
@@ -560,8 +578,8 @@ class Scenario:
                 for i in range(6):
                     self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
                     self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
-                    self.particles[i+6, (self.particles[i, :] < -1*self.volume[i % 3]) ] *= -1.
-                    self.particles[i+6, (self.particles[i, :] > 2* self.volume[i % 3]) ] *= -1.
+                    #self.particles[i+6, (self.particles[i, :] < -1*self.volume[i % 3]) ] *= -1.
+                    #self.particles[i+6, (self.particles[i, :] > 2* self.volume[i % 3]) ] *= -1.
                     #self.particles[i, (self.particles[i, :] < -.0*self.volume[i % 3]) ] = -.0*self.volume[i % 3]
             else:
                 for i_N in range(self.N):
