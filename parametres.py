@@ -22,8 +22,8 @@ Par convention, la position de la croix est au centre de la salle: [d_x/2, d_y/2
 """
 
 # pour savoir si on imprime des messages d'erreur
-DEBUG  = False
 DEBUG  = True
+DEBUG  = False
 
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
@@ -103,17 +103,18 @@ p = {'N': 32,
      'G_gravite_perc_G': 20.0, # attraction globale vers les centres des positions
      'G_rot_perc': 8.,
      'G_rot_perc_G': 15.,
-     'distance_tabou': 0.6, # distance tabou
-     'G_tabou': 10., # force tabou qui expulse tout segment qui rentre dans la zone tabou
+     'distance_tabou': 0.6, # distance tabou (perpendiculairement à l'axe VP-player)
+     'distance_notabou': 1.4, # distance dans l'axe du VP-player pour lequel on bannit le tabou
+     'G_tabou': 10., # force tabou qui expulse tout segment qui rentre dans la zone tabou, je suis tabou
      # parametres physiques
      'G_gravite': 30.0, # parametre d'attraction physique vers les players
-     'G_gravite_R': 50.0, # parametre d'attraction physique vers les players
+     'G_gravite_R': 30.0, # parametre d'attraction physique vers les players
      'G_gravite_G': 30.0, # parametre d'attraction physique vers les players
      'G_poussee': .10, # parametre de poussee créateur de vortex
      'G_poussee_break': .5, # parametre de poussee créateur de vortex
      'G_struct_G': .0, # force avec laquelle les bouts de segments s'attirent
      'G_struct': .5, # force avec laquelle les bouts de segments s'attirent
-     'G_struct_R': 4., # force avec laquelle les bouts de segments s'attirent
+     'G_struct_R': 2., # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .3, # distance pour laquelle l'attraction des bouts de segments s'inverse
      'distance_struct_R': .3,
      'G_volume': .0, # force qui permet de rester dans le volume - lente et active surtout quand il n'y a personne
