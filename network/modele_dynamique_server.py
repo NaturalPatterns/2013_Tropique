@@ -46,14 +46,15 @@ st.start()
 #----------------------
 do_slider = True
 do_slider = False
-try:
-    from parametres import sliders
-    if s.scenario=='leapfrog' and do_slider:
-        fig = sliders(s.p)
-except Exception, e:
-    print('problem while importing sliders ! Error = ', e)
+if do_slider:
+    try:
+        from parametres import sliders
+        if s.scenario=='leapfrog': fig = sliders(s.p)
+    except Exception, e:
+        print('problem while importing sliders ! Error = ', e)
 #----------------------
 positions_old = []
+import pylab as plt
 while True:
     #if DEBUG:
         #elapsed_time = time.time() - start_time
@@ -65,13 +66,14 @@ while True:
     if (test_positions!=None):
         for position in test_positions:
             positions.append([position[0], position[1],position[2] ])
-    #if DEBUG: print positions, events
-    # HACK pour pas perdre de trames de detection
-    if positions == []: positions = positions_old
-    else: positions_old = positions
-    if DEBUG: print events
+        positions_old = positions
+    else:
+        # HACK pour pas perdre de trames de detection
+        positions = positions_old
+    if DEBUG: print events, positions
+    #if DEBUG: print events
     s.do_scenario(positions=positions, events=events)
-    #if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
+    if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
     # envoi aux VPs
     str_send = s.particles[0:6, :].tostring('F')
     from_send.sendto(str_send, (from_IP, from_PORT) )
@@ -79,6 +81,8 @@ while True:
     msg = OSC.OSCMessage()
     msg.setAddress("/segment")
     msg.append((s.particles[0:6, -2:].T))
+    #plt.draw()
+    #fig.show()
     try:
         client.send(msg)
     except KeyboardInterrupt:

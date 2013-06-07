@@ -32,6 +32,7 @@ d_x = 16.9 # en metres
 
 # mesures au telemetre
 from numpy import arctan2, pi
+import numpy as np
 #largeur_ecran = 1.7 # ouvert à fond
 # https://unspecified.wordpress.com/2012/06/21/calculating-the-gluperspective-matrix-and-other-opengl-matrix-maths/
 #hauteur_ecran = 1.7*9./16. # ouvert à fond
@@ -42,7 +43,7 @@ foc_estim = 2 * arctan2(hauteur_ecran/2, distance_ecran) * 180 / pi # ref P101L1
 #print foc_estim
 foc =  foc_estim
 
-volume = [d_x, d_y, d_z]
+volume = np.array([d_x, d_y, d_z])
 
 # scenario qui est joué par le modele physique
 scenario = "fan" # une aura autour de la position du premier player
@@ -97,38 +98,41 @@ calibration = {
 # parametres du champ
 p = {'N': 32,
      # parametres perceptifs
-     'distance_m': 0.25, # distance d'équilibre des segments autour d'une position de player
+     'distance_m': 0.5, # distance d'équilibre des segments autour d'une position de player
      'G_gravite_perc': 3.0, # attraction globale vers les centres des positions
-     'G_gravite_perc_hot': 18.0, # attraction globale vers les centres des positions
+     'G_gravite_perc_G': 20.0, # attraction globale vers les centres des positions
      'G_rot_perc': 2.,
-     'G_rot_perc_hot': 5.,
-     'distance_tabou': 0.30, # distance tabou
+     'G_rot_perc_G': 150.,
+     'distance_tabou': 0.35, # distance tabou
      'G_tabou': 50., # force tabou qui expulse tout segment qui rentre dans la zone tabou
      # parametres physiques
-     'G_gravite': 8.0, # parametre d'attraction physique vers les players
-     'G_gravite_hot': 13.0, # parametre d'attraction physique vers les players
-     'G_poussee': .20, # parametre de poussee créateur de vortex
-     'G_poussee_hot': 15., # parametre de poussee créateur de vortex
+     'G_gravite': 4.0, # parametre d'attraction physique vers les players
+     'G_gravite_R': 28.0, # parametre d'attraction physique vers les players
+     'G_gravite_G': 28.0, # parametre d'attraction physique vers les players
+     'G_poussee': .10, # parametre de poussee créateur de vortex
+     'G_poussee_break': .5, # parametre de poussee créateur de vortex
+     'G_struct_G': .0, # force avec laquelle les bouts de segments s'attirent
+     'G_repulsion_G': 10., # force avec laquelle les bouts de segments s'attirent
      'G_struct': .1, # force avec laquelle les bouts de segments s'attirent
-     'G_struct_hot': .2, # force avec laquelle les bouts de segments s'attirent
-     'distance_struct': .3, # distance pour laquelle li'attraction des bouts de segments s'inverse
-     'distance_struct_hot': .8,
+     'G_struct_R': .3, # force avec laquelle les bouts de segments s'attirent
+     'distance_struct': .3, # distance pour laquelle l'attraction des bouts de segments s'inverse
+     'distance_struct_R': .4,
      'G_repulsion': .2, # constante de répulsion entre les particules
-     'G_repulsion_hot': .5, # constante de répulsion entre les particules
-     'eps': 1.e-3, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
+     'G_repulsion_R': .35, # constante de répulsion entre les particules
+     'eps': 1.e-1, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 3., 'l_seg_min': 0.35, 'l_seg_max': 2., 'N_max': 2, # dureté et longueur des segments
-     'G_spring_hot': 20., 'l_seg_hot': .45, 'N_max_hot': 6,  # dureté et longueur des segments dans un break
+     'G_spring_pulse': 50., 'l_seg_pulse': .9, 'N_max_pulse': 6,  # dureté et longueur des segments dans un break
      # parametres globaux
      'damp': .2,  # facteur de damping / absorbe l'énergie / regle la viscosité
-     'damp_middle': .96,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-     'damp_hot': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
+     'damp_break23': .4,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
+     'damp_break1': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'speed_0': .5, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
-     'speed_hot': 5., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_break': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 25., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
-     'kurt' : -.5, # 0 is normal gravity, higher makes the attraction more local, lower more global
+     'kurt' : -1., # 0 is normal gravity, higher makes the attraction more local, lower more global
      'line_width': 3, # line width of segments
-     'T_break': 6., # duration (secondes) of all three breaks
-     'A_break': 7.5, # amplitude de l'amplification de speed_0 dans les break #2 et #3
+     'T_break': 6., # duration (secondes) of breaks 2&3
+     'A_break': 2.5, # amplitude de l'amplification de speed_0 dans les break #2 et #3
      'tau_break': .103, # duration du transient dans les breaks #2 et #3
 }
 
@@ -178,9 +182,9 @@ kinects_network_config = {
 try:
     def sliders(p):
         import matplotlib as mpl
-        mpl.rcParams['interactive'] = True
+        #mpl.rcParams['interactive'] = True
         mpl.rcParams['backend'] = 'macosx'
-        mpl.rcParams['backend_fallback'] = True
+        #mpl.rcParams['backend_fallback'] = True
         mpl.rcParams['toolbar'] = 'None'
         import pylab as plt
         fig = plt.figure(1)
