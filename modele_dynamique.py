@@ -254,6 +254,7 @@ class Scenario:
                     distance_SC = np.sqrt(np.sum(SC**2, axis=0)) # en metres
                     SC_0 = SC / (np.sqrt((SC**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
                     gravity_ = - SC_0 * (distance_SC - self.p['distance_m'])/(distance_SC + self.p['eps'])**(n+2) # en metres
+                    #gravity_ = - SC_0 * (distance_SC - self.p['distance_m'])#/(distance_SC + self.p['eps'])**(n+2) # en metres
                     #rotation_1 = OC + distance_SC * SC_0 - OA
                     #rotation_2 = OC + (distance_SC + self.l_seg)  * SC_0 - OB
                     ind_assign = (distance_SC < distance_min)
@@ -303,18 +304,18 @@ class Scenario:
         if not(G_struct==0.):
             AA_ = self.particles[0:3, :, np.newaxis]-self.particles[0:3, np.newaxis, :]
             distance = np.sqrt(np.sum(AA_**2, axis=0)) # NxN ; en metres
-            gravity = - np.sum((distance < distance_struct) * AA_ /(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
+            gravity = - np.sum((distance < distance_struct) * AA_ /(distance.T + self.p['eps'])**(n+2), axis=1) # 3 x N; en metres
             force[0:3, :] += G_struct * gravity
             AB_ = self.particles[0:3, :, np.newaxis]-self.particles[3:6, np.newaxis, :]
             distance = np.sqrt(np.sum(AB_**2, axis=0)) # NxN ; en metres
-            gravity = - np.sum((distance < distance_struct) * AB_/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
+            gravity = - np.sum((distance < distance_struct) * AB_/(distance.T + self.p['eps'])**(n+2), axis=1) # 3 x N; en metres
             force[3:6, :] += G_struct * gravity
             BB_ = self.particles[3:6, :, np.newaxis]-self.particles[3:6, np.newaxis, :]
             #BB_ = self.particles[0:3, :][:, :, np.newaxis]-self.particles[3:6, :][:, :, np.newaxis]
             distance = np.sqrt(np.sum(BB_**2, axis=0)) # NxN ; en metres
-            gravity = - np.sum((distance < distance_struct) * BB_/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
+            gravity = - np.sum((distance < distance_struct) * BB_/(distance.T + self.p['eps'])**(n+2), axis=1) # 3 x N; en metres
             distance = np.sqrt(np.sum(CC**2, axis=0)) # NxN ; en metres
-            gravity = - np.sum((distance < distance_struct) * BB_/(distance.T + self.p['eps'])**3, axis=1) # 3 x N; en metres
+            gravity = - np.sum((distance < distance_struct) * BB_/(distance.T + self.p['eps'])**(n+2), axis=1) # 3 x N; en metres
             force[0:3, :] += .5 * G_struct * gravity
             force[3:6, :] += .5 * G_struct * gravity
         #if DEBUG: print G_gravite, G_gravite_perc, G_struct, G_rot_perc, G_repulsion
