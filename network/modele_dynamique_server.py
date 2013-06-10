@@ -56,12 +56,8 @@ if do_slider:
 positions_old = []
 import pylab as plt
 while True:
-    #if DEBUG:
-        #elapsed_time = time.time() - start_time
-        #start_time = time.time()
-        #if elapsed_time>0: print "FPS =" , int (1/elapsed_time)
-    k.trigger()
     positions = []
+    k.trigger()
     test_positions = k.read_sock()
     if (test_positions!=None):
         for position in test_positions:
@@ -70,7 +66,7 @@ while True:
     else:
         # HACK pour pas perdre de trames de detection
         positions = positions_old
-    if DEBUG: print events, positions
+    #if DEBUG: print events, positions
     #if DEBUG: print events
     s.do_scenario(positions=positions, events=events)
     if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
@@ -81,6 +77,10 @@ while True:
     msg = OSC.OSCMessage()
     msg.setAddress("/segment")
     msg.append((s.particles[0:6, -2:].T))
+    if DEBUG:
+        elapsed_time = time.time() - start_time
+        start_time = time.time()
+        if elapsed_time>0: print "FPS =" , int (1/elapsed_time), events, positions
     #plt.draw()
     #fig.show()
     try:

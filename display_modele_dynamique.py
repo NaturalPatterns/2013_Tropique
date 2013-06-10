@@ -166,7 +166,7 @@ def on_draw():
         positions = k.read_sock() #
     else:
         # pour simuler ROGER:
-        amp, amp2 = .02, .5
+        amp, amp2 = .1, .3
         T, T2 = 25., 30. # periode en secondes
         positions_ = []
         positions_.append([s.roger[0], s.roger[1], s.roger[2]]) #  bouge pas, roger.
@@ -178,6 +178,7 @@ def on_draw():
         for position in positions_[:n_players]:
             positions.append(position)
 
+         #[[9.71, 1.5, 1.03], [9.17, 3.61, 1.17], [10.98, 4.43, 1.85], [7.68, 4.53, 1.68]]
 
     s.do_scenario(positions=positions, events=events)
     if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
