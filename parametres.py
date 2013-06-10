@@ -106,10 +106,10 @@ p = {'N': 32,
      'distance_tabou': 0.3, # distance tabou (perpendiculairement à l'axe VP-player)
      'distance_notabou': 4., # distance dans l'axe du VP-player pour lequel on bannit le tabou, mesuree wrt distance VP-au player
      'G_tabou': 500., # force tabou qui expulse tout segment qui rentre dans la zone tabou (je suis completment tabou)
+     'G_gravite_axis': 2.0, # parametre d'attraction physique vers les players
+     'G_gravite_axis_R': 2.0, # parametre d'attraction physique vers les players
+     'G_gravite_axis_G': 4.0, # parametre d'attraction physique vers les players
      # parametres physiques
-     'G_gravite': 0.0, # parametre d'attraction physique vers les players
-     'G_gravite_R': 0.0, # parametre d'attraction physique vers les players
-     'G_gravite_G': 0.0, # parametre d'attraction physique vers les players
      'G_poussee': .10, # parametre de poussee créateur de vortex
      'G_poussee_break': .10, # parametre de poussee créateur de vortex
      'G_struct_G': .0, # force avec laquelle les bouts de segments s'attirent
