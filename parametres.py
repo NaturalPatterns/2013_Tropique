@@ -22,8 +22,8 @@ Par convention, la position de la croix est au centre de la salle: [d_x/2, d_y/2
 """
 
 # pour savoir si on imprime des messages d'erreur
-DEBUG  = True
 DEBUG  = False
+DEBUG  = True
 
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
@@ -121,7 +121,7 @@ p = {'N': 32,
      'G_repulsion': .8, # constante de répulsion entre les particules
      'G_repulsion_G': 1., # force avec laquelle les bouts de segments s'attirent
      'G_repulsion_R': .6, # constante de répulsion entre les particules
-     'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
+     'eps': 1.e-1, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 3., 'l_seg_min': 0.35, 'l_seg_max': 2., 'N_max': 2, # dureté et longueur des segments
      'G_spring_pulse': 50., 'l_seg_pulse': .9, 'N_max_pulse': 6,  # dureté et longueur des segments dans un break
      # parametres globaux
@@ -131,8 +131,8 @@ p = {'N': 32,
      'speed_0': .1, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'speed_break': 2., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 10., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
-     'kurt' : .0, # 0 is normal gravity, higher makes the attraction more local, lower more global
-     'line_width': 1, # line width of segments
+     'kurt' : -2.0, # 0 is normal gravity, higher makes the attraction more local, lower more global
+     'line_width': 3, # line width of segments
      'T_break': 6., # duration (secondes) of breaks 2&3
      'A_break': 4., # amplitude de l'amplification de speed_0 dans les break #2 et #3
      'tau_break': .103, # duration du transient dans les breaks #2 et #3
