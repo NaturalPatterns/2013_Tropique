@@ -114,18 +114,18 @@ class Scenario:
         G_struct = self.p['G_struct']
         distance_struct = self.p['distance_struct']
         G_poussee = self.p['G_poussee']
-        G_gravite = self.p['G_gravite']
+        G_gravite_axis = self.p['G_gravite_axis']
         # phases
         if events == [0, 0, 0, 0, 1, 0, 0, 0]: # phase avec la touche G dans display_modele_dynamique.py
             G_rot_perc = self.p['G_rot_perc_G']
             G_gravite_perc = self.p['G_gravite_perc_G']
             G_struct = self.p['G_struct_G']
             #G_poussee = 0.
-            G_gravite = self.p['G_gravite_G']
+            G_gravite_axis = self.p['G_gravite_axis_G']
             G_repulsion = self.p['G_repulsion_G']
         elif events == [1, 0, 0, 0, 0, 0, 0, 0]: # phase avec la touche R dans display_modele_dynamique.py
             G_gravite_perc, G_rot_perc = 0., 0.
-            G_gravite = self.p['G_gravite_R']
+            G_gravite_axis = self.p['G_gravite_axis_R']
             G_struct = self.p['G_struct_R']
             distance_struct = self.p['distance_struct_R']
             G_repulsion =  self.p['G_repulsion_R']
@@ -198,6 +198,7 @@ class Scenario:
                     rotation1 = np.empty((3, self.N))
                     rotation2 = np.empty((3, self.N))
                     gravity = np.empty((3, self.N))
+                    gravity_axis = np.empty((3, self.N))
                     for position in positions:
                         rae_VS = xyz2azel(np.array(position), OV)
                         arcdis = np.min(np.vstack((arcdistance(rae_VS, rae_VA),\
@@ -218,9 +219,7 @@ class Scenario:
                         gravity_ = - SC_0 * (distance_SC - self.p['distance_m'])/(distance_SC + self.p['eps'])**(n_g+2) # en metres
                         VS = np.array(position) - OV
                         VS_0 = VS / (np.sqrt((VS**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
-
-                        gravity_ += - VS_0[:, np.newaxis] * (rae_VC[0]-rae_VS[0])[np.newaxis,:] # en metres
-
+                        gravity_axis_ = - VS_0[:, np.newaxis] * (rae_VC[0]-rae_VS[0])[np.newaxis,:] # en metres
 
                         # compute desired rotation
                         cap_SC = orientation(rae_VS, rae_VC)
@@ -239,11 +238,14 @@ class Scenario:
                         # only assign on the indices that correspond to the minimal distance
                         ind_assign = (distance_SC < distance_min)
                         gravity[:, ind_assign] = gravity_[:, ind_assign]
+                        gravity_axis[:, ind_assign] = gravity_axis_[:, ind_assign]
                         #rotation1[:, ind_assign] = rotation_1[:, ind_assign]
                         #rotation2[:, ind_assign] = rotation_2[:, ind_assign]
                         rotation[:, ind_assign] = rotation_[:, ind_assign]
                         distance_min[ind_assign] = distance_SC[ind_assign]
                         #mettre un prior sur l'horizon
+                    force[0:3, :] += G_gravite_axis / self.nvps * gravity_axis
+                    force[3:6, :] += G_gravite_axis / self.nvps * gravity_axis
                     force[0:3, :] += G_gravite_perc / self.nvps * gravity
                     force[3:6, :] += G_gravite_perc / self.nvps * gravity
                     #rotation = self.p['scale'] * np.tanh(rotation/self.p['scale'])
@@ -251,36 +253,6 @@ class Scenario:
                     force[3:6, :] -= G_rot_perc / self.nvps * rotation#2
 
         # FORCES GLOBALES  dans l'espace physique
-        if not(G_gravite == 0.):# or  not(G_rot == 0.):
-            if not(positions == None) and not(positions == []):
-                #if DEBUG: print 'positions', positions
-                distance_min = 1.e6 * np.ones((self.N)) # very big to begin with
-                #rotation1 = np.empty((3, self.N))
-                #rotation2 = np.empty((3, self.N))
-                gravity = np.empty((3, self.N))
-                for position in positions:
-                    # point C (centre) du segment
-                    SC = (self.particles[0:3, :]+self.particles[3:6, :])/2-np.array(position)[:, np.newaxis]
-                    distance_SC = np.sqrt(np.sum(SC**2, axis=0)) # en metres
-                    SC_0 = SC / (np.sqrt((SC**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
-                    #print distance_SC.mean()
-
-                    gravity_ = - SC_0 * (distance_SC - self.p['distance_m'])/(distance_SC + self.p['eps'])**(n_g+2) # en metres
-                    #rotation_1 = OC + distance_SC * SC_0 - OA
-                    #rotation_2 = OC + (distance_SC + self.l_seg)  * SC_0 - OB
-                    ind_assign = (distance_SC < distance_min)
-                    gravity[:, ind_assign] = gravity_[:, ind_assign]
-                    #rotation1[:, ind_assign] = rotation_1[:, ind_assign]
-                    #rotation2[:, ind_assign] = rotation_2[:, ind_assign]
-                    distance_min[ind_assign] = distance_SC[ind_assign]
-
-                force[0, :] += G_gravite * gravity[0]
-                force[3, :] += G_gravite * gravity[0]
-                #force[0:3, :] += G_gravite * gravity
-                #force[3:6, :] += G_gravite * gravity
-                #force[0:3, :] += G_rot * rotation1
-                #force[3:6, :] += G_rot * rotation2
-
         ## forces entres les particules
         CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
         if not(G_repulsion==0.):
