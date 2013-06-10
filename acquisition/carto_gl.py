@@ -132,7 +132,7 @@ def unknow(x,y, z):
 #	print "unknow"
 	global my_players
 	global nbr_player
-	for place in range (5):
+	for place in range (12):
 		if (my_players[place][4] <= 0):
 			#print "good palce ", place
 			my_players[place][0] = x
