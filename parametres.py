@@ -107,9 +107,9 @@ p = {'N': 32,
      'distance_notabou': 4., # distance dans l'axe du VP-player pour lequel on bannit le tabou, mesuree wrt distance VP-au player
      'G_tabou': 500., # force tabou qui expulse tout segment qui rentre dans la zone tabou (je suis completment tabou)
      # parametres physiques
-     'G_gravite': 10.0, # parametre d'attraction physique vers les players
-     'G_gravite_R': 20.0, # parametre d'attraction physique vers les players
-     'G_gravite_G': 10.0, # parametre d'attraction physique vers les players
+     'G_gravite': 0.0, # parametre d'attraction physique vers les players
+     'G_gravite_R': 0.0, # parametre d'attraction physique vers les players
+     'G_gravite_G': 0.0, # parametre d'attraction physique vers les players
      'G_poussee': .10, # parametre de poussee créateur de vortex
      'G_poussee_break': .10, # parametre de poussee créateur de vortex
      'G_struct_G': .0, # force avec laquelle les bouts de segments s'attirent
@@ -119,7 +119,7 @@ p = {'N': 32,
      'distance_struct_R': .5,
      'G_volume': .1, # force qui permet de rester dans le volume - lente et active surtout quand il n'y a personne
      'G_repulsion': 3., # constante de répulsion entre les particules
-     'G_repulsion_G': 1.0, # force avec laquelle les bouts de segments s'attirent
+     'G_repulsion_G': 2.0, # force avec laquelle les bouts de segments s'attirent
      'G_repulsion_R': 5., # constante de répulsion entre les particules
      'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 100., 'l_seg_min': 0.3, 'l_seg_max': 2., 'N_max': 2, # dureté et longueur des segments
