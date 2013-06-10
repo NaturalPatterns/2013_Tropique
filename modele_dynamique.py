@@ -216,6 +216,11 @@ class Scenario:
                         #print distance_SC.mean()
                         # TODO : réduire la dimension de profondeur à une simple convergence vers la position en x / reflète la perception
                         gravity_ = - SC_0 * (distance_SC - self.p['distance_m'])/(distance_SC + self.p['eps'])**(n_g+2) # en metres
+                        VS = np.array(position) - OV
+                        VS_0 = VS / (np.sqrt((VS**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
+
+                        gravity_ += - VS_0[:, np.newaxis] * (rae_VC[0]-rae_VS[0])[np.newaxis,:] # en metres
+
 
                         # compute desired rotation
                         cap_SC = orientation(rae_VS, rae_VC)
