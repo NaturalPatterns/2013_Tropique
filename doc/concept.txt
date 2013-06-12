@@ -1,0 +1,41 @@
+Tropique
+========
+ReST: http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html
+
+Sculpter l'espace par la lumière
+--------------------------------
+
+ * de la ligne à la brume
+
+ * nétteté et cisellement
+
+ * les lames comme simplicité nécessaire
+
+Méthodes: Créer l'espace
+-----------------------
+
+ * une lame - multiplicité des perceptions et des espaces - continuité dans le temps (leapfrog newtonien; speed_0 / damp) - un objet dans l'espace=synchronicités sur les VPs
+
+ * des points de vues - une personne (vue subjective, coordonnées perceptives) 
+
+ * des lames - aggregation; du cristal au gaz - temps d'émergence (G_*) / stabilisation / cristallisation en rapport avec l'expérience intime du spectateur
+
+ * relations entre des personnes (cellules de voronoï / ombres / rapports intérieur exterieur)
+
+Résutats: Ici et Maintenant
+---------------------------
+
+ * rythmicité / son et rapport à l'espace créé / fluctuations perceptives
+
+ * espace cartesien vs perceptif (intime vs externe) / changements de phases / lisibilité par les breaks
+
+ * edge of chaos; auto-organisation de criticalité (Haken) / création d'un organisme intelligent comme extension de notre perception du monde / 
+
+Dicussion
+---------
+
+ * Tropique: une histoire de rencontre art sciences
+
+ * contexte dans l'art cinétique: rapport avec d'autres oeuvres  - Vasarely= peinture optique / installations (Etienne - Mc Call) / pourquoi l'immersion - test de Turing/Church
+
+ * quelle est notre connaissance de l'expérience de l'espace aujourd'hui?: rapport avec notre connaissance du système nerveux en science / son traitement dans le monde de l'art
