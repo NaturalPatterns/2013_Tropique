@@ -226,7 +226,8 @@ class Scenario:
                         cap_AB = orientation(rae_VA, rae_VB)
 
                         # TODO rotation aussi vers le plan perpendiculaire a l'acteur
-                        # TODO résoudre le hack avec sign_view
+                        # TODO résoudre le hack avec sign_view en utilisant le
+                        # produit vecoriel VS /\ AB
                         # TODO : tuner les paramètres de rotation
                         AB = self.particles[3:6, :] - self.particles[0:3, :]# 3 x N
                         sign_view = np.sign(OC[0]-OV[0])
@@ -287,6 +288,8 @@ class Scenario:
 
         # attraction des extremites des segments au dessous d'une distance
         # critique pour créer des clusters de lignes
+        # TODO: créer des structures autour des lignes de type gabor avec lobes
+        # positifs et négatifs
         if not(G_struct==0.):
             AA_ = self.particles[0:3, :, np.newaxis]-self.particles[0:3, np.newaxis, :]
             distance = np.sqrt(np.sum(AA_**2, axis=0)) # NxN ; en metres
