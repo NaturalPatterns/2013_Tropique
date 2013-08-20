@@ -36,7 +36,7 @@ Avec Tropique les rayons de lumière passe du flou à une extra-netteté en fonc
  * les lames comme simplicité nécessaire
 L'espace de Tropique est donc un espace minimal, ou espace réduit à sa plus simple expression. La lumière est projeté sous forme de traits, de rayons de lumières. Chacun des rayons de lumière est autant de parois qui scindent l'espace pour créer des espaces. La lumière fait exister l'espace sous formes de parois, le noir, c'est un semblant de vide, un entre-deux.
 Le fait d'employer des rayons de lumière, c'est utiliser une forme très simple, c'est simplifier la structure de l'espace qui nous entoure habituellement. Ici, dans Tropique on emploi un espace réduit à sa plus simple expression pour tenter de révéler ses structures. De même pour Tropique c'est le blanc pour la lumière et le noir pour l'espace "vide", l'entre-deux, qui a été retenu, pour le même objectif simplifier l'espace résultant.
-
+# Laurent:dans l'expo dynamo, les pieces de  Morrelet montre une certaine abstraction pour se détacher d'un discours calibré et devenir par ce fait plus accessibles (cf neon + trames )
 
 * un espace dynamique et mobile
 
