@@ -14,7 +14,7 @@ import time as time
 from threading import Thread
 
 global DEBUG
-#DEBUG = False
+DEBUG = False
 global f
 class testkin(Thread):
     def __init__ (self,ip, port):
@@ -33,11 +33,11 @@ class testkin(Thread):
         except KeyboardInterrupt:
             print "stop acquisition kinect"
         except :
-            print "PROBLEME no data in ", self.ip
+            print "PROBLEME no data in ", self.ip , self.port
             self.status = 0
         else :
-            if (DEBUG and received !="" ) : print "received = ", received," from ", self.port
-            if (DEBUG and received =="" ) : print "received 0", " from ",self.port
+            if (DEBUG and received !="" ) : print "received = ", received," from ", self.ip, self.port
+            if (DEBUG and received =="" ) : print "received 0", " from ",self.ip, self.port
             self.status = received
 
 def list_kinect():
@@ -50,7 +50,6 @@ def list_kinect():
 def stream_acqui():
 #    os.system('clear')
     print "listen to kinects server "
-    # SOCK_DGRAM is the socket type to use for UDP sockets
     teston =0
     last_time = 0
     while (teston < 1) :
@@ -62,7 +61,7 @@ def stream_acqui():
         for kin in info_kinects :
             ip = kin['address']
             port = kin['port']
-            current = testkin(ip,port)
+            current = testkin(ip,9998+port)
             serverkinects.append(current)
             current.start()
         all_pos=""

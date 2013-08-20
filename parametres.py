@@ -27,8 +27,9 @@ DEBUG  = True
 
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
-d_y, d_z = 6.6, 4.
-d_x = 16.9 # en metres
+d_y, d_z = 6.26, 6.
+d_x = 13.65 # en metres
+
 
 # mesures au telemetre
 from numpy import arctan2, pi
@@ -49,8 +50,10 @@ volume = np.array([d_x, d_y, d_z])
 scenario = "fan" # une aura autour de la position du premier player
 scenario = 'rotating-circle'
 scenario = 'cristal'
-scenario = "croix" # calibration autour de la croix
 scenario = "leapfrog" # integration d'Euler améliorée pour simuler le champ
+scenario = "croix" # calibration autour de la croix
+
+
 
 # et direction d'angle de vue (cx, cy, cz) comme le point de fixation ainsi que le champ de vue (en deg)
 # distance des VPs du plan de reference
@@ -63,15 +66,15 @@ cz = z # d_z/2
 # leur adresse, port, leurs parametres physiques
 VPs = [
         {'address':'10.42.0.56',
-            'x':d_x, 'y':0.50, 'z': z,
+            'x':d_x , 'y':3.50, 'z': z,
             'cx':cx_0, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         {'address':'10.42.0.55',
-            'x':d_x, 'y':3.07, 'z': z,
+            'x':d_x, 'y':5.8, 'z': z,
             'cx':cx_0, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         {'address':'10.42.0.54',
-            'x':d_x, 'y':6.3, 'z': z,
+            'x':d_x, 'y':0.40, 'z': z,
             'cx':cx_0, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         {'address':'10.42.0.51',
@@ -146,28 +149,34 @@ from numpy import pi
 info_kinects = [
 		# on tourne les numeros de kinect dans le sens des aiguilles d'une montre en commencant par
            #  le point (0, 0)- le point de vue (az) donne l'ordre dans une colonne de kinects
-		# deuxieme  bloc
-		{'address':'10.42.0.14', 'port': 9998, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#1.1
-		{'address':'10.42.0.14', 'port': 9999, 'x':8.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560}, #1.2
-		{'address':'10.42.0.15', 'port': 9998, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':5*pi/6 ,'max':560},#1.3
-		{'address':'10.42.0.15', 'port': 9999, 'x':14.2, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560},#1.3
-#
-##		# premier  bloc
-       {'address':'10.42.0.17', 'port': 9998, 'x':3.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560},#2.1
-#		{'address':'10.42.0.12', 'port': 9999, 'x':8.0, 'y':0, 'z': 1.24, 'az':5*pi/6 ,'max':497},#2.2
-#		{'address':'10.42.0.13', 'port': 9998, 'x':8.0, 'y':d_y, 'z': 1.34, 'az':11*pi/6 ,'max':483},#2.3
-#		{'address':'10.42.0.12', 'port': 9998, 'x':12.0, 'y':d_y, 'z': 1.14, 'az':9*pi/6 ,'max':483},#2.4
+		{'address':'10.42.0.10', 'port': 0, 'x':6.5, 'y':0.26, 'z': 1.24, 'az':3*pi/6 ,'max':560},#1.1
+		{'address':'10.42.0.10', 'port': 1, 'x':6.5, 'y':0.26, 'z': 1.14, 'az':1*pi/6 ,'max':560}, #1.2
+		{'address':'10.42.0.11', 'port': 0, 'x':6.5, 'y':0.26, 'z': 1.24, 'az':5*pi/6 ,'max':560},#1.3
+  		{'address':'10.42.0.11', 'port': 1, 'x':11.0, 'y':0.26, 'z': 1.24, 'az':3*pi/6 ,'max':560},#1.3
 
-#		{'address':'10.42.0.12', 'port': 9998, 'x':8.8, 'y':d_y-0.19, 'z': 1.24, 'az':7*pi/6 ,'max':560},#1.1
-#		{'address':'10.42.0.12', 'port': 9999, 'x':8.8, 'y':d_y-0.19, 'z': 1.14, 'az':9*pi/6 ,'max':500}, #1.2
-#		{'address':'10.42.0.13', 'port': 9998, 'x':8.8, 'y':d_y-0.19, 'z': 1.24, 'az':11*pi/6 ,'max':560},#1.3
-##		{'address':'10.42.0.13', 'port': 9999, 'x':14.2, 'y':d_y-0.19, 'z': 1.14, 'az':9*pi/6 ,'max':100},#1.3
 #
-##		# premier  bloc
-#        {'address':'10.42.0.18', 'port': 9998, 'x':3.8, 'y':d_y-0.19, 'z': 1.14, 'az':9*pi/6 ,'max':500}#2.1
-#		{'address':'10.42.0.12', 'port': 9999, 'x':8.0, 'y':0, 'z': 1.24, 'az':5*pi/6 ,'max':497},#2.2
-#		{'address':'10.42.0.13', 'port': 9998, 'x':8.0, 'y':d_y, 'z': 1.34, 'az':11*pi/6 ,'max':483},#2.3
-#		{'address':'10.42.0.12', 'port': 9998, 'x':12.0, 'y':d_y, 'z': 1.14, 'az':9*pi/6 ,'max':483},#2.4
+#		{'address':'10.42.0.12', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#1.1
+#		{'address':'10.42.0.12', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560}, #Kass
+#		{'address':'10.42.0.13', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':5*pi/6 ,'max':560},#Kass
+#		{'address':'10.42.0.13', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':5*pi/6 ,'max':560},#Kass
+#  		{'address':'10.42.0.14', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#1.1
+#		{'address':'10.42.0.14', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560}, #1.2
+#		{'address':'10.42.0.15', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':5*pi/6 ,'max':560},#1.3
+#
+#		{'address':'10.42.0.16', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#1.1
+#		{'address':'10.42.0.16', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560}, #1.2
+##		{'address':'10.42.0.17', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':5*pi/6 ,'max':560},#1.3
+#
+#		{'address':'10.42.0.18', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#Kass
+#		{'address':'10.42.0.18', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560}, #1.2
+#		{'address':'10.42.0.19', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':5*pi/6 ,'max':560},#1.3
+#		{'address':'10.42.0.19', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#Kass
+
+#		{'address':'10.42.0.20', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#Kass
+#		{'address':'10.42.0.20', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560}, #1.2
+#		{'address':'10.42.0.21', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#Kass
+#		{'address':'10.42.0.21', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#Kass
+
 		]
 
 run_thread_network_config = {

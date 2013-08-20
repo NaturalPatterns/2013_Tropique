@@ -5,7 +5,7 @@ Particle-like simulations using pyglet and a ugly bitmat
 
 """
 global my_players
-my_players = [[ 0 for x in range (12) ] for y in range (10)]
+my_players = [[ 0 for x in range (12) ] for y in range (11)]
 global radius
 radius  = 120
 
@@ -132,7 +132,7 @@ def unknow(x,y, z):
 #	print "unknow"
 	global my_players
 	global nbr_player
-	for place in range (12):
+	for place in range (10):
 		if (my_players[place][4] <= 0):
 			#print "good palce ", place
 			my_players[place][0] = x
@@ -355,22 +355,22 @@ def calc_angle(each, kin):
     global x,y
 #    print "each=" , each
 #    print "kin" , kin
-    alpha = -1 * asin ( each[2] / (each[4]+0.001) )
+    alpha = -1 * asin ( each[3] / (each[5]+0.001) )
 #    print "alpha =" , alpha
-    x = kin['x']*100 + cos (alpha+ kin['az']) * each[4]
-    y = kin['y']*100 + sin (alpha+ kin['az']) * each[4]
-    z = each[3] 
+    x = kin['x']*100 + cos (alpha+ kin['az']) * each[5]
+    y = kin['y']*100 + sin (alpha+ kin['az']) * each[5]
+    z = each[4] 
     if (z>= -100 and z<= 50) :
-        pourcent = ((y / ((d_y/2)-y ))/100)*1
+#        pourcent = ((y / ((d_y/2)-y ))/100)*1
 #        print "alpha=", alpha
 #        print "pourcent  =" ,pourcent
-        varz = (float(z) * (pourcent))
-#        print "first varz =",varz + z
-        z+=20
+#        varz = (float(z) * (pourcent))
+##        print "first varz =",varz + z
+#        z+=20
+#
+#        z= z+ varz 
 
-        z= z+ varz 
-
-        test_players(x,y, 150-z)
+        test_players(x,y, kin['z']*100-z)
         gl.glPointSize (32.0)
         gl.glColor4f(1, 0, 1, 1)
 
@@ -421,21 +421,14 @@ def on_draw():
         #Donnee = ((angle + x + y + "o")*nbr_player)+";"
         datasplit = Donnee.split(";")
 		#print "datasplit =" , datasplit
-        nbr0 =0
-        nbr1 = 0
         store_blob = [[ int(each2) for each2 in each.split(",") ] for each in datasplit]
         for each3 in store_blob:
 #            print "alleach =",each3
-            if ( int(each3[0]/2) == float(each3[0]/2.0) ) :
-                for kin in info_kinects:
-                    if (( kin['address'] == ('10.42.0.1'+str(int(each3[0]/2)))) and (kin['port'] == 9998) ):
-#                        print 'reconise ', each3[0] , ('as 10.42.0.1'+ str(int(each3[0]/2)) ),', kin0'
-                        calc_angle(each3, kin)                     
-            else :
-                for kin in info_kinects:
-                    if (( kin['address'] == ('10.42.0.1' + str(int(each3[0]/2))) ) and (kin['port'] == 9999) ) :
-#                        print 'reconise ', each3[0] , ( 'as 10.42.0.1'+ str(int(each3[0]/2))) ,', kin1'                
-                        calc_angle(each3, kin) 
+            for kin in info_kinects:
+                if ( ( kin['address']==('10.42.0.'+str(int(each3[0])))) and (kin['port'] == int(each3[1])) ):
+#                   print 'reconise ', each3[0] , ('as 10.42.0.1'+ str(int(each3[0]/2)) ),', kin0'
+                    calc_angle(each3, kin)
+                    
     display_player()
     try :	
         sendor, Client = testsend.recvfrom (1024)
