@@ -43,7 +43,6 @@ Le fait d'employer des rayons de lumière, c'est utiliser une forme très simple
 
 Méthodes: Créer l'espace
 -----------------------
-coucou 
 
  * une lame - multiplicité des perceptions et des espaces - continuité dans le temps (leapfrog newtonien; speed_0 / damp) - un objet dans l'espace=synchronicités sur les VPs
 
