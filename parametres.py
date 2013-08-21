@@ -50,8 +50,8 @@ volume = np.array([d_x, d_y, d_z])
 scenario = "fan" # une aura autour de la position du premier player
 scenario = 'rotating-circle'
 scenario = 'cristal'
-scenario = "leapfrog" # integration d'Euler améliorée pour simuler le champ
 scenario = "croix" # calibration autour de la croix
+scenario = "leapfrog" # integration d'Euler améliorée pour simuler le champ
 
 
 
@@ -69,26 +69,26 @@ VPs = [
             'x':d_x , 'y':3.50, 'z': z,
             'cx':cx_0, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
-        {'address':'10.42.0.55',
-            'x':d_x, 'y':5.8, 'z': z,
-            'cx':cx_0, 'cy':cy, 'cz': cz,
-            'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
-        {'address':'10.42.0.54',
-            'x':d_x, 'y':0.40, 'z': z,
-            'cx':cx_0, 'cy':cy, 'cz': cz,
-            'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
-        {'address':'10.42.0.51',
-            'x':1.98, 'y':0.55, 'z': z,
-            'cx':cx_1, 'cy':cy, 'cz': cz,
-            'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
-        {'address':'10.42.0.52',
-             'x':1.98, 'y':3.37, 'z': z,
-             'cx':cx_1, 'cy':cy, 'cz': cz,
-             'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
-        {'address':'10.42.0.53',
-             'x':1.98, 'y':6.3, 'z': z,
-             'cx':cx_1, 'cy':cy, 'cz': cz,
-             'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
+        #{'address':'10.42.0.55',
+            #'x':d_x, 'y':5.8, 'z': z,
+            #'cx':cx_0, 'cy':cy, 'cz': cz,
+            #'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
+        #{'address':'10.42.0.54',
+            #'x':d_x, 'y':0.40, 'z': z,
+            #'cx':cx_0, 'cy':cy, 'cz': cz,
+            #'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
+        #{'address':'10.42.0.51',
+            #'x':1.98, 'y':0.55, 'z': z,
+            #'cx':cx_1, 'cy':cy, 'cz': cz,
+            #'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
+        #{'address':'10.42.0.52',
+             #'x':1.98, 'y':3.37, 'z': z,
+             #'cx':cx_1, 'cy':cy, 'cz': cz,
+             #'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
+        #{'address':'10.42.0.53',
+             #'x':1.98, 'y':6.3, 'z': z,
+             #'cx':cx_1, 'cy':cy, 'cz': cz,
+             #'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         ]
 import numpy as np
 calibration = {
@@ -99,12 +99,12 @@ calibration = {
                 }
 
 # parametres du champ
-p = {'N': 32,
+p = {'N': 6,
      # parametres perceptifs
      'distance_m': 0.6, # distance d'équilibre des segments autour d'une position de player
      'G_gravite_perc': 5.0, # attraction globale vers les centres des positions
      'G_gravite_perc_G': 90.0, # attraction globale vers les centres des positions
-     'G_rot_perc': 30.,
+     'G_rot_perc': 60.,
      'G_rot_perc_G': 20.,
      'distance_tabou': 0.3, # distance tabou (perpendiculairement à l'axe VP-player)
      'distance_notabou': 4., # distance dans l'axe du VP-player pour lequel on bannit le tabou, mesuree wrt distance VP-au player
@@ -121,17 +121,17 @@ p = {'N': 32,
      'distance_struct': .5, # distance pour laquelle l'attraction des bouts de segments s'inverse
      'distance_struct_R': .5,
      'G_volume': .1, # force qui permet de rester dans le volume - lente et active surtout quand il n'y a personne
-     'G_repulsion': 3., # constante de répulsion entre les particules
+     'G_repulsion': .1, # constante de répulsion entre les particules
      'G_repulsion_G': 2.0, # force avec laquelle les bouts de segments s'attirent
      'G_repulsion_R': 5., # constante de répulsion entre les particules
      'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 100., 'l_seg_min': 0.3, 'l_seg_max': 2., 'N_max': 2, # dureté et longueur des segments
      'G_spring_pulse': 50., 'l_seg_pulse': .6, 'N_max_pulse': 6,  # dureté et longueur des segments dans un break
      # parametres globaux
-     'damp': .7,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp': .8,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_break23': .4,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_break1': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-     'speed_0': .05, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_0': .01, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'speed_break': .1, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 20., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
      'kurt_struct' : -2., # 1 is normal gravity, higher makes the attraction more local, lower more global
