@@ -35,15 +35,17 @@ from parametres import sliders, VPs, volume, p, kinects_network_config, d_x, d_y
 from modele_dynamique import Scenario
 s = Scenario(p['N'], scenario, volume, VPs, p, calibration)
 ########################################
-do_firstperson, foc_fp, i_VP_fp, alpha_fp, int_fp, intB_fp, show_VP = False, 60., 0, .1, 1., 0.01, True
+do_firstperson, foc_fp, s_VP_fp, alpha_fp, int_fp, intB_fp, show_VP = False, 60., 0, .1, 1., 0.01, True
 s.heading_fp, s.rot_heading_fp, s.inc_heading_fp = 0., 0., 0.1
-i_VP = 0  # VP utilisé comme projecteur en mode projection
+s_VP = 0  # VP utilisé comme projecteur en mode projection
 do_fs = True  # fullscreen par défaut?
 do_fs = False  # fullscreen par défaut?
 do_slider = True
 do_slider = False
-do_sock=True
+do_sock = True
 do_sock = False
+do_interference = True
+do_interference = False
 ########################################
 i_win = 0
 foc_VP = 50.
@@ -71,7 +73,6 @@ for i, screen in enumerate(screens):
 N_screen = len(screens) # number of screens
 N_screen = 1# len(screens) # number of screens
 assert N_screen == 1 # we should be running on one screen only
-
 
 from pyglet.window import Window
 
@@ -197,7 +198,7 @@ def on_draw():
         # gl.glClearColor(0.5, 0.5, 0.5, 1.0)
 
         gl.gluPerspective(foc_fp, 1.0*win_0.width/win_0.height,
-                          VPs[i_VP_fp]['pc_min'], VPs[i_VP_fp]['pc_max'])
+                          VPs[s_VP_fp]['pc_min'], VPs[s_VP_fp]['pc_max'])
         #x_fp, y_fp, z_fp = positions[0][0], positions[0][1], positions[0][2]
         x_fp, y_fp, z_fp = s.center
         s.heading_fp += s.rot_heading_fp * (s.t -t) # 2* pi * s.t / 30
@@ -209,7 +210,7 @@ def on_draw():
         #gl.glColor3f(0., 0., 1.)
         #salle = [[0., 0., 0., d_x, 0., 0.], [0., 0., 0., 0., d_y, 0.], [0., 0., 0., 0., 0., d_z]]
         #pyglet.graphics.draw(2*3, gl.GL_LINES, ('v3f', salle))¬
-        for VP in VPs:
+        for i_VP, VP in enumerate(VPs):
             # marque la postion de chaque VP par un joli carré vert
             if show_VP:
                 gl.glPointSize(10)
@@ -217,7 +218,7 @@ def on_draw():
                 pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', [VP['x'], VP['y'], VP['z']]))
 
             VP_ = np.array([[VP['x'], VP['y'], VP['z']]]).T * np.ones((1, s.N))
-            p_ = s.particles[0:6, :].copy()
+            p_ = s.particles[0:6, i_VP*N:(i_VP+1)*N].copy()
             # projecting the segment on the wall opposite to the VPs
             if VP['x'] > d_x/2: # un VP du coté x=0, on projete sur le plan x=0
                 p_[1] = d_x / (d_x - p_[0]) * (p_[1]-VP['y']) + VP['y']
@@ -241,9 +242,9 @@ def on_draw():
     else:
         gl.glDisable(gl.GL_FOG)
         gl.gluPerspective(foc_VP, 1.0*win_0.width/win_0.height,
-                          VPs[i_VP]['pc_min'], VPs[i_VP]['pc_max'])
-        gluLookAt(VPs[i_VP]['x'], VPs[i_VP]['y'], VPs[i_VP]['z'],
-                  VPs[i_VP]['cx'], VPs[i_VP]['cy'], VPs[i_VP]['cz'],
+                          VPs[s_VP]['pc_min'], VPs[s_VP]['pc_max'])
+        gluLookAt(VPs[s_VP]['x'], VPs[s_VP]['y'], VPs[s_VP]['z'],
+                  VPs[s_VP]['cx'], VPs[s_VP]['cy'], VPs[s_VP]['cz'],
                   0., 0, 1.0)
 
         # TODO: make an option to view particles from above
@@ -258,7 +259,7 @@ def on_draw():
 
         gl.glColor3f(1., 1., 1.)
 
-        pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, :].T.ravel().tolist()))
+        pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, s_VP*s.N:(s_VP+1)*s.N].T.ravel().tolist()))
 
     if do_sock: k.trigger()
 
