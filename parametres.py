@@ -69,10 +69,10 @@ VPs = [
             'x':d_x , 'y':3.50, 'z': z,
             'cx':cx_0, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
-        #{'address':'10.42.0.55',
-            #'x':d_x, 'y':5.8, 'z': z,
-            #'cx':cx_0, 'cy':cy, 'cz': cz,
-            #'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
+        {'address':'10.42.0.55',
+            'x':d_x, 'y':5.8, 'z': z,
+            'cx':cx_0, 'cy':cy, 'cz': cz,
+            'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         #{'address':'10.42.0.54',
             #'x':d_x, 'y':0.40, 'z': z,
             #'cx':cx_0, 'cy':cy, 'cz': cz,
@@ -99,7 +99,7 @@ calibration = {
                 }
 
 # parametres du champ
-p = {'N': 6,
+p = {'N': 12,
      # parametres perceptifs
      'distance_m': 0.6, # distance d'équilibre des segments autour d'une position de player
      'G_gravite_perc': 5.0, # attraction globale vers les centres des positions
@@ -128,10 +128,10 @@ p = {'N': 6,
      'G_spring': 100., 'l_seg_min': 0.3, 'l_seg_max': 2., 'N_max': 2, # dureté et longueur des segments
      'G_spring_pulse': 50., 'l_seg_pulse': .6, 'N_max_pulse': 6,  # dureté et longueur des segments dans un break
      # parametres globaux
-     'damp': .8,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp': .1,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_break23': .4,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_break1': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-     'speed_0': .01, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_0': 20., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'speed_break': .1, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 20., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
      'kurt_struct' : -2., # 1 is normal gravity, higher makes the attraction more local, lower more global
