@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Scenarios
 
+Modèle dynamique
+================
+
+Rassemble les fonctions:
+    - de calcul de trigonométrie sphérique,
+    - de calcul du champ d'interaction des segments
+    - de l'intégration de ce champ en mouvement
 
 """
 from parametres import DEBUG
@@ -176,7 +182,7 @@ class Scenario:
         else:
             speed_0 = self.p['speed_0']
 
-        #if DEBUG: print G_gravite, G_gravite_perc, G_struct, G_rot_perc, G_repulsion
+        #if DEBUG: print G_gravite_axis, G_gravite_perc, G_struct, G_rot_perc, G_repulsion
         N = self.N
         force = np.zeros((6, self.N*self.nvps)) # one vector per point
         ###################################################################################################################################
@@ -247,13 +253,13 @@ class Scenario:
                         rotation[:, ind_assign] = rotation_[:, ind_assign]
                         distance_min[ind_assign] = distance_SC[ind_assign]
                         #mettre un prior sur l'horizon
-                    force[0:3, i_VP*N:(i_VP+1)*N] = G_gravite_axis * gravity_axis
-                    force[3:6, i_VP*N:(i_VP+1)*N] = G_gravite_axis * gravity_axis
-                    force[0:3, i_VP*N:(i_VP+1)*N] = G_gravite_perc * gravity
-                    force[3:6, i_VP*N:(i_VP+1)*N] = G_gravite_perc * gravity
+                    force[0:3, i_VP*N:(i_VP+1)*N] += G_gravite_axis * gravity_axis
+                    force[3:6, i_VP*N:(i_VP+1)*N] += G_gravite_axis * gravity_axis
+                    force[0:3, i_VP*N:(i_VP+1)*N] += G_gravite_perc * gravity
+                    force[3:6, i_VP*N:(i_VP+1)*N] += G_gravite_perc * gravity
                     #rotation = self.p['scale'] * np.tanh(rotation/self.p['scale'])
-                    force[0:3, i_VP*N:(i_VP+1)*N] = G_rot_perc * rotation#1
-                    force[3:6, i_VP*N:(i_VP+1)*N] = -G_rot_perc * rotation#2
+                    force[0:3, i_VP*N:(i_VP+1)*N] += G_rot_perc * rotation#1
+                    force[3:6, i_VP*N:(i_VP+1)*N] += -G_rot_perc * rotation#2
 
             # FORCES GLOBALES  dans l'espace physique
             ## forces entres les particules
@@ -274,8 +280,8 @@ class Scenario:
                 ind_plus_proche = distance_CC.argmin(axis=1)
                 for i_N in range(self.N):
                     gravity[:, i_N] = CC[:, i_N, ind_plus_proche[i_N]]/(distance_CC[i_N,ind_plus_proche[i_N]] + self.p['eps'])**(n_s+2)#*(distance - distance_struct)).min(axis=1) # 3 x N; en metres
-                force[0:3, i_VP*N:(i_VP+1)*N] = G_repulsion * gravity
-                force[3:6, i_VP*N:(i_VP+1)*N] = G_repulsion * gravity
+                force[0:3, i_VP*N:(i_VP+1)*N] += G_repulsion * gravity
+                force[3:6, i_VP*N:(i_VP+1)*N] += G_repulsion * gravity
                 # TODO attraction / repulsion des angles relatifs des segments
 
             if not(G_poussee==0.):
@@ -285,8 +291,8 @@ class Scenario:
                 speed_CC = (self.particles[6:9, i_VP*N:(i_VP+1)*N] + self.particles[6:9, i_VP*N + ind_min]) + (self.particles[9:12, i_VP*N:(i_VP+1)*N] + self.particles[9:12, i_VP*N + ind_min])
                 poussee =  np.sign(np.sum(speed_CC * CC[:,ind_min,:].diagonal(axis1=1, axis2=2), axis=0)) * CC[:,ind_min,:].diagonal(axis1=1, axis2=2)
                 poussee /= (distance[:,ind_min].diagonal() + self.p['eps'])**(n_g+2) # 3 x N; en metres
-                force[0:3, i_VP*N:(i_VP+1)*N] = G_poussee * poussee
-                force[3:6, i_VP*N:(i_VP+1)*N] = G_poussee * poussee
+                force[0:3, i_VP*N:(i_VP+1)*N] += G_poussee * poussee
+                force[3:6, i_VP*N:(i_VP+1)*N] += G_poussee * poussee
 
             # attraction des extremites des segments au dessous d'une distance
             # critique pour créer des clusters de lignes
@@ -296,18 +302,18 @@ class Scenario:
                 AA_ = self.particles[0:3, i_VP*N:(i_VP+1)*N, np.newaxis]-self.particles[0:3, np.newaxis, i_VP*N:(i_VP+1)*N]
                 distance = np.sqrt(np.sum(AA_**2, axis=0)) # NxN ; en metres
                 gravity = - np.sum((distance < distance_struct) * AA_ /(distance.T + self.p['eps'])**(n_s+2), axis=1) # 3 x N; en metres
-                force[0:3, i_VP*N:(i_VP+1)*N] = G_struct * gravity
+                force[0:3, i_VP*N:(i_VP+1)*N] += G_struct * gravity
                 BB_ = self.particles[3:6, i_VP*N:(i_VP+1)*N, np.newaxis]-self.particles[3:6, np.newaxis, i_VP*N:(i_VP+1)*N]
                 #BB_ = self.particles[0:3, :][:, :, np.newaxis]-self.particles[3:6, :][:, :, np.newaxis]
                 distance = np.sqrt(np.sum(BB_**2, axis=0)) # NxN ; en metres
                 gravity = - np.sum((distance < distance_struct) * BB_/(distance.T + self.p['eps'])**(n_s+2), axis=1) # 3 x N; en metres
-                force[3:6, i_VP*N:(i_VP+1)*N] = G_struct * gravity
+                force[3:6, i_VP*N:(i_VP+1)*N] += G_struct * gravity
 
             # ressort
             AB = self.particles[0:3, i_VP*N:(i_VP+1)*N]-self.particles[3:6, i_VP*N:(i_VP+1)*N] # 3 x N
             distance = np.sqrt(np.sum(AB**2, axis=0)) # en metres
-            force[0:3, i_VP*N:(i_VP+1)*N] = G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
-            force[3:6, i_VP*N:(i_VP+1)*N] = G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
+            force[0:3, i_VP*N:(i_VP+1)*N] += G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
+            force[3:6, i_VP*N:(i_VP+1)*N] += G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
 
             # volume : TODO :check
             if not(self.p['G_volume']==0.): #
@@ -315,8 +321,8 @@ class Scenario:
                 distance_SC = np.sqrt(np.sum(SC**2, axis=0)) # en metres
                 SC_0 = SC / (distance_SC + self.p['eps']) # unit vector going from the player to the center of the segment
                 gravity = -SC_0 *  (distance_SC[np.newaxis, :]/ self.volume[:, np.newaxis])**2  # en metres
-                force[0:3, i_VP*N:(i_VP+1)*N] = self.p['G_volume'] * gravity
-                force[3:6, i_VP*N:(i_VP+1)*N] = self.p['G_volume'] * gravity
+                force[0:3, i_VP*N:(i_VP+1)*N] += self.p['G_volume'] * gravity
+                force[3:6, i_VP*N:(i_VP+1)*N] += self.p['G_volume'] * gravity
                 #print distance_SC.mean(), SC[2, :].mean(), gravity[2, :].mean(), force[2, :].mean()
 
         # damping

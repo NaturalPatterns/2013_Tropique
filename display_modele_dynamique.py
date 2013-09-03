@@ -266,7 +266,9 @@ def on_draw():
 def callback(dt):
     global do_sock
     try :
-        if DEBUG: print '%f seconds since last callback' % dt , '%f  fps' % pyglet.clock.get_fps()
+        if DEBUG: 
+            pass
+            #print '%f seconds since last callback' % dt , '%f  fps' % pyglet.clock.get_fps()
     except :
         pass
 
