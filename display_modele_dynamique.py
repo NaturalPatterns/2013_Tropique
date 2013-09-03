@@ -115,7 +115,7 @@ events = [0, 0, 0, 0, 0, 0, 0, 0] # 8 types d'événéments
 
 @win_0.event
 def on_key_press(symbol, modifiers):
-    global events, do_firstperson, s, n_players
+    global events, do_firstperson, s, s_VP, s_VP_fp, n_players
     if symbol == pyglet.window.key.TAB:
         if win_0.fullscreen:
             win_0.set_fullscreen(False)
@@ -149,6 +149,10 @@ def on_key_press(symbol, modifiers):
     elif symbol == pyglet.window.key.H:
         n_players = (n_players + 1) %5
         print n_players
+    elif symbol == pyglet.window.key.J:
+        s_VP = (s_VP + 1) % s.nvps
+        s_VP_fp = (s_VP_fp + 1) % s.nvps
+        print s_VP
     else:
         print symbol
         print events
@@ -160,7 +164,7 @@ def on_resize(width, height):
     print 'The window was resized to %dx%d' % (width, height)
 @win_0.event
 def on_draw():
-    global s, n_players
+    global s, s_VP, s_VP_fp, n_players
     t = s.t
 
     if do_sock:

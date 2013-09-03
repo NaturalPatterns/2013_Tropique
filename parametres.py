@@ -95,7 +95,7 @@ calibration = {
         'center': np.array([d_x/2., d_y/2, VPs[0]['z']], dtype='f'), # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
         'croix': np.array([8.65, 3.67, 1.36], dtype='f'), # definition de la position de la croix
 #        'croix': np.array([11.95, 2.2, 1.36], dtype='f'), # definition de la position de la croix
-        'roger': np.array([6., 3., 1.5], dtype='f'), #  fixation dot  (AKA Roger?)
+        'roger': np.array([8., 4., 2.], dtype='f'), #  fixation dot  (AKA Roger?)
                 }
 
 # parametres du champ

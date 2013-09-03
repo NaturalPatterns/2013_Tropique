@@ -184,7 +184,7 @@ class Scenario:
 
         n_s = self.p['kurt_struct']
         n_g = self.p['kurt_gravitation']
-        if DEBUG: print G_gravite_axis, G_gravite_perc, G_struct, G_rot_perc, G_repulsion
+        #if DEBUG: print G_gravite_axis, G_gravite_perc, G_struct, G_rot_perc, G_repulsion
         N = self.N
         force = np.zeros((6, self.N*self.nvps)) # one vector per point
         ###################################################################################################################################
