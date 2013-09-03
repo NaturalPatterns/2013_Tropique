@@ -218,7 +218,7 @@ def on_draw():
                 pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', [VP['x'], VP['y'], VP['z']]))
 
             VP_ = np.array([[VP['x'], VP['y'], VP['z']]]).T * np.ones((1, s.N))
-            p_ = s.particles[0:6, i_VP*N:(i_VP+1)*N].copy()
+            p_ = s.particles[0:6, i_VP*s.N:(i_VP+1)*s.N].copy()
             # projecting the segment on the wall opposite to the VPs
             if VP['x'] > d_x/2: # un VP du coté x=0, on projete sur le plan x=0
                 p_[1] = d_x / (d_x - p_[0]) * (p_[1]-VP['y']) + VP['y']
