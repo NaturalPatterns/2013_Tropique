@@ -149,7 +149,7 @@ def on_key_press(symbol, modifiers):
     elif symbol == pyglet.window.key.H:
         n_players = (n_players + 1) %5
         print n_players
-    elif symbol == pyglet.window.key.J:
+    elif symbol == pyglet.window.key.C:
         s_VP = (s_VP + 1) % s.nvps
         s_VP_fp = (s_VP_fp + 1) % s.nvps
         print s_VP
