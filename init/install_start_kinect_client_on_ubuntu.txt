@@ -1,0 +1,6 @@
+sudo cp ~/Dropbox/TROPIQUE/pyTropique/start_log/start_kinect_server.sh /etc/init.d/
+cd /etc/init.d/
+sudo cp start_kinect_server.sh start_kinect_server
+sudo rm start_kinect_server.sh
+sudo chmod 0755 start_kinect_server
+sudo update-rc.d start_kinect_server defaults
