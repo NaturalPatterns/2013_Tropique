@@ -40,8 +40,8 @@ s.heading_fp, s.rot_heading_fp, s.inc_heading_fp = 0., 0., 0.1
 s_VP = 0  # VP utilisé comme projecteur en mode projection
 do_fs = True  # fullscreen par défaut?
 do_fs = False  # fullscreen par défaut?
-do_slider = True
 do_slider = False
+do_slider = True
 do_sock = True
 do_sock = False
 do_interference = True
@@ -50,7 +50,7 @@ do_interference = False
 i_win = 0
 foc_VP = 50.
 foc_VP = VPs[i_win]['foc']
-n_players = 0
+n_players = 1
 ########################################
 if do_sock:
     sys.path.append('../network/')
@@ -270,7 +270,7 @@ def on_draw():
 def callback(dt):
     global do_sock
     try :
-        if DEBUG: 
+        if DEBUG:
             pass
             #print '%f seconds since last callback' % dt , '%f  fps' % pyglet.clock.get_fps()
     except :
