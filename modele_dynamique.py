@@ -238,15 +238,9 @@ class Scenario:
                         # compute desired rotation
                         cap_SC = orientation(rae_VS, rae_VC)
                         cap_AB = orientation(rae_VA, rae_VB)
-                        # TODO rotation aussi vers le plan perpendiculaire a l'acteur
-                        # TODO résoudre le hack avec sign_view en utilisant le
                         # produit vecoriel VS /\ AB
-                        rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.cross(VS_0, AB / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2), axis=0)
-                        # TODO : tuner les paramètres de rotation
-                        #sign_view = np.sign(OC[0]-OV[0])
-                        #rotation_ = -sign_view * np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
-                        #rotation_ = -sign_view * np.tanh(10.*np.sin(cap_SC-cap_AB))[np.newaxis, :] * np.vstack((AB[0, :], -AB[2, :], AB[1, :])) / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2) #
-                        # print sign_view * np.sin(cap_SC-cap_AB)
+                        rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.cross(VS_0, SC_0, axis=0)
+                        #rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.cross(VS_0, AB / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2), axis=0)
 
                         # only assign on the indices that correspond to the minimal distance
                         ind_assign = (distance_SC < distance_min)
@@ -265,20 +259,12 @@ class Scenario:
 
             # FORCES GLOBALES  dans l'espace physique
             ## forces entres les particules
+            # TODO rendre la repulsion active que dans le plan perceptif (plan perpendicualire a VS passant par S)
             if not(G_repulsion==0.):
                 CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
                 gravity_repuls = np.empty((3, self.N))
                 # repulsion entre les centres de chaque paire de segments
                 distance_CC = np.sqrt(np.sum(CC**2, axis=0)) + 1.e6 * np.eye(self.N)  # NxN ; en metres
-                #AA_ = self.particles[0:3, :, np.newaxis]-self.particles[0:3, np.newaxis, :]
-                #distance_AA = np.sqrt(np.sum(AA_**2, axis=0)) # NxN ; en metres
-                #AB_ = self.particles[3:6, :, np.newaxis]-self.particles[3:6, np.newaxis, :]
-                #distance_AB = np.sqrt(np.sum(AB_**2, axis=0)) # NxN ; en metres
-                #BB_ = self.particles[0:3, :, np.newaxis]-self.particles[3:6, np.newaxis, :]
-                #distance_BB = np.sqrt(np.sum(BB_**2, axis=0)) # NxN ; en metres
-                #print distance_AA.shape, distance_CC.shape, distance_AB.shape, distance_BB.shape
-                #distance = np.concatenate((distance_CC[np.newaxis,:,:], distance_AB[np.newaxis,:,:], \
-                    #distance_AA[np.newaxis,:,:], distance_BB[np.newaxis,:,:]), axis=0).min(axis=0)
                 ind_plus_proche = distance_CC.argmin(axis=1)
                 for i_N in range(self.N):
                     gravity_repuls[:, i_N] = CC[:, i_N, ind_plus_proche[i_N]]/(distance_CC[i_N,ind_plus_proche[i_N]] + self.p['eps'])**(n_s+2)#*(distance - distance_struct)).min(axis=1) # 3 x N; en metres
@@ -570,7 +556,7 @@ class Scenario:
             self.particles[3:6, :] += np.array(positions[0])[:, np.newaxis]
 
 
-        #  permet de ne pas sortir du volume (todo: créer un champ répulsif aux murs...)
+        #  permet de ne pas sortir du volume
         if (self.scenario == 'leapfrog') or (self.scenario == 'euler') :
             if True: #
                 for i in range(6):
