@@ -209,10 +209,9 @@ class Scenario:
                     for position in positions:
                         #print 'POS', position
                         rae_VS = xyz2azel(np.array(position), OV)
-                        arcdis = arcdistance(rae_VS, rae_VC)
-                        #arcdis = np.min(np.vstack((arcdistance(rae_VS, rae_VA),\
-                                                #arcdistance(rae_VS, rae_VB),\
-                                                #arcdistance(rae_VS, rae_VC))), axis=0)
+                        arcdis = np.min(np.vstack((arcdistance(rae_VS, rae_VA),\
+                                                   arcdistance(rae_VS, rae_VB),\
+                                                   arcdistance(rae_VS, rae_VC))), axis=0)
                         distance_SC = rae_VS[0]*np.sin(arcdis)
                         SC = OC - np.array(position)[:, np.newaxis]
                         SC_0 = SC / (np.sqrt((SC**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
@@ -222,6 +221,10 @@ class Scenario:
                         modul = 1. - np.exp(-rae_VS[0] / self.p['distance_notabou'] )
                         force[0:3, i_VP*N:(i_VP+1)*N] += G_tabou * modul * tabou
                         force[3:6, i_VP*N:(i_VP+1)*N] += G_tabou * modul * tabou
+
+                        # gravitation et rotation
+                        arcdis = arcdistance(rae_VS, rae_VC)
+                        distance_SC = rae_VS[0]*np.sin(arcdis)
 
                         # TODO : réduire la dimension de profondeur à une simple convergence vers la position en x / reflète la perception
                         if n_g==-2:

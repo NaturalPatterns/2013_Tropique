@@ -103,11 +103,11 @@ p = {'N': 32,
      'G_gravite_perc': 8.0, # attraction globale vers les centres des positions
      'G_gravite_perc_G': 9.0, # attraction globale vers les centres des positions
      'kurt_gravitation' : -2., # 0 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
-     'G_rot_perc': 0.6,
-     'G_rot_perc_G': 2.,
-     'distance_tabou': 0.1, # distance tabou (perpendiculairement à l'axe VP-player)
+     'G_rot_perc': 1.,
+     'G_rot_perc_G': 10.,
+     'distance_tabou': 0.3, # distance tabou (perpendiculairement à l'axe VP-player)
      'distance_notabou': 4., # distance dans l'axe du VP-player pour lequel on bannit le tabou, mesuree wrt distance VP-au player
-     'G_tabou': 0., # force tabou qui expulse tout segment qui rentre dans la zone tabou (je suis completment tabou)
+     'G_tabou': 100., # force tabou qui expulse tout segment qui rentre dans la zone tabou (je suis completment tabou)
      'G_gravite_axis': 16.0, # parametre d'attraction physique vers les players
      'G_gravite_axis_R': 2.0, # parametre d'attraction physique vers les players
      'G_gravite_axis_G': 4.0, # parametre d'attraction physique vers les players
@@ -120,18 +120,18 @@ p = {'N': 32,
      'distance_struct': .5, # distance pour laquelle l'attraction des bouts de segments s'inverse
      'distance_struct_R': .5,
      'G_volume': 0., # force qui permet de rester dans le volume - lente et active surtout quand il n'y a personne
-     'G_repulsion': 0.1, # constante de répulsion entre les particules
-     'G_repulsion_G': 2.0, # force avec laquelle les bouts de segments s'attirent
+     'G_repulsion': 5., # constante de répulsion entre les particules
+     'G_repulsion_G': 20.0, # force avec laquelle les bouts de segments s'attirent
      'G_repulsion_R': 5., # constante de répulsion entre les particules
      'kurt_struct' : -2., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
      'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 50., 'l_seg_min': 0.2, 'l_seg_max': .2, 'N_max': 2, # dureté et longueur des segments
      'G_spring_pulse': 5., 'l_seg_pulse': .6, 'N_max_pulse': 6,  # dureté et longueur des segments dans un break
      # parametres globaux
-     'damp': 0.95,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp': 0.8,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_break23': .4,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_break1': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-     'speed_0': 0.01, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_0': 0.03, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'speed_break': .1, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 20., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
      'line_width': 3, # line width of segments
