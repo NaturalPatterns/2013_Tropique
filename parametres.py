@@ -51,7 +51,7 @@ scenario = "fan" # une aura autour de la position du premier player
 scenario = 'rotating-circle'
 scenario = 'cristal'
 scenario = "leapfrog" # integration d'Euler améliorée pour simuler le champ
-scenario = "croix" # calibration autour de la croix
+#scenario = "croix" # calibration autour de la croix
 
 
 
@@ -78,7 +78,7 @@ VPs = [
             'cx':cx_0, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         {'address':'10.42.0.51',
-            'x':1.98, 'y':0.55, 'z': z,
+            'x':1.98, 'y':1.55, 'z': z,
             'cx':cx_1, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         {'address':'10.42.0.52',
@@ -93,7 +93,7 @@ VPs = [
 import numpy as np
 calibration = {
         'center': np.array([d_x/2., d_y/2, VPs[0]['z']], dtype='f'), # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
-        'croix': np.array([8.65, 3.67, 1.36], dtype='f'), # definition de la position de la croix
+        'croix': np.array([6.65, 3.13, 1.36], dtype='f'), # definition de la position de la croix
 #        'croix': np.array([11.95, 2.2, 1.36], dtype='f'), # definition de la position de la croix
         'roger': np.array([d_x/2., d_y/2., 1.73], dtype='f'), #  fixation dot  (AKA Roger?)
                 }
