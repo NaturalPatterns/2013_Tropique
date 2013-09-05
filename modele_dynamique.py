@@ -95,8 +95,7 @@ class Scenario:
         self.nvps = len(self.vps)
         self.p = p
         self.N = N
-        self.l_seg = p['l_seg_min'] #* np.ones(N)
-        # TODO : distribute for each VP self.l_seg[-2:] = p['l_seg_max']
+        self.l_seg = p['l_seg_min'] * np.ones(N*self.nvps)
         self.order = 2
 
         # initialisation des particules
@@ -147,13 +146,15 @@ class Scenario:
             #G_repulsion = self.p['G_repulsion_hot']
         if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans display_modele_dynamique.py
             damp = self.p['damp_break1']
-        # needs FIX
         if events[1] == 0 and not(events[:6] == [1, 1, 1, 1, 1, 1]): # cas général
-            #self.l_seg[:-self.p['N_max']] = self.p['l_seg_min'] * np.ones(self.N-self.p['N_max'])
-            #self.l_seg[-self.p['N_max']:] = self.p['l_seg_max']
+            for i_VP, OV in enumerate(self.vps[:]):
+                self.l_seg[i_VP*self.N:((i_VP+1)*self.N-self.p['N_max'])] = self.p['l_seg_min'] * np.ones(self.N-self.p['N_max'])
+                self.l_seg[((i_VP+1)*self.N-self.p['N_max']):(i_VP+1)*self.N] = self.p['l_seg_max']
             G_spring = self.p['G_spring']
-        #else:  # événement Pulse avec la touche P dans display_modele_dynamique.py (Pulse)
-            #self.l_seg[:-self.p['N_max_pulse']] = self.p['l_seg_pulse'] * np.ones(self.N-self.p['N_max_pulse'])
+        else:  # événement Pulse avec la touche P dans display_modele_dynamique.py (Pulse)
+            for i_VP, OV in enumerate(self.vps[:]):
+                self.l_seg[i_VP*self.N:((i_VP+1)*self.N-self.p['N_max_pulse'])] = self.p['l_seg_pulse'] * np.ones(self.N-self.p['N_max_pulse'])
+                self.l_seg[((i_VP+1)*self.N-self.p['N_max_pulse']):(i_VP+1)*self.N] = self.p['l_seg_max']
             #self.l_seg[-self.p['N_max_pulse']:] = self.p['l_seg_max']
             G_spring = self.p['G_spring_pulse']
 #
