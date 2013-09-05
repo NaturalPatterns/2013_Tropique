@@ -96,6 +96,13 @@ class Scenario:
         self.p = p
         self.N = N
         self.l_seg = p['l_seg_min'] * np.ones(N*self.nvps)
+        self.l_seg_normal = p['l_seg_min'] * np.ones(N*self.nvps)
+        self.l_seg_pulse = p['l_seg_min'] * np.ones(N*self.nvps)
+        for i_VP, OV in enumerate(self.vps[:]):
+            self.l_seg_normal[i_VP*self.N:((i_VP+1)*self.N-self.p['N_max'])] = self.p['l_seg_min'] * np.ones(self.N-self.p['N_max'])
+            self.l_seg_normal[((i_VP+1)*self.N-self.p['N_max']):(i_VP+1)*self.N] = self.p['l_seg_max']
+            self.l_seg_pulse[i_VP*self.N:((i_VP+1)*self.N-self.p['N_max_pulse'])] = self.p['l_seg_pulse'] * np.ones(self.N-self.p['N_max_pulse'])
+            self.l_seg_pulse[((i_VP+1)*self.N-self.p['N_max_pulse']):(i_VP+1)*self.N] = self.p['l_seg_max']
         self.order = 2
 
         # initialisation des particules
@@ -147,14 +154,10 @@ class Scenario:
         if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans display_modele_dynamique.py
             damp = self.p['damp_break1']
         if events[1] == 0 and not(events[:6] == [1, 1, 1, 1, 1, 1]): # cas général
-            for i_VP, OV in enumerate(self.vps[:]):
-                self.l_seg[i_VP*self.N:((i_VP+1)*self.N-self.p['N_max'])] = self.p['l_seg_min'] * np.ones(self.N-self.p['N_max'])
-                self.l_seg[((i_VP+1)*self.N-self.p['N_max']):(i_VP+1)*self.N] = self.p['l_seg_max']
+            self.l_seg = self.l_seg_normal
             G_spring = self.p['G_spring']
         else:  # événement Pulse avec la touche P dans display_modele_dynamique.py (Pulse)
-            for i_VP, OV in enumerate(self.vps[:]):
-                self.l_seg[i_VP*self.N:((i_VP+1)*self.N-self.p['N_max_pulse'])] = self.p['l_seg_pulse'] * np.ones(self.N-self.p['N_max_pulse'])
-                self.l_seg[((i_VP+1)*self.N-self.p['N_max_pulse']):(i_VP+1)*self.N] = self.p['l_seg_max']
+            self.l_seg = self.l_seg_pulse
             #self.l_seg[-self.p['N_max_pulse']:] = self.p['l_seg_max']
             G_spring = self.p['G_spring_pulse']
 #
@@ -303,7 +306,7 @@ class Scenario:
         # ressort
         AB = self.particles[0:3, :]-self.particles[3:6, :] # 3 x N
         distance = np.sqrt(np.sum(AB**2, axis=0)) # en metres
-        print 'longueur segments ', distance.mean(), distance.std()
+        #print 'longueur segments ', distance.mean(), distance.std()
         force[0:3, :] += G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
         force[3:6, :] += G_spring * (distance[np.newaxis, :] - self.l_seg) * AB / (distance[np.newaxis, :] + self.p['eps'])
 
