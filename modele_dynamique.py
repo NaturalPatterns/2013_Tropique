@@ -209,19 +209,20 @@ class Scenario:
                     distance_min = 1.e6 * np.ones((self.N)) # very big to begin with
                     rotation = np.zeros((3, self.N))
                     gravity = np.zeros((3, self.N))
-                    gravity_axis = np.zeros((3, self.N))
+                    gravity_axis_A = np.zeros((3, self.N))
+                    gravity_axis_B = np.zeros((3, self.N))
                     for position in positions:
                         #print 'POS', position
                         rae_VS = xyz2azel(np.array(position), OV)
                         arcdis = np.min(np.vstack((arcdistance(rae_VS, rae_VA),\
                                                    arcdistance(rae_VS, rae_VB),\
                                                    arcdistance(rae_VS, rae_VC))), axis=0)
-                        distance_SC = rae_VS[0]*np.sin(arcdis)
+                        distance_closer = rae_VS[0]*np.sin(arcdis)
                         SC = OC - np.array(position)[:, np.newaxis]
                         SC_0 = SC / (np.sqrt((SC**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
 
                         # TODO : diminuer la force du tabou dans le temps pour les personnes arrétées / parametre T_damp_global
-                        tabou = SC_0 * (distance_SC < distance_tabou) / (distance_SC + self.p['eps'])**(n_g+2) # en metres
+                        tabou = SC_0 * (distance_closer < distance_tabou) / (distance_closer + self.p['eps'])**(n_g+2) # en metres
                         modul = 1. - np.exp(-rae_VS[0] / self.p['distance_notabou'] )
                         force[0:3, i_VP*N:(i_VP+1)*N] += G_tabou * modul * tabou
                         force[3:6, i_VP*N:(i_VP+1)*N] += G_tabou * modul * tabou
@@ -235,9 +236,17 @@ class Scenario:
                             gravity_ = - SC_0 * (distance_SC - self.p['distance_m']) # en metres
                         else:
                             gravity_ = - SC_0 * (distance_SC - self.p['distance_m'])/(distance_SC + self.p['eps'])**(n_g+2) # en metres
+
                         VS = np.array(position) - OV
                         VS_0 = VS / (np.sqrt((VS**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
-                        gravity_axis_ = - VS_0[:, np.newaxis] * (rae_VC[0]-rae_VS[0])[np.newaxis,:] # en metres
+                        VA = OA - OV[:, np.newaxis]
+                        VA_0 = VA / (np.sqrt((VA**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
+                        gravity_axis_A_ = - VA_0 * (rae_VA[0]-rae_VS[0]) # en metres
+                        VB = OB - OV[:, np.newaxis]
+                        VB_0 = VB / (np.sqrt((VB**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
+                        gravity_axis_B_ = - VB_0 * (rae_VB[0]-rae_VS[0]) # en metres
+                        print "Convergence dans l'axe - A: ", (rae_VA[0]-rae_VS[0]).mean(), (rae_VA[0]-rae_VS[0]).std()
+                        print "Convergence dans l'axe - B: ", (rae_VB[0]-rae_VS[0]).mean(), (rae_VB[0]-rae_VS[0]).std()
 
                         # compute desired rotation
                         cap_SC = orientation(rae_VS, rae_VC)
@@ -247,15 +256,16 @@ class Scenario:
                         #rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.cross(VS_0, AB / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2), axis=0)
 
                         # only assign on the indices that correspond to the minimal distance
-                        ind_assign = (distance_SC < distance_min)
+                        ind_assign = (distance_closer < distance_min)
                         #print i_VP,  ind_assign.sum()
                         gravity[:, ind_assign] = gravity_[:, ind_assign]
-                        gravity_axis[:, ind_assign] = gravity_axis_[:, ind_assign]
+                        gravity_axis_A[:, ind_assign] = gravity_axis_A_[:, ind_assign]
+                        gravity_axis_B[:, ind_assign] = gravity_axis_B_[:, ind_assign]
                         rotation[:, ind_assign] = rotation_[:, ind_assign]
-                        distance_min[ind_assign] = distance_SC[ind_assign]
+                        distance_min[ind_assign] = distance_closer[ind_assign]
 
-                    force[0:3, i_VP*N:(i_VP+1)*N] += G_gravite_axis * gravity_axis
-                    force[3:6, i_VP*N:(i_VP+1)*N] += G_gravite_axis * gravity_axis
+                    force[0:3, i_VP*N:(i_VP+1)*N] += G_gravite_axis * gravity_axis_A
+                    force[3:6, i_VP*N:(i_VP+1)*N] += G_gravite_axis * gravity_axis_B
                     force[0:3, i_VP*N:(i_VP+1)*N] += G_gravite_perc * gravity
                     force[3:6, i_VP*N:(i_VP+1)*N] += G_gravite_perc * gravity
                     force[0:3, i_VP*N:(i_VP+1)*N] += G_rot_perc * rotation
