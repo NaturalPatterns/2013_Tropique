@@ -103,7 +103,7 @@ p = {'N': 32,
      'G_gravite_perc': 5.0, # attraction globale vers les centres des positions
      'G_gravite_perc_G': 30.0, # attraction globale vers les centres des positions
      'kurt_gravitation' : -2., # 0 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
-     'G_rot_perc': 2.,
+     'G_rot_perc': 5.,
      'G_rot_perc_G': 100.,
      'distance_tabou': 0.3, # distance tabou (perpendiculairement à l'axe VP-player)
      'distance_notabou': 4., # distance *dans l'axe du VP au player* pour lequel on bannit le tabou, mesuree wrt distance VP-au player
@@ -128,7 +128,7 @@ p = {'N': 32,
      'G_spring': 50., 'l_seg_min': 0.2, 'l_seg_max': 1.2, 'N_max': 2, # dureté et longueur des segments
      'G_spring_pulse': 5., 'l_seg_pulse': .6, 'N_max_pulse': 16,  # dureté et longueur des segments dans un break
      # parametres globaux
-     'damp': 0.4,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp': 0.9,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_break23': .4,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_break1': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'speed_0': 0.03, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
