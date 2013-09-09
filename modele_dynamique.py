@@ -245,8 +245,8 @@ class Scenario:
                         VB = OB - OV[:, np.newaxis]
                         VB_0 = VB / (np.sqrt((VB**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
                         gravity_axis_B_ = - VB_0 * (rae_VB[0]-rae_VS[0]) # en metres
-                        print "Convergence dans l'axe - A: ", (rae_VA[0]-rae_VS[0]).mean(), (rae_VA[0]-rae_VS[0]).std()
-                        print "Convergence dans l'axe - B: ", (rae_VB[0]-rae_VS[0]).mean(), (rae_VB[0]-rae_VS[0]).std()
+                        #print "Convergence dans l'axe - A: ", (rae_VA[0]-rae_VS[0]).mean(), (rae_VA[0]-rae_VS[0]).std()
+                        #print "Convergence dans l'axe - B: ", (rae_VB[0]-rae_VS[0]).mean(), (rae_VB[0]-rae_VS[0]).std()
 
                         # compute desired rotation
                         cap_SC = orientation(rae_VS, rae_VC)

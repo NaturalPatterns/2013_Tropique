@@ -128,12 +128,12 @@ p = {'N': 32,
      'G_spring': 50., 'l_seg_min': 0.2, 'l_seg_max': 1.2, 'N_max': 2, # dureté et longueur des segments
      'G_spring_pulse': 5., 'l_seg_pulse': .6, 'N_max_pulse': 16,  # dureté et longueur des segments dans un break
      # parametres globaux
-     'damp': 0.95,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp': 0.99,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_break23': .4,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_break1': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'speed_0': 0.03, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'speed_break': .1, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
-     'scale': 20., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
+     'scale': 200., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
      'line_width': 3, # line width of segments
      'T_break': 6., # duration (secondes) of breaks 2&3
      'A_break': 4., # amplitude de l'amplification de speed_0 dans les break #2 et #3
