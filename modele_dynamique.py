@@ -217,6 +217,7 @@ class Scenario:
                         arcdis = np.min(np.vstack((arcdistance(rae_VS, rae_VA),\
                                                    arcdistance(rae_VS, rae_VB),\
                                                    arcdistance(rae_VS, rae_VC))), axis=0)
+                        #print 'arc distance ', arcdis
                         distance_closer = rae_VS[0]*np.sin(arcdis)
                         SC = OC - np.array(position)[:, np.newaxis]
                         SC_0 = SC / (np.sqrt((SC**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
@@ -276,14 +277,23 @@ class Scenario:
             # TODO rendre la repulsion active que dans le plan perceptif (plan perpendicualire a VS passant par S)
             if not(G_repulsion==0.):
                 CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
-                gravity_repuls = np.empty((3, self.N))
+                CC_0 = CC / (np.sqrt((CC**2).sum(axis=0)) + self.p['eps'])
+                arcdis = arcdistance(rae_VC[:, :, np.newaxis], rae_VC[:, np.newaxis, :])
+                #print 'arc distance ', arcdis
+                distance_CC = rae_VS[0]*np.sin(arcdis)
+                gravity_repulsion = - np.sum( CC_0 /(distance_CC + self.p['eps'])**(n_s+2), axis=1)  #  3 x N; en metres
                 # repulsion entre les centres de chaque paire de segments
-                distance_CC = np.sqrt(np.sum(CC**2, axis=0)) + 1.e6 * np.eye(self.N)  # NxN ; en metres
-                ind_plus_proche = distance_CC.argmin(axis=1)
-                for i_N in range(self.N):
-                    gravity_repuls[:, i_N] = CC[:, i_N, ind_plus_proche[i_N]]/(distance_CC[i_N,ind_plus_proche[i_N]] + self.p['eps'])**(n_s+2)#*(distance - distance_struct)).min(axis=1) # 3 x N; en metres
-                force[0:3, i_VP*N:(i_VP+1)*N] += G_repulsion * gravity_repuls
-                force[3:6, i_VP*N:(i_VP+1)*N] += G_repulsion * gravity_repuls
+                #distance_CC = np.sqrt(np.sum(CC**2, axis=0)) + 1.e6 * np.eye(self.N)  # NxN ; en metres
+                #ind_plus_proche = distance_CC.argmin(axis=1)
+                #for i_N in range(self.N):
+                    #if n_s==-2:
+                        #gravity_repuls[:, i_N] = - SC_0 * (distance_SC - self.p['distance_m']) # en metres
+                    #else:
+                        #gravity_repuls[:, i_N] = - SC_0 * (distance_SC - self.p['distance_m'])/(distance_SC + self.p['eps'])**(n_g+2) # en metres
+#
+                    #gravity_repuls[:, i_N] = CC[:, i_N, ind_plus_proche[i_N]]/(distance_CC[i_N,ind_plus_proche[i_N]] + self.p['eps'])**(n_s+2)# # 3 x N; en metres
+                force[0:3, i_VP*N:(i_VP+1)*N] += G_repulsion * gravity_repulsion
+                force[3:6, i_VP*N:(i_VP+1)*N] += G_repulsion * gravity_repulsion
                 # TODO attraction / repulsion des angles relatifs des segments
 
             if not(G_poussee==0.):
