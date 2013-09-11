@@ -112,7 +112,7 @@ p = {'N': 32,
      'G_gravite_axis_R': 2.0, # parametre d'attraction physique vers les players
      'G_gravite_axis_G': 4.0, # parametre d'attraction physique vers les players
      # parametres physiques
-     'G_poussee': 0.5, # parametre de poussee créateur de vortex
+     'G_poussee': 0., # parametre de poussee créateur de vortex
      'G_poussee_break': .10, # parametre de poussee créateur de vortex
      'G_struct': 0.0, # force avec laquelle les bouts de segments s'attirent
      'G_struct_G': 1., # force avec laquelle les bouts de segments s'attirent
@@ -120,10 +120,10 @@ p = {'N': 32,
      'distance_struct': .5, # distance pour laquelle l'attraction des bouts de segments s'inverse
      'distance_struct_R': .5,
      'G_volume': 0., # force qui permet de rester dans le volume - lente et active surtout quand il n'y a personne
-     'G_repulsion': 1., # constante de répulsion entre les particules
+     'G_repulsion': .05, # constante de répulsion entre les particules
      'G_repulsion_G': 20.0, # force avec laquelle les bouts de segments s'attirent
      'G_repulsion_R': 5., # constante de répulsion entre les particules
-     'kurt_struct' : -2., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
+     'kurt_struct' : 1., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
      'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 50., 'l_seg_min': 0.2, 'l_seg_max': 1.2, 'N_max': 2, # dureté et longueur des segments
      'G_spring_pulse': 5., 'l_seg_pulse': .6, 'N_max_pulse': 16,  # dureté et longueur des segments dans un break
