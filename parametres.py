@@ -99,15 +99,15 @@ calibration = {
 # parametres du champ
 p = {'N': 32,
      # parametres perceptifs
-     'distance_m': 0.5, # distance d'équilibre des segments autour d'une position de player
+     'distance_m': 0.6, # distance d'équilibre des segments autour d'une position de player
      'G_gravite_perc': 10.0, # attraction globale vers les centres des positions
      'G_gravite_perc_G': 30.0, # attraction globale vers les centres des positions
      'kurt_gravitation' : -2., # 0 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
      'G_rot_perc': 15.,
      'G_rot_perc_G': 100.,
-     'distance_tabou': 0.3, # distance tabou (perpendiculairement à l'axe VP-player)
+     'distance_tabou': 0.2, # distance tabou (perpendiculairement à l'axe VP-player)
      'distance_notabou': 4., # distance *dans l'axe du VP au player* pour lequel on bannit le tabou, mesuree wrt distance VP-au player
-     'G_tabou': 100., # force tabou qui expulse tout segment qui rentre dans la zone tabou (je suis completment tabou)
+     'G_tabou': 10., # force tabou qui expulse tout segment qui rentre dans la zone tabou (je suis completment tabou)
      'G_gravite_axis': 50.0, # parametre d'attraction physique vers les players
      'G_gravite_axis_R': 2.0, # parametre d'attraction physique vers les players
      'G_gravite_axis_G': 4.0, # parametre d'attraction physique vers les players
@@ -128,10 +128,10 @@ p = {'N': 32,
      'G_spring': 50., 'l_seg_min': 0.2, 'l_seg_max': 1.2, 'N_max': 2, # dureté et longueur des segments
      'G_spring_pulse': 5., 'l_seg_pulse': .6, 'N_max_pulse': 16,  # dureté et longueur des segments dans un break
      # parametres globaux
-     'damp': 0.999,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp': 0.8,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_break23': .4,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_break1': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-     'speed_0': 0.01, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'speed_break': .1, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 30., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
      'line_width': 3, # line width of segments
