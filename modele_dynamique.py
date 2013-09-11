@@ -109,8 +109,8 @@ class Scenario:
         self.particles = np.zeros((6*self.order, N*self.nvps), dtype='f') # x, y, z, u, v, w
         self.particles[0:3, :] = self.center[:, np.newaxis]
         self.particles[3:6, :] = self.center[:, np.newaxis]
-        self.particles[1, :] = np.linspace(d_y/4, 3*d_y/4, self.N*self.nvps)
-        self.particles[3:6, :] = self.particles[0:3, :] + np.random.randn(3, self.N*self.nvps)*self.l_seg
+        self.particles[1, :] = np.linspace(0., d_y, self.N*self.nvps)
+        #self.particles[3:6, :] = self.particles[0:3, :] + np.ones((3, self.N*self.nvps))*self.l_seg
         self.particles[4, :] = self.particles[1, :]
         self.particles[5, :] -= self.l_seg
         self.t_break = 0.
@@ -279,7 +279,7 @@ class Scenario:
                 #if not(G_repulsion==0.):
                 CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
                 CC_0 = CC / (np.sqrt((CC**2).sum(axis=0)) + self.p['eps'])
-                CC_proj = CC_0 - (VC_0[:, :, np.newaxis] * CC_0).sum(axis=0) * VC_0[:, :, np.newaxis]
+                CC_proj = CC_0 # - (VC_0[:, :, np.newaxis] * CC_0).sum(axis=0) * VC_0[:, :, np.newaxis]
                 arcdis = arcdistance(rae_VC[:, :, np.newaxis], rae_VC[:, np.newaxis, :])
                 #print 'arc distance ', arcdis
                 distance_CC = rae_VS[0]*np.sin(arcdis) + 1.e6 * np.eye(self.N)  # NxN ; en metres
@@ -342,14 +342,15 @@ class Scenario:
             #force[3:6, :] += self.p['G_volume'] * gravity
             #print distance_SC.mean(), SC[2, :].mean(), gravity[2, :].mean(), force[2, :].mean()
 
-        # damping
-        force -= damp * self.particles[6:12, :]/self.dt
 
         # normalisation des forces pour éviter le chaos
         #if DEBUG: print  self.particles[0:3, :].mean(axis=1)
         #if DEBUG: print 'Force ', force.mean(axis=1), force.std(axis=1)
         if self.p['scale'] < 20: force = self.p['scale'] * np.tanh(force/self.p['scale'])
         force *= speed_0
+        # damping
+        force -= damp * self.particles[6:12, :]/self.dt
+
         return force
 
     def do_scenario(self, positions=None, events=[0, 0, 0, 0, 0, 0, 0, 0]):
@@ -562,6 +563,8 @@ class Scenario:
             self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
             force = self.champ(positions=positions, events=events)
             self.particles[6:12, :] += force * self.dt
+            # TODO utiliser mla force comme la vitesse désirée?
+            #self.particles[6:12, :] = force
             # application de l'acceleration calculée sur les positions
             self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
             if np.isnan(self.particles[:6, :]).any():
