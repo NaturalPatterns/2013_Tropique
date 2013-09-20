@@ -125,7 +125,7 @@ p = {'N': 32,
      'G_repulsion_R': .05, # constante de répulsion entre les particules
      'kurt_struct' : 0., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
      'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
-     'G_spring': 50., 'l_seg_min': 0.2, 'l_seg_max': 1.2, 'N_max': 2, # dureté et longueur des segments
+     'G_spring': 50., 'l_seg_min': 0.2, 'l_seg_max': .2, 'N_max': 2, # dureté et longueur des segments
      'G_spring_pulse': 5., 'l_seg_pulse': .6, 'N_max_pulse': 16,  # dureté et longueur des segments dans un break
      # parametres globaux
      'damp': 0.8,  # facteur de damping / absorbe l'énergie / regle la viscosité
