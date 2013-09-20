@@ -329,7 +329,7 @@ class Scenario:
         AB = self.particles[0:3, :]-self.particles[3:6, :] # 3 x N
         distance = np.sqrt(np.sum(AB**2, axis=0)) # en metres
         AB_0 = AB / (distance[np.newaxis, :] + self.p['eps'])
-        print 'DEBUG: longueur segments ', distance.mean(), distance.std()
+        #print 'DEBUG: longueur segments ', distance.mean(), distance.std()
         force[0:3, :] -= G_spring * (distance[np.newaxis, :] - self.l_seg) * AB_0
         force[3:6, :] += G_spring * (distance[np.newaxis, :] - self.l_seg) * AB_0
 
