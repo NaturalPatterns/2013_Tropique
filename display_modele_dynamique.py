@@ -186,7 +186,7 @@ def on_draw():
          #[[9.71, 1.5, 1.03], [9.17, 3.61, 1.17], [10.98, 4.43, 1.85], [7.68, 4.53, 1.68]]
 
     s.do_scenario(positions=positions, events=events)
-    if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
+    #if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
 
     win_0.clear()
     gl.glMatrixMode(gl.GL_MODELVIEW)
