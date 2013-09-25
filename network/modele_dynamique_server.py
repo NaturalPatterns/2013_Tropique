@@ -8,6 +8,11 @@ from time import gmtime, strftime
 import OSC
 import socket
 from parametres import VPs, volume, p, kinects_network_config, run_thread_network_config, scenario, calibration, DEBUG
+# si on ne donne pas d'argument, on prend le parametre scenario par défaut
+if len(sys.argv) == 2:
+    # mais si on en donne un (genre `croix`), il est utilisé pour ce run
+    scenario = sys.argv[1]
+
 #----------------------
 send_sock = socket.socket( socket.AF_INET, socket.SOCK_DGRAM ) # UDP
 client = OSC.OSCClient()
