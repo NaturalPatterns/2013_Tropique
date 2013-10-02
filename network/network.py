@@ -18,8 +18,8 @@ class VP:
         self.server_IP = server_IP
         self.server_PORT = server_PORT
         self.client_PORT = client_PORT
+        self.bufsize = 8192 # 65536 # 16777216
 
-        
         #----VP.Trigger
         self.client_send = socket.socket( socket.AF_INET, socket.SOCK_DGRAM ) # UDP
         #----VP.Server
@@ -32,14 +32,14 @@ class VP:
         self.client_receiver = socket.socket(socket.AF_INET, socket.SOCK_DGRAM ) # UDP
         self.client_receiver.bind( ("", self.client_PORT) )
         self.client_receiver.setblocking(0)
-    
+
     #-----def VP.Trigger
     def trigger(self):
         self.client_send.sendto("1", (self.server_IP, self.server_PORT) )
     #-----def VP.Server
     def server(self, particles):
         try :
-            Donnee, Client = self.server_receiver.recvfrom (8192)#try to read if someone ask data
+            Donnee, Client = self.server_receiver.recvfrom (self.bufsize)#try to read if someone ask data
         except (KeyboardInterrupt):
             raise
         except:
@@ -50,7 +50,7 @@ class VP:
     #-----def  VP.Listen
     def listen(self):
         try :
-            Donnee, Client = self.client_receiver.recvfrom (8192)
+            Donnee, Client = self.client_receiver.recvfrom (self.bufsize)
         except (KeyboardInterrupt):
             raise
         except:
@@ -59,8 +59,6 @@ class VP:
             #print"data =" , len(Donnee) , Client
 #            return np.fromstring(Donnee, dtype='f')
             return Donnee
-
-
 
 class Kinects:
     def __init__(self, kinects):
@@ -92,7 +90,7 @@ class Kinects:
             if (Client[0] == "10.42.0.200"): # test par pure data
 #                print "datasplit =" , datasplit
                 store_blob = [[float(each2) for each2 in each.split(" ") ] for each in datasplit[:len(datasplit)-1]]
-#                print "store =" ,store_blob 
+#                print "store =" ,store_blob
             else:
                 store_blob = [[float(each2) for each2 in each.split(",") ] for each in datasplit]
 
@@ -102,4 +100,3 @@ class Kinects:
     def trigger(self):
         self.send_sock.sendto("1", (self.kinects['send_UDP_IP'], self.kinects['send_UDP_PORT']) )
 
-        

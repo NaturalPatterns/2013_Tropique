@@ -20,7 +20,6 @@ from modele_dynamique import Scenario
 s = Scenario(p['N'], scenario, volume, VPs, p, calibration)
 while True:
     s.do_scenario()#positions=[], events=events)
-    # print s.particles[0:6, 0], s.particles[0:6, -1]
     # envoi aux VPs
-    str_send = s.particles[0:6, :].tostring('F')
+    str_send = s.particles[0:6, :].tostring('C')
     from_send.sendto(str_send, (from_IP, from_PORT) )
