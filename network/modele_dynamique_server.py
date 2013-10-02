@@ -5,15 +5,15 @@ sys.path.append('..')
 import time
 start_time = time.time()
 from time import gmtime, strftime
-import OSC
 import socket
 from parametres import VPs, volume, p, kinects_network_config, run_thread_network_config, scenario, calibration, DEBUG
 # si on ne donne pas d'argument, on prend le parametre scenario par défaut
 if len(sys.argv) == 2:
     # mais si on en donne un (genre `croix`), il est utilisé pour ce run
     scenario = sys.argv[1]
-
+print  'DEBUG modele dynamique , scenario utilisé ', scenario
 #----------------------
+import OSC
 send_sock = socket.socket( socket.AF_INET, socket.SOCK_DGRAM ) # UDP
 client = OSC.OSCClient()
 client.connect( ('10.42.0.70', 9001) ) # note that the argument is a tupple and not two arguments
@@ -74,9 +74,10 @@ while True:
     #if DEBUG: print events, positions
     #if DEBUG: print events
     s.do_scenario(positions=positions, events=events)
-    if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
+    #if DEBUG: print 'DEBUG modele dynamique , check taille ', s.particles[0:6, :].shape
+    #if DEBUG: print 'DEBUG modele dynamique , check taille ', s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
     # envoi aux VPs
-    str_send = s.particles[0:6, :].tostring('F')
+    str_send = s.particles[0:6, :].tostring(order='C')
     from_send.sendto(str_send, (from_IP, from_PORT) )
     # envoi à OSC
     msg = OSC.OSCMessage()
@@ -85,7 +86,7 @@ while True:
     if DEBUG:
         elapsed_time = time.time() - start_time
         start_time = time.time()
-        if elapsed_time>0: print "FPS =" , int (1/elapsed_time), events, positions
+        #if elapsed_time>0: print "DEBUG modele dynamique , FPS =" , int (1/elapsed_time), events, positions
     #plt.draw()
     #fig.show()
     try:

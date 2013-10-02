@@ -27,8 +27,8 @@ DEBUG  = True
 
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
-d_y, d_z = 6.26, 6.
-d_x = 13.65 # en metres
+d_y, d_z = 12.26, 6.
+d_x = 20.5 # en metres
 
 
 # mesures au telemetre
@@ -38,7 +38,9 @@ import numpy as np
 # https://unspecified.wordpress.com/2012/06/21/calculating-the-gluperspective-matrix-and-other-opengl-matrix-maths/
 #hauteur_ecran = 1.7*9./16. # ouvert à fond
 #distance_ecran = 2.446
-hauteur_ecran, distance_ecran  = 0.94, 2.58
+hauteur_ecran, distance_ecran  = 0.52, 1.35
+# distance  entre le point mesuré et le centre théorique du VP
+x_shift = .022/hauteur_ecran*distance_ecran
 # on calcule
 foc_estim = 2 * arctan2(hauteur_ecran/2, distance_ecran) * 180 / pi # ref P101L1
 #print foc_estim
@@ -51,47 +53,48 @@ scenario = "fan" # une aura autour de la position du premier player
 scenario = 'rotating-circle'
 scenario = 'cristal'
 scenario = "croix" # calibration autour de la croix
-scenario = "leapfrog" # integration d'Euler améliorée pour simuler le champ
+#scenario = "leapfrog" # integration d'Euler améliorée pour simuler le champ
 
 # et direction d'angle de vue (cx, cy, cz) comme le point de fixation ainsi que le champ de vue (en deg)
 # distance des VPs du plan de reference
 # profondeur du plan de référence
-z = 1.36  # hauteur des VPs
-cx_0, cx_1 = 0., d_x  # ->on positionne l'écran pour régler la visée au fond de la salle # d_x - 10.27
+cz = 1.36  # hauteur des VPs
+# les VPs sont positionnés en rang (x constants) sur un bout (cx_0) ou l'autre de la salle (cx_1)
+cx_0, cx_1 = 1.0-x_shift, d_x + x_shift 
 cy = d_y/2 # on regarde le centre du plan de reference
-cz = z # d_z/2
 # une liste des video projs donnant:
 # leur adresse, port, leurs parametres physiques
 VPs = [
-        {'address':'10.42.0.56',
-            'x':d_x , 'y':3.50, 'z': z,
-            'cx':cx_0, 'cy':cy, 'cz': cz,
-            'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
-        {'address':'10.42.0.55',
-            'x':d_x, 'y':5.8, 'z': z,
-            'cx':cx_0, 'cy':cy, 'cz': cz,
-            'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
-        {'address':'10.42.0.54',
-            'x':d_x, 'y':0.40, 'z': z,
-            'cx':cx_0, 'cy':cy, 'cz': cz,
-            'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         {'address':'10.42.0.51',
-            'x':1.98, 'y':1.55, 'z': z,
+            'x':cx_0, 'y':9.0, 'z': cz,
             'cx':cx_1, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         {'address':'10.42.0.52',
-             'x':1.98, 'y':3.37, 'z': z,
+             'x':cx_0, 'y':6.5, 'z': cz,
              'cx':cx_1, 'cy':cy, 'cz': cz,
              'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         {'address':'10.42.0.53',
-             'x':1.98, 'y':6.3, 'z': z,
+             'x':cx_0, 'y':3.0, 'z': cz,
              'cx':cx_1, 'cy':cy, 'cz': cz,
              'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
+        {'address':'10.42.0.54',
+            'x':cx_1, 'y':3.0, 'z': cz,
+            'cx':cx_0, 'cy':cy, 'cz': cz,
+            'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
+        {'address':'10.42.0.55',
+            'x':cx_1, 'y':6.5, 'z': cz,
+            'cx':cx_0, 'cy':cy, 'cz': cz,
+            'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
+        {'address':'10.42.0.56',
+            'x':cx_1, 'y':9.0, 'z': cz,
+            'cx':cx_0, 'cy':cy, 'cz': cz,
+            'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         ]
 import numpy as np
 calibration = {
         'center': np.array([d_x/2., d_y/2, VPs[0]['z']], dtype='f'), # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
-        'croix': np.array([6.65, 3.13, 1.36], dtype='f'), # definition de la position de la croix
+        'croix': np.array([d_x/2., d_y/2, VPs[0]['z']], dtype='f'), # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
+        #'croix': np.array([6.65, 3.13, 1.36], dtype='f'), # definition de la position de la croix
 #        'croix': np.array([11.95, 2.2, 1.36], dtype='f'), # definition de la position de la croix
         'roger': np.array([8., 4., 1.75], dtype='f'), #  fixation dot  (AKA Roger?)
                 }
@@ -125,7 +128,7 @@ p = {'N': 32,
      'G_repulsion_R': .05, # constante de répulsion entre les particules
      'kurt_struct' : 0., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
      'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
-     'G_spring': 50., 'l_seg_min': 0.2, 'l_seg_max': .2, 'N_max': 2, # dureté et longueur des segments
+     'G_spring': 50., 'l_seg_min': 0.2, 'l_seg_max': 1.2, 'N_max': 2, # dureté et longueur des segments
      'G_spring_pulse': 5., 'l_seg_pulse': .6, 'N_max_pulse': 16,  # dureté et longueur des segments dans un break
      # parametres globaux
      'damp': 0.8,  # facteur de damping / absorbe l'énergie / regle la viscosité
@@ -147,33 +150,24 @@ from numpy import pi
 info_kinects = [
 		# on tourne les numeros de kinect dans le sens des aiguilles d'une montre en commencant par
            #  le point (0, 0)- le point de vue (az) donne l'ordre dans une colonne de kinects
-		{'address':'10.42.0.10', 'port': 0, 'x':6.5, 'y':0.26, 'z': 1.24, 'az':3*pi/6 ,'max':560},#1.1
-		{'address':'10.42.0.10', 'port': 1, 'x':6.5, 'y':0.26, 'z': 1.14, 'az':1*pi/6 ,'max':560}, #1.2
-		{'address':'10.42.0.11', 'port': 0, 'x':6.5, 'y':0.26, 'z': 1.24, 'az':5*pi/6 ,'max':560},#1.3
-  		{'address':'10.42.0.11', 'port': 1, 'x':11.0, 'y':0.26, 'z': 1.24, 'az':3*pi/6 ,'max':560},#1.3
 
-#
-#		{'address':'10.42.0.12', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#1.1
-#		{'address':'10.42.0.12', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560}, #Kass
-#		{'address':'10.42.0.13', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':5*pi/6 ,'max':560},#Kass
-#		{'address':'10.42.0.13', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':5*pi/6 ,'max':560},#Kass
-#  		{'address':'10.42.0.14', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#1.1
-#		{'address':'10.42.0.14', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560}, #1.2
-#		{'address':'10.42.0.15', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':5*pi/6 ,'max':560},#1.3
-#
-#		{'address':'10.42.0.16', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#1.1
-#		{'address':'10.42.0.16', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560}, #1.2
-##		{'address':'10.42.0.17', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':5*pi/6 ,'max':560},#1.3
-#
-#		{'address':'10.42.0.18', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#Kass
-#		{'address':'10.42.0.18', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560}, #1.2
-#		{'address':'10.42.0.19', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':5*pi/6 ,'max':560},#1.3
-#		{'address':'10.42.0.19', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#Kass
+		{'address':'10.42.0.12', 'port': 0, 'x':18.0, 'y':10.5, 'z': 1.24, 'az':7*pi/6 ,'max':600},#1.1
+		{'address':'10.42.0.12', 'port': 1, 'x':18.0, 'y':10.5, 'z': 1.14, 'az':9*pi/6 ,'max':600}, #1.2
+  		{'address':'10.42.0.13', 'port': 0, 'x':14.0, 'y':11.65, 'z': 1.24, 'az':9*pi/6 ,'max':650},#1.3
 
-#		{'address':'10.42.0.20', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#Kass
-#		{'address':'10.42.0.20', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.14, 'az':3*pi/6 ,'max':560}, #1.2
-#		{'address':'10.42.0.21', 'port': 0, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#Kass
-#		{'address':'10.42.0.21', 'port': 1, 'x':8.8, 'y':0.26, 'z': 1.24, 'az':pi/6 ,'max':560},#Kass
+		{'address':'10.42.0.14', 'port': 0, 'x':8.0, 'y':9.5, 'z': 1.24, 'az':9*pi/6 ,'max':600},#1.1
+		{'address':'10.42.0.14', 'port': 1, 'x':8.0, 'y':9.5, 'z': 1.14, 'az':7*pi/6 ,'max':600}, #1.2
+		{'address':'10.42.0.15', 'port': 0, 'x':8.0,  'y':9.5,  'z': 1.24, 'az':11*pi/6 ,'max':600},#1.3
+  		{'address':'10.42.0.15', 'port': 1, 'x':4.38, 'y':9.5, 'z': 1.24, 'az':9*pi/6 ,'max':400},#1.3
+
+		{'address':'10.42.0.16', 'port': 0, 'x':18.0, 'y':1.61, 'z': 1.24, 'az':5*pi/6 ,'max':600},#Kass
+		{'address':'10.42.0.16', 'port': 1, 'x':18.0, 'y':1.61, 'z': 1.14, 'az':3*pi/6 ,'max':600}, #1.2
+		{'address':'10.42.0.17', 'port': 0, 'x':14.28, 'y':0.0, 'z': 1.24, 'az':3*pi/6 ,'max':650},#1.3
+
+		{'address':'10.42.0.18', 'port': 0, 'x':8.0, 'y':2.0, 'z': 1.24, 'az':3*pi/6 ,'max':600},#Kass
+		{'address':'10.42.0.18', 'port': 1, 'x':8.0, 'y':2.0, 'z': 1.14, 'az':5*pi/6 ,'max':600}, #1.2
+		{'address':'10.42.0.19', 'port': 0, 'x':8.0, 'y':2.0, 'z': 1.24, 'az':pi/6 ,'max':600},#Kass
+		{'address':'10.42.0.19', 'port': 1, 'x':4.38, 'y':1.56, 'z': 1.24, 'az':3*pi/6 ,'max':400},#Kass
 
 		]
 

@@ -90,7 +90,7 @@ def on_resize(width, height):
     gl.glColor3f(1.0, 1.0, 1.0)
     gl.glMatrixMode(gl.GL_PROJECTION)
     gl.glLoadIdentity()
-    gl.gluOrtho2D(-10.0, 1810, -10.0, 1090)
+    gl.gluOrtho2D(-10.0, 2500, -10.0, 2500)
 
 win_0.on_resize = on_resize
 win_0.set_visible(True)
