@@ -28,7 +28,7 @@ DEBUG  = True
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
 d_y, d_z = 12.26, 6.
-d_x = 20.5 # en metres
+d_x = 20.8 # en metres
 
 
 # mesures au telemetre
@@ -60,7 +60,7 @@ scenario = "leapfrog" # integration d'Euler améliorée pour simuler le champ
 # profondeur du plan de référence
 cz = 1.36  # hauteur des VPs
 # les VPs sont positionnés en rang (x constants) sur un coté de la salle (cx_0) ou l'autre de la salle (cx_1)
-cx_0, cx_1 = 1.0-x_shift, d_x + x_shift
+cx_0, cx_1 = 1.45-x_shift, d_x + x_shift
 # tous les VPs regardent vers le VP central (positionné à d_y /2) au fond opposé
 cy = d_y/2 # on regarde le centre du plan de reference
 # une liste des video projs donnant:
@@ -156,19 +156,19 @@ info_kinects = [
 		{'address':'10.42.0.12', 'port': 1, 'x':18.0, 'y':10.5, 'z': 1.14, 'az':9*pi/6 ,'max':600}, #1.2
  		{'address':'10.42.0.13', 'port': 0, 'x':14.0, 'y':11.65, 'z': 1.24, 'az':9*pi/6 ,'max':650},#1.3
 
-		{'address':'10.42.0.14', 'port': 0, 'x':8.0, 'y':9.5, 'z': 1.24, 'az':9*pi/6 ,'max':600},#1.1
-		{'address':'10.42.0.14', 'port': 1, 'x':8.0, 'y':9.5, 'z': 1.14, 'az':7*pi/6 ,'max':600}, #1.2
-		{'address':'10.42.0.15', 'port': 0, 'x':8.0,  'y':9.5,  'z': 1.24, 'az':11*pi/6 ,'max':600},#1.3
-  		{'address':'10.42.0.15', 'port': 1, 'x':4.38, 'y':9.5, 'z': 1.24, 'az':9*pi/6 ,'max':400},#1.3
+		{'address':'10.42.0.14', 'port': 0, 'x':8.0, 'y':10.0, 'z': 1.24, 'az':9*pi/6 ,'max':600},#1.1
+		{'address':'10.42.0.14', 'port': 1, 'x':8.0, 'y':10.0, 'z': 1.14, 'az':7*pi/6 ,'max':600}, #1.2
+		{'address':'10.42.0.15', 'port': 0, 'x':8.0,  'y':10.0,  'z': 1.24, 'az':11*pi/6 ,'max':600},#1.3
+  		{'address':'10.42.0.15', 'port': 1, 'x':4.38, 'y':11.4, 'z': 1.24, 'az':9*pi/6 ,'max':400},#1.3
 
 		{'address':'10.42.0.16', 'port': 0, 'x':18.0, 'y':1.61, 'z': 1.24, 'az':5*pi/6 ,'max':600},#Kass
 		{'address':'10.42.0.16', 'port': 1, 'x':18.0, 'y':1.61, 'z': 1.14, 'az':3*pi/6 ,'max':600}, #1.2
 		{'address':'10.42.0.17', 'port': 0, 'x':14.28, 'y':0.0, 'z': 1.24, 'az':3*pi/6 ,'max':650},#1.3
 
-		{'address':'10.42.0.18', 'port': 0, 'x':8.0, 'y':2.0, 'z': 1.24, 'az':3*pi/6 ,'max':600},#Kass
-		{'address':'10.42.0.18', 'port': 1, 'x':8.0, 'y':2.0, 'z': 1.14, 'az':5*pi/6 ,'max':600}, #1.2
-		{'address':'10.42.0.19', 'port': 0, 'x':8.0, 'y':2.0, 'z': 1.24, 'az':pi/6 ,'max':600},#Kass
-		{'address':'10.42.0.19', 'port': 1, 'x':4.38, 'y':1.56, 'z': 1.24, 'az':3*pi/6 ,'max':400},#Kass
+		{'address':'10.42.0.18', 'port': 0, 'x':8.0, 'y':3.11, 'z': 1.24, 'az':3*pi/6 ,'max':600},#Kass
+		{'address':'10.42.0.18', 'port': 1, 'x':8.0, 'y':3.11, 'z': 1.14, 'az':5*pi/6 ,'max':600}, #1.2
+		{'address':'10.42.0.19', 'port': 0, 'x':8.0, 'y':3.11, 'z': 1.24, 'az':pi/6 ,'max':600},#Kass
+		{'address':'10.42.0.19', 'port': 1, 'x':4.38, 'y':3.6, 'z': 1.24, 'az':3*pi/6 ,'max':400},#Kass
 
 		]
 
