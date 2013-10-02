@@ -359,42 +359,44 @@ class Scenario:
         self.t = time.time()
         self.dt = (self.t - self.t_last)
         d_x, d_y, d_z = self.volume
-
+        #print 'DEBUG modele dyn ', self.particles.shape
 
         if self.scenario == 'croix':
             longueur_segments = .8
-            # ligne horizontale
-            self.particles[0, :self.N/2] = self.croix[0] # on the reference plane
-            self.particles[1, :self.N/2] = self.croix[1]
-            self.particles[2, :self.N/2] = self.croix[2] - longueur_segments/2.
-            self.particles[3, :self.N/2] = self.croix[0] # on the reference plane
-            self.particles[4, :self.N/2] = self.croix[1]
-            self.particles[5, :self.N/2] = self.croix[2] + longueur_segments/2.
-            # ligne verticale
-            self.particles[0, self.N/2:] = self.croix[0] # on the reference plane
-            self.particles[1, self.N/2:] = self.croix[1] - longueur_segments/2.
-            self.particles[2, self.N/2:] = self.croix[2]
-            self.particles[3, self.N/2:] = self.croix[0] # on the reference plane
-            self.particles[4, self.N/2:] = self.croix[1] + longueur_segments/2.
-            self.particles[5, self.N/2:] = self.croix[2]
+            for i_VP, OV in enumerate(self.vps[:]):
+                # ligne horizontale
+                self.particles[0, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[0] # on the reference plane
+                self.particles[1, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[1]
+                self.particles[2, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[2] - longueur_segments/2.
+                self.particles[3, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[0] # on the reference plane
+                self.particles[4, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[1]
+                self.particles[5, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[2] + longueur_segments/2.
+                # ligne verticale
+                self.particles[0, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[0] # on the reference plane
+                self.particles[1, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[1] - longueur_segments/2.
+                self.particles[2, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[2]
+                self.particles[3, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[0] # on the reference plane
+                self.particles[4, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[1] + longueur_segments/2.
+                self.particles[5, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[2]
 
         elif self.scenario == 'calibration':
             longueur_segments, undershoot_z = .05, .0
 
-            # ligne horizontale
-            self.particles[0, :self.N/2] = self.center[0] # on the reference plane
-            self.particles[1, :self.N/2] = np.linspace(0, d_y, self.N/2)
-            self.particles[2, :self.N/2] = self.center[2] - longueur_segments/2. - undershoot_z
-            self.particles[3, :self.N/2] = self.center[0] # on the reference plane
-            self.particles[4, :self.N/2] = np.linspace(0, d_y, self.N/2)
-            self.particles[5, :self.N/2] = self.center[2] + longueur_segments/2. - undershoot_z
-            # ligne verticale
-            self.particles[0, self.N/2:] = self.center[0] # on the reference plane
-            self.particles[1, self.N/2:] = self.center[1] - longueur_segments/2.
-            self.particles[2, self.N/2:] = np.linspace(0, d_z, self.N/2) - undershoot_z
-            self.particles[3, self.N/2:] = self.center[0] # on the reference plane
-            self.particles[4, self.N/2:] = self.center[1] + longueur_segments/2.
-            self.particles[5, self.N/2:] = np.linspace(0, d_z, self.N/2) - undershoot_z
+            for i_VP, OV in enumerate(self.vps[:]):
+                # ligne horizontale
+                self.particles[0, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.center[0] # on the reference plane
+                self.particles[1, i_VP*self.N:(i_VP*self.N+self.N/2)] = np.linspace(0, d_y, self.N/2)
+                self.particles[2, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.center[2] - longueur_segments/2. - undershoot_z
+                self.particles[3, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.center[0] # on the reference plane
+                self.particles[4, i_VP*self.N:(i_VP*self.N+self.N/2)] = np.linspace(0, d_y, self.N/2)
+                self.particles[5, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.center[2] + longueur_segments/2. - undershoot_z
+                # ligne verticale
+                self.particles[0, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.center[0] # on the reference plane
+                self.particles[1, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.center[1] - longueur_segments/2.
+                self.particles[2, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = np.linspace(0, d_z, self.N/2) - undershoot_z
+                self.particles[3, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.center[0] # on the reference plane
+                self.particles[4, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.center[1] + longueur_segments/2.
+                self.particles[5, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = np.linspace(0, d_z, self.N/2) - undershoot_z
             #            print self.particles.mean(axis=1)
 
         elif self.scenario == 'cristal':

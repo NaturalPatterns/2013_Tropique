@@ -15,7 +15,7 @@ from threading import Thread
 
 global DEBUG
 global f
-f = open('./enregistrements/record_her', 'w')
+f = open('record_her', 'w')
 class testkin(Thread):
     def __init__ (self,ip, port):
         Thread.__init__(self)
@@ -50,40 +50,36 @@ def list_kinect():
 def stream_acqui():
 #    os.system('clear')
     print "listen to kinects server "
-    # SOCK_DGRAM is the socket type to use for UDP sockets
-#    testit.lifeline = re.compile(r"(\d) received")
     teston =0
     last_time = 0
     while (teston < 1) :
         a = time.time()
-        b = a - last_time 
+        b = a - last_time
 #        print "the time lapsed = ",b , 1/float(b)
         last_time = a
         serverkinects = []
         for kin in info_kinects :
             ip = kin['address']
             port = kin['port']
-            current = testkin(ip,port)
+            current = testkin(ip,9998+port)
             serverkinects.append(current)
             current.start()
         all_pos=""
         for server in serverkinects:
             server.join()
-            #print "Status from ",pingle.ip,"is",pingle.status
-            try: var = int(server.status)  
+            try: var = int(server.status)
             except:all_pos +=server.status
             else: pass
         all_pos = all_pos[0:(len(all_pos) -1)]
         if all_pos !="":
 #            print "send  =", all_pos
-#            sock_pd.sendto((all_pos ), (host_affi, port_affi))
-            sock_pd.sendto((all_pos ), (my_host, my_port))
-#            f.write(str(b)+"   " + all_pos + " \n " )
+            sock_to_affi.sendto((all_pos ), (affi_host, affi_port))
+            f.write(str(b)+"   " + all_pos + " \n " )
 
 
 def segment():
     os.system('clear')
-    print "listen to kinects server "	
+    print "listen to kinects server "
     for kin in info_kinects :
         print kin['address'], kin['port']
         HOST = kin['address']
@@ -103,7 +99,7 @@ def send_kinect(com):
         if kin['address'] != last_kinect :
             print "send to", kin['address'] ," comm ", com
             sock.sendto(str(com) , (kin['address'], 3002))
-            last_kinect = kin['address']   
+            last_kinect = kin['address']
 def display():
     os.system('clear')
     print "display server "
@@ -122,15 +118,13 @@ def kill_kinect():
 if __name__ == "__main__":
     os.system('clear')
     # SOCK_DGRAM is the socket type to use for UDP sockets
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock_pd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    host_pd = '89.226.106.164'
-    port_pd = 3002
-    host_affi = '10.42.0.101'
-    port_affi = 3003
-    my_host = '10.42.0.100'
-    my_port = 3004
+    sock_to_affi = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+#    sock_pd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    affi_host = 'localhost'
+    affi_port = 3004
     list_kinect()
+    if DEBUG: print "send to ",affi_host, affi_port
+    stream_acqui()
     print "send to ",my_host, my_port
     stream_acqui()
 
@@ -147,13 +141,13 @@ if __name__ == "__main__":
 
         try:
             choice = input ( "que faire ??")
-        except: 
+        except:
             os.system('clear')
             print "mauvais choix"
         else:
             if choice == 0 :
                 os.system('clear')
-                break	
+                break
             if choice == 1 :
                 list_kinect()
             if choice == 5 :

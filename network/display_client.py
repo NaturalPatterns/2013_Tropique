@@ -37,7 +37,7 @@ dx ,dy = 10.0 , 10.0
 
 
 global my_x ,my_y,my_z, my_cx,my_cy,my_cz,my_foc,my_pc_min,my_pc_max
-        
+
 for i in range (6):
     print VPs[i]['address']
     if (my_ip == VPs[i]['address']) :
@@ -52,8 +52,6 @@ for i in range (6):
         my_foc= VPs[i]['foc']
         my_pc_min= VPs[i]['pc_min']
         my_pc_max= VPs[i]['pc_max']
-
-
 
 
 import pyglet
@@ -93,7 +91,7 @@ gl.gluPerspective(my_foc, 1.0*win_0.width/win_0.height, my_pc_min, my_pc_max)
 gluLookAt(my_x, my_y, my_z,my_cx, my_cy, my_cz,0., 0, 1.0)
 gl.glEnable(gl.GL_LINE_STIPPLE)
 
-#      
+#
 d_x, d_y, d_z = volume
 #import numpy as np
 center = np.array([0., d_y/2, d_z/2], dtype='f') # central point of the room  / pont focal, pour lequel on optimise kinect et VPs?
@@ -102,22 +100,21 @@ center = np.array([0., d_y/2, d_z/2], dtype='f') # central point of the room  / 
 
 #VPs = VPs
 N = p['N']
-print " the N= ", N
+nVPs = len(VPs)
+print "DEBUG: the N= ", N, ": #VPs= ", nVPs
 
 order = 2
-particles = np.zeros((6*order, N), dtype='f') # x, y, z, u, v, w
-##         self.particles[0:6, :] = np.random.randn(6, self.N)*d_y/4
-particles[0:3, :] += center[:, np.newaxis]+ np.random.randn(3, N)*d_y/16
-particles[3:6, :] += center[:, np.newaxis] + np.random.randn(3, N)*d_y/16
+particles = np.zeros((6*order, N*nVPs), dtype='f') # x, y, z, u, v, w
+particles[0:3, :] += center[:, np.newaxis]+ np.random.randn(3, N*nVPs)*d_y/16
+particles[3:6, :] += center[:, np.newaxis] + np.random.randn(3, N*nVPs)*d_y/16
 #
 my_part = particles[0:6, :]
-#offset = np.zeros((6*order, N), dtype='f') + np.array([0.3, 0., 0., 0.3, 0., 0.])[:, np.newaxis]
 global placex , placey , scene, lateral,  witdh_line,  nbr_seg ,rx ,ry,rmin ,rmax , my_color
 scene = 0
 placex , placey = 0 , 0
 witdh_line  = 1
 rmin =2
-rmax = 12  
+rmax = 12
 dx ,dy = 10.0 , 10.0
 lateral = 0
 nbr_seg = 12
@@ -127,51 +124,37 @@ def on_draw():
     global rx, ry, rz , dx ,dy
     global my_part, offset
     win_0.clear()
-    
+
     gl.glLineWidth (p['line_width'])
     gl.glColor3f(1-my_color,1-my_color,1-my_color)
-#    gl.glMatrixMode(gl.GL_MODELVIEW)
-#    gl.glLoadIdentity()
-#    gl.gluPerspective(VPs[0]['foc'], 1.0*win_0.width/win_0.height,
-#                      VPs[0]['pc_min'], VPs[0]['pc_max'])
-#    gluLookAt(VPs[0]['x'], VPs[0]['y'], VPs[0]['z'],
-#          VPs[0]['cx'], VPs[0]['cy'], VPs[0]['cz'], 0., 0, 1.0)
-
 
     gl.glLineWidth ( 1 )
     gl.glMatrixMode(gl.GL_MODELVIEW)
     gl.glLoadIdentity()
     gl.gluPerspective(my_foc, 1.0*win_0.width/win_0.height, my_pc_min, my_pc_max)
     gluLookAt(my_x, my_y, my_z,my_cx, my_cy, my_cz,0., 0, 1.0)
-    
+
     global s, vps, N
-    try : 
+    try :
         vps.trigger()
     except :
         pass
 #    vps.trigger()
     particlestest = vps.listen()
-     
+
     if (particlestest!=None):
         #print 'ok dude',  particlestest.shape
-        my_part = np.fromstring(particlestest, dtype='f')
-    # print my_part.shape   
+        my_part = np.fromstring(particlestest, dtype='f').reshape(6, N*nVPs)
+    # print my_part.shape
     gl.glLineWidth ( p['line_width'] )
-    
-    pyglet.graphics.draw(2*N, gl.GL_LINES, ('v3f', my_part.T.ravel().tolist()))
-#    pyglet.graphics.draw(2*N, gl.GL_LINES, ('v3f', (my_part+offset).T.ravel().tolist()))
-#    pyglet.graphics.draw(2*N, gl.GL_LINES, ('v3f', (my_part + np.array([0.3, 0., 0., 0.3, 0., 0.])[:, np.newaxis]).T.ravel().tolist()))
-#    pyglet.graphics.draw(2*N, gl.GL_LINES, ('v3f', my_part.tolist()))
-    print my_part.shape #(my_part + np.array([0.3, 0., 0., 0.3, 0., 0.])[:, np.newaxis]).T.shape
-#    pyglet.graphics.draw(2*N, gl.GL_LINES, ('v3f', (my_part + np.array([0.3, 0., 0., 0.3, 0., 0.])).tolist()))
-#    gl.glLineStipple (1, 0x0101)  # dotted
-#    gl.glLineStipple (1, 0x0101)  # dotted
-#    gl.glLineStipple (2, 0x00FF)  # dashed
-#    gl.glLineStipple(1, 0x5555)
-    
+    #print 'DEBUG size of particles before draw ', type(particlestest), my_part.shape
+    print 'DEBUG particles before draw ', my_part[0:6, (i_win*N):((i_win+1)*N)]
+    #print 'DEBUG size of particles before draw ', i_win , my_part[0:6, (i_win*N):((i_win+1)*N)].shape
+    pyglet.graphics.draw(2*N, gl.GL_LINES, ('v3f', my_part[0:6, (i_win*N):((i_win+1)*N)].T.ravel().tolist()))
+
     global placex , placey , scene, lateral,  witdh_line,  nbr_seg ,rx ,ry,rmin ,rmax,my_color
     pdata.trigger()
-    try : 
+    try :
         data_fan = pdata.listen()
     except :
         pass
@@ -187,13 +170,11 @@ def on_draw():
                 rmax = store_blob[6]/50.0
                 dx= store_blob[7]/2
                 my_color = store_blob[10]/255.0
-                
+
     gl.glColor3f(my_color, my_color , my_color)
-    
-#    my_own_draw(placex , placey , scene, lateral,  witdh_line,  nbr_seg ,rx ,ry,rmin ,rmax)
 
 
-    
+
 def callback(dt):
     global rx, ry, rz , dx ,dy
     #if (dt!=0): print "dt=",int (1/dt)
@@ -206,7 +187,7 @@ def callback(dt):
     except :
         pass
 
-    
+
 #dt = 1./40 # interval between 2 captations
 #pyglet.clock.schedule_interval(callback, dt)
 pyglet.clock.schedule(callback)
