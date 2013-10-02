@@ -10,7 +10,12 @@ Script renvoyant des données de calibration au réseau des VPs.
 import sys
 sys.path.append('..')
 from parametres import VPs, volume, p , run_thread_network_config, DEBUG, calibration, scenario
-
+# si on ne donne pas d'argument, on prend le parametre scenario par défaut
+if len(sys.argv) == 2:
+    # mais si on en donne un (genre `croix`), il est utilisé pour ce run
+    scenario = sys.argv[1]
+print  'DEBUG modele dynamique , scenario utilisé ', scenario
+#
 import socket
 from_IP=run_thread_network_config['ip_to_line_res']
 from_PORT=run_thread_network_config['port_to_line_res']

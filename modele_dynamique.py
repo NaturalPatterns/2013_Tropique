@@ -182,7 +182,7 @@ class Scenario:
                 damp = self.p['damp_break1']
             # reset the break after T_break seconds AND receiving the resetting signal
             if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
-            if DEBUG: print self.t - self.t_break, speed_0
+            if DEBUG: print 'DEBUG, on est dans le break, on compte à rebours ',  self.t - self.t_break, speed_0
         else:
             speed_0 = self.p['speed_0']
 
@@ -260,7 +260,7 @@ class Scenario:
 
                     # only assign on the indices that correspond to the minimal distance
                     ind_assign = (distance_closer < distance_min)
-                    #print i_VP,  ind_assign.sum()
+                    #print ' DEBUG, pour le VP ', i_VP, ' # de points assignés ',  ind_assign.sum()
                     gravity[:, ind_assign] = gravity_[:, ind_assign]
                     gravity_axis_A[:, ind_assign] = gravity_axis_A_[:, ind_assign]
                     gravity_axis_B[:, ind_assign] = gravity_axis_B_[:, ind_assign]
