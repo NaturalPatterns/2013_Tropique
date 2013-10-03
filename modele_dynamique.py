@@ -229,8 +229,12 @@ class Scenario:
                     SC_0 = SC / (np.sqrt((SC**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
 
                     # TODO : diminuer la force du tabou dans le temps pour les personnes arrétées / parametre T_damp_global
-                    tabou = SC_0 * (distance_closer < distance_tabou) / (distance_closer + self.p['eps'])**(n_g+2) # en metres
-                    modul = 1. - np.exp(-rae_VS[0] / self.p['distance_notabou'] )
+                    if n_g==-2:
+                        tabou = SC_0 * (distance_closer < distance_tabou) # en metres
+                    else:
+                        tabou = SC_0 * (distance_closer < distance_tabou) / (distance_closer + self.p['eps'])**(n_g+2) # en metres
+
+                    modul = 1. # - np.exp(-rae_VS[0] / self.p['distance_notabou'] )
                     force[0:3, i_VP*N:(i_VP+1)*N] += G_tabou * modul * tabou
                     force[3:6, i_VP*N:(i_VP+1)*N] += G_tabou * modul * tabou
 
