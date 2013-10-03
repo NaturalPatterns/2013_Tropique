@@ -362,21 +362,22 @@ class Scenario:
         #print 'DEBUG modele dyn ', self.particles.shape
 
         if self.scenario == 'croix':
-            longueur_segments = .8
+            longueur_segments_z = .8
+            longueur_segments_y = 15.
             for i_VP, OV in enumerate(self.vps[:]):
                 # ligne horizontale
                 self.particles[0, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[0] # on the reference plane
                 self.particles[1, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[1]
-                self.particles[2, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[2] - longueur_segments/2.
+                self.particles[2, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[2] - longueur_segments_z/2.
                 self.particles[3, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[0] # on the reference plane
                 self.particles[4, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[1]
-                self.particles[5, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[2] + longueur_segments/2.
+                self.particles[5, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[2] + longueur_segments_z/2.
                 # ligne verticale
                 self.particles[0, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[0] # on the reference plane
-                self.particles[1, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[1] - longueur_segments/2.
+                self.particles[1, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[1] - longueur_segments_y/2.
                 self.particles[2, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[2]
                 self.particles[3, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[0] # on the reference plane
-                self.particles[4, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[1] + longueur_segments/2.
+                self.particles[4, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[1] + longueur_segments_y/2.
                 self.particles[5, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[2]
 
         elif self.scenario == 'damier':
@@ -405,6 +406,54 @@ class Scenario:
                 self.particles[4, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[1] + longueur_damier/2.
                 self.particles[5, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = 0.
 
+
+        elif self.scenario == 'damierv':
+            """
+            crée un damier vertical
+
+            le damier est carré, avec N/2 lignes dans l'axe z, N/2 dans l'axe y
+            il est centré autour de la croix
+
+            """
+            longueur_damier = 1.
+            grid_spacing = np.linspace(-longueur_damier/2, longueur_damier/2, self.N/2)
+            for i_VP, OV in enumerate(self.vps[:]):
+                # lignes dans l'axe de la salle
+                self.particles[0, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[0]
+                self.particles[1, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[1] + grid_spacing
+                self.particles[2, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[2] - longueur_damier/2.
+                self.particles[3, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[0]
+                self.particles[4, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[1] + grid_spacing
+                self.particles[5, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[2] + longueur_damier/2.
+                # lignes perpendiculaires à l'axe de la salle
+                self.particles[0, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[0]
+                self.particles[1, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[1] - longueur_damier/2.
+                self.particles[2, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[2] + grid_spacing
+                self.particles[3, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[0]
+                self.particles[4, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[1] + longueur_damier/2.
+                self.particles[5, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[2] + grid_spacing
+
+        elif self.scenario == 'assiette':
+            """
+            crée une ligne horizontale sur le sol
+
+            """
+            longueur_ligne = 10.
+            for i_VP, OV in enumerate(self.vps[:]):
+                # lignes dans l'axe de la salle
+                self.particles[0, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[0]
+                self.particles[1, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[1] - longueur_ligne/2.
+                self.particles[2, i_VP*self.N:(i_VP*self.N+self.N/2)] = 0.
+                self.particles[3, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[0]
+                self.particles[4, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[1] + longueur_ligne/2.
+                self.particles[5, i_VP*self.N:(i_VP*self.N+self.N/2)] = 0.
+                # lignes perpendiculaires à l'axe de la salle
+                self.particles[0, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[0]
+                self.particles[1, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[1] - longueur_ligne/2.
+                self.particles[2, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = 0.
+                self.particles[3, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[0]
+                self.particles[4, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[1] + longueur_ligne/2.
+                self.particles[5, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = 0.
 
         elif self.scenario == 'calib':
             longueur_segments, undershoot_z = .05, .0
