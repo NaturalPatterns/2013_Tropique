@@ -147,30 +147,30 @@ def on_draw():
     # print my_part.shape
     gl.glLineWidth ( p['line_width'] )
     #print 'DEBUG size of particles before draw ', type(particlestest), my_part.shape
-    print 'DEBUG particles before draw ', my_part[0:6, (i_win*N):((i_win+1)*N)]
+    #print 'DEBUG particles before draw ', my_part[0:6, (i_win*N):((i_win+1)*N)]
     #print 'DEBUG size of particles before draw ', i_win , my_part[0:6, (i_win*N):((i_win+1)*N)].shape
     pyglet.graphics.draw(2*N, gl.GL_LINES, ('v3f', my_part[0:6, (i_win*N):((i_win+1)*N)].T.ravel().tolist()))
 
-    global placex , placey , scene, lateral,  witdh_line,  nbr_seg ,rx ,ry,rmin ,rmax,my_color
-    pdata.trigger()
-    try :
-        data_fan = pdata.listen()
-    except :
-        pass
-    else :
-            if (data_fan!=None):
-                datasplit = data_fan.split(";")
-                store_blob = [int(each2) for each2 in datasplit[0].split(" ") ]
-                scene = store_blob[0]
-                placex , placey = float(store_blob[1]/100.0), float (store_blob[2]/100.0)
-                nbr_seg = store_blob[3]
-                witdh_line  = store_blob[4]
-                rmin = store_blob[5]/50.0
-                rmax = store_blob[6]/50.0
-                dx= store_blob[7]/2
-                my_color = store_blob[10]/255.0
-
-    gl.glColor3f(my_color, my_color , my_color)
+    #global placex , placey , scene, lateral,  witdh_line,  nbr_seg ,rx ,ry,rmin ,rmax,my_color
+    #pdata.trigger()
+    #try :
+        #data_fan = pdata.listen()
+    #except :
+        #pass
+    #else :
+            #if (data_fan!=None):
+                #datasplit = data_fan.split(";")
+                #store_blob = [int(each2) for each2 in datasplit[0].split(" ") ]
+                #scene = store_blob[0]
+                #placex , placey = float(store_blob[1]/100.0), float (store_blob[2]/100.0)
+                #nbr_seg = store_blob[3]
+                #witdh_line  = store_blob[4]
+                #rmin = store_blob[5]/50.0
+                #rmax = store_blob[6]/50.0
+                #dx= store_blob[7]/2
+                #my_color = store_blob[10]/255.0
+#
+    #gl.glColor3f(my_color, my_color , my_color)
 
 
 
@@ -182,7 +182,7 @@ def callback(dt):
     ry += dt / dy
     ry %= 6.28
     try :
-        if DEBUG: print '%f seconds since last callback' % dt , '%f  fps' % pyglet.clock.get_fps()
+        if DEBUG: print 'DEBUG display client : %f seconds since last callback' % dt , '%f  fps' % pyglet.clock.get_fps()
     except :
         pass
 
@@ -192,4 +192,4 @@ def callback(dt):
 pyglet.clock.schedule(callback)
 #pyglet.clock.schedule(lambda dt: None)
 pyglet.app.run()
-print 'Goodbye'
+print 'DEBUG display client : Goodbye'

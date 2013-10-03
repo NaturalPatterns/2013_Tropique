@@ -28,7 +28,7 @@ DEBUG  = True
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
 d_y, d_z = 12.26, 6.
-d_x = 20.8 # en metres
+d_x = 20.8 # distance en metres du plan sur lequel se positionnent les fenetres des VPs
 
 
 # mesures au telemetre
@@ -39,7 +39,7 @@ import numpy as np
 #hauteur_ecran = 1.7*9./16. # ouvert à fond
 #distance_ecran = 2.446
 hauteur_ecran, distance_ecran  = 0.52, 1.35
-# distance  entre le point mesuré et le centre théorique du VP
+# distance dans l'axe de visee (essentiellement x)  entre le point mesuré (la vitre du VP) et le centre théorique du VP
 x_shift = .022/hauteur_ecran*distance_ecran
 # on calcule
 foc_estim = 2 * arctan2(hauteur_ecran/2, distance_ecran) * 180 / pi # ref P101L1
@@ -79,7 +79,7 @@ VPs = [
              'cx':cx_1, 'cy':cy, 'cz': cz,
              'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         {'address':'10.42.0.54',
-            'x':cx_1, 'y':4.0, 'z': cz,
+            'x':cx_1, 'y':3.87, 'z': cz,
             'cx':cx_0, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         {'address':'10.42.0.55',
@@ -87,7 +87,7 @@ VPs = [
             'cx':cx_0, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         {'address':'10.42.0.56',
-            'x':cx_1, 'y':9.0, 'z': cz,
+            'x':cx_1, 'y':9.13, 'z': cz,
             'cx':cx_0, 'cy':cy, 'cz': cz,
             'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
         ]
