@@ -99,7 +99,7 @@ calibration = {
 #        'croix': np.array([11.95, 2.2, 1.36], dtype='f'), # definition de la position de la croix
         'roger': np.array([8., 4., 1.75], dtype='f'), #  fixation dot  (AKA Roger?)
                 }
-
+print 'DEBUG parametres , position croix: ', calibration['croix']
 # parametres du champ
 p = {'N': 32,
      # parametres perceptifs
@@ -159,7 +159,7 @@ info_kinects = [
 		{'address':'10.42.0.14', 'port': 0, 'x':8.0, 'y':10.0, 'z': 1.24, 'az':9*pi/6 ,'max':600},#1.1
 		{'address':'10.42.0.14', 'port': 1, 'x':8.0, 'y':10.0, 'z': 1.14, 'az':7*pi/6 ,'max':600}, #1.2
 		{'address':'10.42.0.15', 'port': 0, 'x':8.0,  'y':10.0,  'z': 1.24, 'az':11*pi/6 ,'max':600},#1.3
-  		{'address':'10.42.0.15', 'port': 1, 'x':4.38, 'y':11.4, 'z': 1.24, 'az':9*pi/6 ,'max':400},#1.3
+  		{'address':'10.42.0.15', 'port': 1, 'x':4.38, 'y':10.8, 'z': 1.24, 'az':9*pi/6 ,'max':400},#1.3
 
 		{'address':'10.42.0.16', 'port': 0, 'x':18.0, 'y':1.61, 'z': 1.24, 'az':5*pi/6 ,'max':600},#Kass
 		{'address':'10.42.0.16', 'port': 1, 'x':18.0, 'y':1.61, 'z': 1.14, 'az':3*pi/6 ,'max':600}, #1.2
@@ -168,7 +168,7 @@ info_kinects = [
 		{'address':'10.42.0.18', 'port': 0, 'x':8.0, 'y':3.11, 'z': 1.24, 'az':3*pi/6 ,'max':600},#Kass
 		{'address':'10.42.0.18', 'port': 1, 'x':8.0, 'y':3.11, 'z': 1.14, 'az':5*pi/6 ,'max':600}, #1.2
 		{'address':'10.42.0.19', 'port': 0, 'x':8.0, 'y':3.11, 'z': 1.24, 'az':pi/6 ,'max':600},#Kass
-		{'address':'10.42.0.19', 'port': 1, 'x':4.38, 'y':3.6, 'z': 1.24, 'az':3*pi/6 ,'max':400},#Kass
+		{'address':'10.42.0.19', 'port': 1, 'x':4.38, 'y':2.11, 'z': 1.24, 'az':3*pi/6 ,'max':400},#Kass
 
 		]
 

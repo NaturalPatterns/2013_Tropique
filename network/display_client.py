@@ -77,7 +77,7 @@ def on_resize(width, height):
     gl.glEnable(gl.GL_BLEND)
     gl.glShadeModel(gl.GL_SMOOTH)
     gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE)
-    gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_DONT_CARE)# gl.GL_NICEST)#
+    gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_NICEST)#gl.GL_DONT_CARE)# gl.GL_NICEST)#
     gl.glDisable(gl.GL_DEPTH_TEST)
     gl.glDisable(gl.GL_LINE_SMOOTH)
     gl.glColor3f(1.0, 1.0, 1.0)
@@ -88,8 +88,8 @@ win_0.set_mouse_visible(False)
 gl.glMatrixMode(gl.GL_MODELVIEW)
 gl.glLoadIdentity()
 gl.gluPerspective(my_foc, 1.0*win_0.width/win_0.height, my_pc_min, my_pc_max)
-gluLookAt(my_x, my_y, my_z,my_cx, my_cy, my_cz,0., 0, 1.0)
-gl.glEnable(gl.GL_LINE_STIPPLE)
+gluLookAt(my_x, my_y, my_z, my_cx, my_cy, my_cz, 0., 0, 1.0)
+#gl.glEnable(gl.GL_LINE_STIPPLE)
 
 #
 d_x, d_y, d_z = volume
@@ -109,7 +109,7 @@ particles[0:3, :] += center[:, np.newaxis]+ np.random.randn(3, N*nVPs)*d_y/16
 particles[3:6, :] += center[:, np.newaxis] + np.random.randn(3, N*nVPs)*d_y/16
 #
 my_part = particles[0:6, :]
-global placex , placey , scene, lateral,  witdh_line,  nbr_seg ,rx ,ry,rmin ,rmax , my_color
+global placex , placey , scene, lateral,  witdh_line,  nbr_seg ,rx ,ry,rmin ,rmax
 scene = 0
 placex , placey = 0 , 0
 witdh_line  = 1
@@ -118,7 +118,6 @@ rmax = 12
 dx ,dy = 10.0 , 10.0
 lateral = 0
 nbr_seg = 12
-my_color=0
 @win_0.event
 def on_draw():
     global rx, ry, rz , dx ,dy
@@ -126,13 +125,13 @@ def on_draw():
     win_0.clear()
 
     gl.glLineWidth (p['line_width'])
-    gl.glColor3f(1-my_color,1-my_color,1-my_color)
+    gl.glColor3f(1., 1. ,1.)
 
     gl.glLineWidth ( 1 )
     gl.glMatrixMode(gl.GL_MODELVIEW)
     gl.glLoadIdentity()
     gl.gluPerspective(my_foc, 1.0*win_0.width/win_0.height, my_pc_min, my_pc_max)
-    gluLookAt(my_x, my_y, my_z,my_cx, my_cy, my_cz,0., 0, 1.0)
+    gluLookAt(my_x, my_y, my_z,my_cx, my_cy, my_cz, 0., 0, 1.0)
 
     global s, vps, N
     try :
