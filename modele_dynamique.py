@@ -260,7 +260,6 @@ class Scenario:
                     cap_AB = orientation(rae_VA, rae_VB)
                     # produit vecoriel VS /\ AB
                     rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.cross(VS_0, SC_0, axis=0)
-                    #rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.cross(VS_0, AB / np.sqrt(np.sum(AB**2, axis=0) + self.p['eps']**2), axis=0)
 
                     # only assign on the indices that correspond to the minimal distance
                     ind_assign = (distance_closer < distance_min)
@@ -283,7 +282,7 @@ class Scenario:
                 #if not(G_repulsion==0.):
                 CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
                 CC_0 = CC / (np.sqrt((CC**2).sum(axis=0)) + self.p['eps'])
-                CC_proj = CC_0 # - (VC_0[:, :, np.newaxis] * CC_0).sum(axis=0) * VC_0[:, :, np.newaxis]
+                #CC_proj = CC_0 # - (VC_0[:, :, np.newaxis] * CC_0).sum(axis=0) * VC_0[:, :, np.newaxis]
                 arcdis = arcdistance(rae_VC[:, :, np.newaxis], rae_VC[:, np.newaxis, :])
                 #print 'arc distance ', arcdis
                 distance_CC = rae_VS[0]*np.sin(arcdis) + 1.e6 * np.eye(self.N)  # NxN ; en metres
@@ -667,24 +666,24 @@ class Scenario:
             self.particles[0:3, :] += np.array(positions[0])[:, np.newaxis]
             self.particles[3:6, :] += np.array(positions[0])[:, np.newaxis]
 
-
+#
         #  permet de ne pas sortir du volume
-        if (self.scenario == 'leapfrog') or (self.scenario == 'euler') :
-            if True: #
-                for i in range(6):
-                    self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
-                    self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
+        #if (self.scenario == 'leapfrog') or (self.scenario == 'euler') :
+            #if True: #
+                #for i in range(6):
+                    #self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
+                    #self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
                     #self.particles[i+6, (self.particles[i, :] < -1*self.volume[i % 3]) ] *= -1.
                     #self.particles[i+6, (self.particles[i, :] > 2* self.volume[i % 3]) ] *= -1.
                     #self.particles[i, (self.particles[i, :] < -.0*self.volume[i % 3]) ] = -.0*self.volume[i % 3]
-            else:
-                for i_N in range(self.N):
-                    if (self.particles[:3, i_N] < -.5*self.volume).any() or (self.particles[:3, i_N] > 1.5* self.volume).any()\
-                       or (self.particles[3:6, i_N] < -.5*self.volume).any() or (self.particles[3:6, i_N] > 1.5* self.volume).any():
-                        self.particles[:3, i_N] = self.center + .01*np.random.randn(3)*self.volume
-                        self.particles[3:6, i_N] = self.particles[:3, i_N]
-                        self.particles[6:, i_N] = 0.
-
-
+            #else:
+                #for i_N in range(self.N):
+                    #if (self.particles[:3, i_N] < -.5*self.volume).any() or (self.particles[:3, i_N] > 1.5* self.volume).any()\
+                       #or (self.particles[3:6, i_N] < -.5*self.volume).any() or (self.particles[3:6, i_N] > 1.5* self.volume).any():
+                        #self.particles[:3, i_N] = self.center + .01*np.random.randn(3)*self.volume
+                        #self.particles[3:6, i_N] = self.particles[:3, i_N]
+                        #self.particles[6:, i_N] = 0.
+#
+#
 if __name__ == "__main__":
     import display_modele_dynamique
