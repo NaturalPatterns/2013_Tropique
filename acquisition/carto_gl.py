@@ -5,9 +5,9 @@ Particle-like simulations using pyglet and a ugly bitmat
 
 """
 global my_players
-my_players = [[ 0 for x in range (12) ] for y in range (11)]
+my_players = [[0 for x in range (12)] for y in range (11)]
 global radius
-radius  = 120
+radius = 220
 
 
 import sys
@@ -15,7 +15,7 @@ sys.path.append('..')
 from parametres import VPs, p, volume , info_kinects,d_y, d_z,d_x, DEBUG
 # Screen information
 # ------------------
-print d_y, d_z,d_x 
+print d_y, d_z, d_x
 if DEBUG: sys.path.append('../network/')
 #from network import VP
 #vps= VP("10.42.0.102" , 7005 , 7006)
@@ -48,10 +48,10 @@ send_UDP_PORT=3003
 
 send_sock = socket.socket( socket.AF_INET, # Internet
                       socket.SOCK_DGRAM ) # UDP
-                  
+
 client = OSC.OSCClient()
 client.connect( ('10.42.0.70', 9000) ) # note that the argument is a tupple and not two arguments
-                      
+
 global rx ,ry
 rx = 1
 ry = 1
@@ -72,7 +72,7 @@ for i, screen in enumerate(screens):
     print 'Screen %d: %dx%d at (%d,%d)' % (i, screen.width, screen.height, screen.x, screen.y)
 N_screen = len(screens) # number of screens
 #assert N_screen == 1 # we should be running on one screen only
-  
+
 from pyglet.window import Window
 win_0 = Window(screen=screens[0], fullscreen=False, resizable=False, vsync = True)
 #win_0 = Window(screen=screens[0], fullscreen=False, resizable=True, vsync = True)
@@ -98,8 +98,8 @@ gl.glMatrixMode(gl.GL_MODELVIEW)
 gl.glLoadIdentity()
 
 gl.glClearColor(0.0, 0.0, 0.0, 0.0)
-  
-gl.glShadeModel(gl.GL_FLAT)   
+
+gl.glShadeModel(gl.GL_FLAT)
 
 
 
@@ -154,7 +154,7 @@ def test_players(x,y,z):
 	global my_players
 	global nbr_player
 	global detect
-	detect = 50
+	detect = 150
 	#print "x,y",x,y
 
 	for player in my_players:
@@ -163,9 +163,9 @@ def test_players(x,y,z):
 		if   (((x+ detect) >= player[0]) and ((x- detect) <= player[0]) and ((y+ detect) >= player[1]) and ((y- detect) <= player[1])):
 #			print "match for ",x ,y ,player
 			player[0]= int ( (float (player[0]) + float (x)) / 2.0 )
-			player[1]= int ( (float (player[1]) + float (y)) / 2.0 ) 
+			player[1]= int ( (float (player[1]) + float (y)) / 2.0 )
 
-			player[2]=int ( (float (player[2]) + float (z)) / 2.0 ) 
+			player[2]=int ( (float (player[2]) + float (z)) / 2.0 )
 			player[4] +=20
 			#know(x,y)
 			nbr_player += 1
@@ -215,25 +215,25 @@ def display_player():
     the_player = 0
 #    print goodsend
     for player in my_players:
-        player[4] -= 0.1 * player[11]
+        player[4] -= 0.9 * player[11]
         if (player[4]<=(5)):
             player[4] = 0
             #print "mis a zero for ", player
             for x in range (6):
                 player[x] = 0
-			
+
         if (player[4] >= 25) :
             player[11] +=1
 
-#            print"this player move up", player 
+#            print"this player move up", player
             player[4] += 1
             col =[(packed >> (8*i)) & 255 for i in range(3)]
             #print "col =",col
             if (float (player[3]) - (float (my_ghost[a][3]))) >=1 :
-				life = (float (player[11]) - (float (my_ghost[a][11])) ) / (float (player[3]) - (float (my_ghost[a][3])) ) 
-            else : 
+				life = (float (player[11]) - (float (my_ghost[a][11])) ) / (float (player[3]) - (float (my_ghost[a][3])) )
+            else :
 				life =0
-				
+
 				for x in range (6):
 					player[x] = 0
             my_dist = abs(int ( float((float(player[0])-float(my_ghost[a][0])))))
@@ -248,7 +248,7 @@ def display_player():
                 if (player[6]==1):
                     player[7] += 1
                     player[8] += abs(my_dist)
-                else : 
+                else :
                     player[7] = 0
                     player[8] = 0
                     player[6] = 1
@@ -258,7 +258,7 @@ def display_player():
             if (my_dist <= 5)and (my_dist >= 2) :
                 player[10] +=100
                 player[10] = int(float(player[10])/2)
-            else : 
+            else :
                 player[10] = int(float(player[10])/1.002)
             the_player +=1
 
@@ -273,7 +273,7 @@ def display_player():
             batch = pyglet.graphics.Batch()
 
             if ( (float(float(player[0])/(d_x*100)) != 0 ) and (float(float(player[1])/(d_y*100)) != 0 ) ):
-                send_osc(msg)        
+                send_osc(msg)
                 sendx = player[0]
                 sendy = player[1]
                 sendz = player[2]
@@ -284,12 +284,12 @@ def display_player():
 
                 str_send += str( int(sendx) ) + "," + str( int(sendy) ) + "," + str( int(sendz) ) + ";"
             batch.draw()
-                
+
         packed +=55000
         a +=1
 #    print goodsend
     compt_freq_network +=1
-    
+
     if ((str_send!="") and (goodsend == 1) ):
 #    if ((str_send!="")):
         str_send = str_send[0:(len(str_send) -1)]
@@ -332,7 +332,7 @@ def decors():
     for k in info_kinects :
           gl.glColor4f(0, 0, 1, 1);
           gl.glPointSize (32.0);
-    
+
           gl.glBegin (gl.GL_POINTS);
           gl.glVertex2f(k['x']*100, k['y']*100);
           gl.glEnd();
@@ -341,16 +341,16 @@ def decors():
     for p in VPs:
           gl.glColor4f(0, 1, 1, 1);
           gl.glPointSize (32.0);
-    
+
           gl.glBegin (gl.GL_POINTS);
           gl.glVertex2f(p['x']*100, p['y']*100);
           gl.glEnd();
-          drawOneLine(p['x']*100 ,p['y']*100, p['cx']*100 ,p['cy']*100 )    
+          drawOneLine(p['x']*100 ,p['y']*100, p['cx']*100 ,p['cy']*100 )
           pyglet.text.Label(p['address'][8:],font_size = 40, x=p['x']*100 - 30 , y=p['y']*100 - 30, anchor_y='bottom',color=(0, 0, 0, 255),batch=batch )
     batch.draw()
 
     gl.glFlush ()
-  
+
 def calc_angle(each, kin):
     global x,y
 #    print "each=" , each
@@ -359,7 +359,7 @@ def calc_angle(each, kin):
 #    print "alpha =" , alpha
     x = kin['x']*100 + cos (alpha+ kin['az']) * each[5]
     y = kin['y']*100 + sin (alpha+ kin['az']) * each[5]
-    z = each[4] 
+    z = each[4]
     if (z>= -100 and z<= 50) :
 #        pourcent = ((y / ((d_y/2)-y ))/100)*1
 #        print "alpha=", alpha
@@ -368,14 +368,14 @@ def calc_angle(each, kin):
 ##        print "first varz =",varz + z
 #        z+=20
 #
-#        z= z+ varz 
+#        z= z+ varz
 
         test_players(x,y, kin['z']*100-z)
         gl.glPointSize (32.0)
         gl.glColor4f(1, 0, 1, 1)
 
 
-        
+
 #        makemedraw(x,y)
 
 
@@ -393,7 +393,7 @@ def makemedraw(x,y,z):
     gl.glBegin (gl.GL_POINTS);
     gl.glVertex2f(x, y)
     gl.glEnd()
-    
+
 @win_0.event
 def on_draw():
     global rx, ry
@@ -406,7 +406,7 @@ def on_draw():
     gl.glLoadIdentity()
     decors()
 
-    try :	
+    try :
         Donnee, Client = sock.recvfrom (1024)
     except (KeyboardInterrupt):
         raise
@@ -428,9 +428,9 @@ def on_draw():
                 if ( ( kin['address']==('10.42.0.'+str(int(each3[0])))) and (kin['port'] == int(each3[1])) ):
 #                   print 'reconise ', each3[0] , ('as 10.42.0.1'+ str(int(each3[0]/2)) ),', kin0'
                     calc_angle(each3, kin)
-                    
+
     display_player()
-    try :	
+    try :
         sendor, Client = testsend.recvfrom (1024)
     except (KeyboardInterrupt):
         raise
@@ -438,16 +438,16 @@ def on_draw():
         pass
     else :
         goodsend = 1
-    
+
 def callback(dt):
-    global rx, ry, rz 
+    global rx, ry, rz
     rx += dt
     rx %= 6.28
     ry += dt
     ry %= 6.28
 #    print '%f seconds since last callback' % dt , '%f  fps' % pyglet.clock.get_fps()
 
-    
+
 pyglet.clock.schedule(callback)
 pyglet.app.run()
 print 'Goodbye'

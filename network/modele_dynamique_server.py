@@ -8,10 +8,14 @@ from time import gmtime, strftime
 import socket
 from parametres import VPs, volume, p, kinects_network_config, run_thread_network_config, scenario, calibration, DEBUG
 # si on ne donne pas d'argument, on prend le parametre scenario par défaut
-if len(sys.argv) == 2:
+if len(sys.argv) >1:
     # mais si on en donne un (genre `croix`), il est utilisé pour ce run
     scenario = sys.argv[1]
-print  'DEBUG modele dynamique , scenario utilisé ', scenario
+if len(sys.argv) > 2:
+    mode = sys.argv[2]
+else:
+    mode = 'dynamique'
+print  'DEBUG ', sys.argv[0] , ' scenario utilisé ', scenario, ' mode ', mode
 #----------------------
 import OSC
 send_sock = socket.socket( socket.AF_INET, socket.SOCK_DGRAM ) # UDP
@@ -62,15 +66,18 @@ positions_old = []
 import pylab as plt
 while True:
     positions = []
-    k.trigger()
-    test_positions = k.read_sock()
-    if (test_positions!=None):
-        for position in test_positions:
-            positions.append([position[0], position[1],position[2] ])
-        positions_old = positions
+    if (mode == 'dynamique'):
+        k.trigger()
+        test_positions = k.read_sock()
+        if (test_positions!=None):
+            for position in test_positions:
+                positions.append([position[0], position[1],position[2] ])
+            positions_old = positions
+        else:
+            # HACK pour pas perdre de trames de detection
+            positions = positions_old
     else:
-        # HACK pour pas perdre de trames de detection
-        positions = positions_old
+        positions.append(s.croix)
     #if DEBUG: print events, positions
     #if DEBUG: print events
     s.do_scenario(positions=positions, events=events)

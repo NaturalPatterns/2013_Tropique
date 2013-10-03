@@ -384,8 +384,10 @@ class Scenario:
             crée un damier sur le sol (z=0)
 
             le damier est carré, avec N/2 lignes dans l'axe x, N/2 dans l'axe y
-            """"
-            longueur_damier = 8.
+            il est centré au pied de la croix
+
+            """
+            longueur_damier = 7.
             grid_spacing = np.linspace(-longueur_damier/2, longueur_damier/2, self.N/2)
             for i_VP, OV in enumerate(self.vps[:]):
                 # lignes dans l'axe de la salle
@@ -402,7 +404,6 @@ class Scenario:
                 self.particles[3, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[0] + grid_spacing
                 self.particles[4, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = self.croix[1] + longueur_damier/2.
                 self.particles[5, (i_VP*self.N+self.N/2):(i_VP*self.N+self.N)] = 0.
-            #            print self.particles.mean(axis=1)
 
 
         elif self.scenario == 'calib':

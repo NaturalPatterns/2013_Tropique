@@ -74,10 +74,11 @@ def stream_acqui():
             last_time = a
         except : 
             f.close()
-            f = open('record_me', 'r')
-            print "reommence" ,  teston, nbr_data
-            teston +=1
-            nbr_data =0
+            sys.exit("Error message")
+#            f = open('record_her', 'r')
+#            print "reommence" ,  teston, nbr_data
+#            teston +=1
+#            nbr_data =0
             
         all_pos = all_pos[0:(len(all_pos) -1)]
         
@@ -128,7 +129,7 @@ if __name__ == "__main__":
     port_pd = 3002
     host_affi = '10.42.0.100'
     port_affi = 3003
-    my_host = '10.42.0.100'
+    my_host = '127.0.0.1'
     my_port = 3004
     stream_acqui()
 
