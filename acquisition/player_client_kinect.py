@@ -58,6 +58,7 @@ def stream_acqui():
     last_time = 0
     nbr_data = 0
     i = 0
+    total = 0
     while (i==0) :
         a = time.time()
         serverkinects = []
@@ -70,15 +71,17 @@ def stream_acqui():
                 time.sleep(the_pos)
             sock_pd.sendto((all_pos.partition("   ")[2] ), (my_host, my_port))
             b = a - last_time 
-            print "the time lapsed = , for time ",b , the_pos, all_pos.partition("   ")[2]
+            total +=b
+#            print "the time lapsed = , for time ",b , the_pos, all_pos.partition("   ")[2]
             last_time = a
         except : 
             f.close()
-            sys.exit("Error message")
-#            f = open('record_her', 'r')
-#            print "reommence" ,  teston, nbr_data
-#            teston +=1
-#            nbr_data =0
+            print("redemarre" , total)
+            totam =0
+            f = open('record_her', 'r')
+            print "reommence" ,  teston, nbr_data
+            teston +=1
+            nbr_data =0
             
         all_pos = all_pos[0:(len(all_pos) -1)]
         
