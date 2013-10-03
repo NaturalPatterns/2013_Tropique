@@ -42,9 +42,11 @@ hauteur_ecran, distance_ecran  = 0.52, 1.35
 # distance dans l'axe de visee (essentiellement x)  entre le point mesuré (la vitre du VP) et le centre théorique du VP
 x_shift = .022/hauteur_ecran*distance_ecran
 # on calcule
-foc_estim = 2 * arctan2(hauteur_ecran/2, distance_ecran) * 180 / pi # ref P101L1
+foc_estim = 2. * arctan2(hauteur_ecran/2., distance_ecran) * 180. / pi # ref P101L1
 #print foc_estim
 foc =  foc_estim
+# d'autres références http://www.glprogramming.com/red/chapter03.html ou http://www.songho.ca/opengl/gl_transform.html
+pc_min, pc_max = 0.001, 1000000.0
 
 volume = np.array([d_x, d_y, d_z])
 
@@ -69,35 +71,35 @@ VPs = [
         {'address':'10.42.0.51',
             'x':cx_0, 'y':9.0, 'z': cz,
             'cx':cx_1, 'cy':cy, 'cz': cz,
-            'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
+         'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
         {'address':'10.42.0.52',
              'x':cx_0, 'y':6.5, 'z': cz,
              'cx':cx_1, 'cy':cy, 'cz': cz,
-             'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
+             'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
         {'address':'10.42.0.53',
              'x':cx_0, 'y':4.0, 'z': cz,
              'cx':cx_1, 'cy':cy, 'cz': cz,
-             'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
+             'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
         {'address':'10.42.0.54',
             'x':cx_1, 'y':3.87, 'z': cz,
             'cx':cx_0, 'cy':cy, 'cz': cz,
-            'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
+            'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
         {'address':'10.42.0.55',
             'x':cx_1, 'y':6.5, 'z': cz,
             'cx':cx_0, 'cy':cy, 'cz': cz,
-            'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
+            'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
         {'address':'10.42.0.56',
             'x':cx_1, 'y':9.13, 'z': cz,
             'cx':cx_0, 'cy':cy, 'cz': cz,
-            'foc': foc, 'pc_min': 0.30, 'pc_max': 100},
+            'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
         ]
 import numpy as np
 calibration = {
         'center': np.array([d_x/2., d_y/2, VPs[0]['z']], dtype='f'), # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
-        'croix': np.array([d_x/2., d_y/2, VPs[0]['z']], dtype='f'), # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
+        'croix': np.array([10.91, 6.24, 1.37], dtype='f'), # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
         #'croix': np.array([6.65, 3.13, 1.36], dtype='f'), # definition de la position de la croix
 #        'croix': np.array([11.95, 2.2, 1.36], dtype='f'), # definition de la position de la croix
-        'roger': np.array([8., 4., 1.75], dtype='f'), #  fixation dot  (AKA Roger?)
+        'roger': np.array([10.91, 6.24, 1.37], dtype='f'), #  fixation dot  (AKA Roger?)
                 }
 print 'DEBUG parametres , position croix: ', calibration['croix']
 # parametres du champ

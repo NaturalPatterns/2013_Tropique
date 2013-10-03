@@ -245,14 +245,18 @@ def on_draw():
 
     else:
         gl.glDisable(gl.GL_FOG)
+        #gl.glMatrixMode(gl.GL_PROJECTION)
+        #gl.glLoadIdentity()
         gl.gluPerspective(foc_VP, 1.0*win_0.width/win_0.height,
                           VPs[s_VP]['pc_min'], VPs[s_VP]['pc_max'])
         gluLookAt(VPs[s_VP]['x'], VPs[s_VP]['y'], VPs[s_VP]['z'],
                   VPs[s_VP]['cx'], VPs[s_VP]['cy'], VPs[s_VP]['cz'],
                   0., 0, 1.0)
+        #gl.glMatrixMode(gl.GL_MODELVIEW)
+        #gl.glLoadIdentity()
 
         # TODO: make an option to view particles from above
-        #gl.gluOrtho2D(0.0, d_y, 0., d_z)
+        #gl.gluOrtho2D(0.0, d_y, 0., d_z) #left, right, bottom, top, near, far
 
         gl.glLineWidth (p['line_width'])
         # marque la postion des personnes par un joli carré rouge
