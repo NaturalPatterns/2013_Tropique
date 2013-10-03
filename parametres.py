@@ -106,10 +106,10 @@ print 'DEBUG parametres , position croix: ', calibration['croix']
 p = {'N': 32,
      # parametres perceptifs
      'distance_m': 0.8, # distance d'équilibre des segments autour d'une position de player
-     'G_gravite_perc': 1.0, # attraction globale vers les centres des positions
+     'G_gravite_perc': 5.0, # attraction globale vers les centres des positions
      'G_gravite_perc_G': 3.0, # attraction globale vers les centres des positions
      'kurt_gravitation' : -2., # 0 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
-     'G_rot_perc': 5.,
+     'G_rot_perc': 1.,
      'G_rot_perc_G': 10.,
      'distance_tabou': 0.35, # distance tabou (perpendiculairement à l'axe VP-player)
      'distance_notabou': 4., # distance *dans l'axe du VP au player* pour lequel on bannit le tabou, mesuree wrt distance VP-au player
@@ -118,19 +118,18 @@ p = {'N': 32,
      'G_gravite_axis_R': 2.0, # parametre d'attraction physique vers les players
      'G_gravite_axis_G': 4.0, # parametre d'attraction physique vers les players
      # parametres physiques
-     'G_poussee': 0.1, # parametre de poussee créateur de vortex
+     'G_poussee': 0.2, # parametre de poussee créateur de vortex
      'G_poussee_break': .10, # parametre de poussee créateur de vortex
      'G_struct': 0.1, # force avec laquelle les bouts de segments s'attirent
      'G_struct_G': 1., # force avec laquelle les bouts de segments s'attirent
      'G_struct_R': 10.0, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .5, # distance pour laquelle l'attraction des bouts de segments s'inverse
      'distance_struct_R': .5,
-     'G_volume': 0., # force qui permet de rester dans le volume - lente et active surtout quand il n'y a personne
      'G_repulsion': .01, # constante de répulsion entre les particules
      'G_repulsion_G': 0.02, # force avec laquelle les bouts de segments s'attirent
      'G_repulsion_R': .05, # constante de répulsion entre les particules
      'kurt_struct' : 0., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
-     'eps': 1.e-2, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
+     'eps': 1.e-4, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 5., 'l_seg_min': 0.4, 'l_seg_max': 2., 'N_max': 2, # dureté et longueur des segments
      'G_spring_pulse': 5., 'l_seg_pulse': .6, 'N_max_pulse': 16,  # dureté et longueur des segments dans un break
      # parametres globaux
