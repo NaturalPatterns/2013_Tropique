@@ -136,17 +136,21 @@ class Scenario:
             G_gravite_axis = self.p['G_gravite_axis_G']
             G_repulsion = self.p['G_repulsion_G']
         elif events == [1, 0, 0, 0, 0, 0, 0, 0]: # phase avec la touche R dans display_modele_dynamique.py
-            G_gravite_perc, G_rot_perc = 0., 0.
+            G_rot_perc = self.p['G_rot_perc_R']
+            G_gravite_perc = self.p['G_gravite_perc_R']
             G_gravite_axis = self.p['G_gravite_axis_R']
             G_struct = self.p['G_struct_R']
             distance_struct = self.p['distance_struct_R']
             G_repulsion =  self.p['G_repulsion_R']
-            G_poussee = 0.
-            #G_spring = self.p['G_spring_hot']
+            #G_poussee = 0.
 
         # événements (breaks)
         if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]):
             damp = self.p['damp']
+            if events == [0, 0, 0, 0, 1, 0, 0, 0]: # phase avec la touche G dans display_modele_dynamique.py
+                damp = self.p['damp_G']
+            elif events == [1, 0, 0, 0, 0, 0, 0, 0]: # phase avec la touche R dans display_modele_dynamique.py
+                damp = self.p['damp_R']
         else: # event avec la touche V dans display_modele_dynamique.py TODO: obsolete?
             damp = 0.
             speed_0 = self.p['speed_break']
