@@ -142,12 +142,6 @@ def unknow(x,y, z):
 			my_players[place][3] =25
 			my_players[place][4] = 45
 			my_players[place][11] =0
-			#msg = OSC.OSCMessage()
-			#msg.setAddress("/"+str(the_player))
-			#msg.setAddress("/presence")
-			#msg.append((place))
-			#msg.append(0)
-			#send_osc(msg)
 			break
 
 def test_players(x,y,z):
