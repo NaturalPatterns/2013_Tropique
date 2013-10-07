@@ -78,8 +78,8 @@ while True:
             positions = positions_old
     else:
         positions.append(s.croix)
-    #if DEBUG: print events, positions
-    #if DEBUG: print events
+    #if DEBUG: print 'DEBUG modele dynamique ,  events, positions ', events, positions
+    if DEBUG: print 'DEBUG modele dynamique , events ', events
     s.do_scenario(positions=positions, events=events)
     #if DEBUG: print 'DEBUG modele dynamique , check taille ', s.particles[0:6, :].shape
     #if DEBUG: print 'DEBUG modele dynamique , check taille ', s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)

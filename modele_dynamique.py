@@ -144,19 +144,13 @@ class Scenario:
             G_repulsion =  self.p['G_repulsion_R']
             #G_poussee = 0.
 
-        # événements (breaks)
-        if events[2] == 0  and not(events[:6] == [1, 1, 1, 1, 1, 1]):
-            damp = self.p['damp']
-            if events == [0, 0, 0, 0, 1, 0, 0, 0]: # phase avec la touche G dans display_modele_dynamique.py
-                damp = self.p['damp_G']
-            elif events == [1, 0, 0, 0, 0, 0, 0, 0]: # phase avec la touche R dans display_modele_dynamique.py
-                damp = self.p['damp_R']
-        else: # event avec la touche V dans display_modele_dynamique.py TODO: obsolete?
-            damp = 0.
-            speed_0 = self.p['speed_break']
-            #G_repulsion = self.p['G_repulsion_hot']
-        if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans display_modele_dynamique.py
-            damp = self.p['damp_break1']
+        speed_0 = self.p['speed_0']
+        damp = self.p['damp']
+        if events == [0, 0, 0, 0, 1, 0, 0, 0]: # phase avec la touche G dans display_modele_dynamique.py
+            damp = self.p['damp_G']
+        elif events == [1, 0, 0, 0, 0, 0, 0, 0]: # phase avec la touche R dans display_modele_dynamique.py
+            damp = self.p['damp_R']
+        # pulse           
         if events[1] == 0 and not(events[:6] == [1, 1, 1, 1, 1, 1]): # cas général
             self.l_seg = self.l_seg_normal
             G_spring = self.p['G_spring']
@@ -164,8 +158,10 @@ class Scenario:
             self.l_seg = self.l_seg_pulse
             #self.l_seg[-self.p['N_max_pulse']:] = self.p['l_seg_max']
             G_spring = self.p['G_spring_pulse']
-#
-        # les breaks sont signés par events[:6] == [1, 1, 1, 1, 1, 1], puis 1 =
+
+        # événements (breaks)
+        
+        # les breaks sont signés par events[:6] == [1, 1, 1, 1, 1, 1], puis =
         # 1 : events[6:] == [1, 1]
         # 2 : events[6:] == [1, 0]
         # 3 : events[6:] == [0, 0]
@@ -174,22 +170,24 @@ class Scenario:
         if (events[:6] == [1, 1, 1, 1, 1, 1]) and (self.t_break == 0.):
             self.t_break = self.t
 
-        #print self.t_break, self.t
+        if (events == [1, 1, 1, 1, 1, 1, 1, 1]) : # break 1 - touche J
+            if DEBUG: print 'DEBUG, on est dans le break 1, on compte à rebours ',  self.t - self.t_break, speed_0
+            G_poussee = self.p['G_poussee_break']
+            speed_0 = self.p['speed_break']
+            damp = self.p['damp_break1']
+#        if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans display_modele_dynamique.py
+#            damp = self.p['damp_break1']
+            
         if not(self.t_break == 0.):# and not(events[:6] == [0, 0, 0, 0, 0, 0]):
-
             if (events[-1] == 0): # break #2 or #3 - touche B
                 speed_0 = self.p['speed_0'] *((self.p['A_break']-1) * np.exp(-(self.p['T_break'] - (self.t - self.t_break)) / self.p['tau_break']) + 1)
                 damp = self.p['damp_break23']
-            else: # break 1 - touche J
-                G_poussee = self.p['G_poussee_break']
-                speed_0 = self.p['speed_0']
-                damp = self.p['damp_break1']
             # reset the break after T_break seconds AND receiving the resetting signal
-            if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
             if DEBUG: print 'DEBUG, on est dans le break, on compte à rebours ',  self.t - self.t_break, speed_0
-        else:
-            speed_0 = self.p['speed_0']
+            if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
 
+        print 'DEBUG, damp, speed_0 ',  damp, speed_0
+        
         n_s = self.p['kurt_struct']
         n_g = self.p['kurt_gravitation']
         #if DEBUG: print G_gravite_axis, G_gravite_perc, G_struct, G_rot_perc, G_repulsion

@@ -121,30 +121,30 @@ p = {'N': 32,
      'G_gravite_axis_G': 5.0, # parametre d'attraction physique vers les players
      # parametres physiques
      'G_poussee': 0.2, # parametre de poussee créateur de vortex
-     'G_poussee_break': .10, # parametre de poussee créateur de vortex
+     'G_poussee_break': 4.0, # parametre de poussee créateur de vortex
      'G_struct': 0.3, # force avec laquelle les bouts de segments s'attirent
      'G_struct_G': .1, # force avec laquelle les bouts de segments s'attirent
      'G_struct_R': 1.0, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .5, # distance pour laquelle l'attraction des bouts de segments s'inverse
-     'distance_struct_R': .5,
+     'distance_struct_R': 1.5,
      'G_repulsion': .05, # constante de répulsion entre les particules
      'G_repulsion_G': 0.2, # force avec laquelle les bouts de segments s'attirent
      'G_repulsion_R': .01, # constante de répulsion entre les particules
-     'kurt_struct' : 0., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
+     'kurt_struct' : -2., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
      'eps': 1.e-4, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
-     'G_spring': 5., 'l_seg_min': 0.4, 'l_seg_max': 2., 'N_max': 2, # dureté et longueur des segments
+     'G_spring': 5., 'l_seg_min': 0.5, 'l_seg_max': 2., 'N_max': 2, # dureté et longueur des segments
      # parametres break
-     'G_spring_pulse': 2., 'l_seg_pulse': .6, 'N_max_pulse': 16,  # dureté et longueur des segments dans un break
+     'G_spring_pulse':8., 'l_seg_pulse': 2., 'N_max_pulse': 16,  # dureté et longueur des segments dans un break
      'damp_break23': .0,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-     'damp_break1': .99,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-     'speed_break': .1, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'damp_break1': .3,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
+     'speed_break': 2., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'T_break': 6., # duration (secondes) of breaks 2&3
      'A_break': 4., # amplitude de l'amplification de speed_0 dans les break #2 et #3
      'tau_break': .103, # duration du transient dans les breaks #2 et #3
      # parametres globaux
      'damp': 0.06,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_G': 0.5,  # facteur de damping / absorbe l'énergie / regle la viscosité
-     'damp_R': 0.01,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp_R': 0.1,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 30., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
      'line_width': 3, # line width of segments
@@ -165,7 +165,7 @@ info_kinects = [
 		{'address':'10.42.0.14', 'port': 0, 'x':8.0, 'y':10.0, 'z': 1.24, 'az':9*pi/6 ,'max':600},#1.1
 		{'address':'10.42.0.14', 'port': 1, 'x':8.0, 'y':10.0, 'z': 1.14, 'az':7*pi/6 ,'max':600}, #1.2
 		{'address':'10.42.0.15', 'port': 0, 'x':8.0,  'y':10.0,  'z': 1.24, 'az':11*pi/6 ,'max':600},#1.3
-  		{'address':'10.42.0.15', 'port': 1, 'x':4.38, 'y':10.8, 'z': 1.24, 'az':9*pi/6 ,'max':400},#1.3
+  		{'address':'10.42.0.15', 'port': 1, 'x':4.38, 'y':10.0, 'z': 1.24, 'az':9*pi/6 ,'max':400},#1.3
 
 		{'address':'10.42.0.16', 'port': 0, 'x':18.0, 'y':1.61, 'z': 1.24, 'az':5*pi/6 ,'max':600},#Kass
 		{'address':'10.42.0.16', 'port': 1, 'x':18.0, 'y':1.61, 'z': 1.14, 'az':3*pi/6 ,'max':600}, #1.2
@@ -174,7 +174,7 @@ info_kinects = [
 		{'address':'10.42.0.18', 'port': 0, 'x':8.0, 'y':3.11, 'z': 1.24, 'az':3*pi/6 ,'max':600},#Kass
 		{'address':'10.42.0.18', 'port': 1, 'x':8.0, 'y':3.11, 'z': 1.14, 'az':5*pi/6 ,'max':600}, #1.2
 		{'address':'10.42.0.19', 'port': 0, 'x':8.0, 'y':3.11, 'z': 1.24, 'az':pi/6 ,'max':600},#Kass
-		{'address':'10.42.0.19', 'port': 1, 'x':4.38, 'y':2.11, 'z': 1.24, 'az':3*pi/6 ,'max':400},#Kass
+		{'address':'10.42.0.19', 'port': 1, 'x':4.38, 'y':2.40, 'z': 1.24, 'az':3*pi/6 ,'max':400},#Kass
 
 		]
 
@@ -194,7 +194,7 @@ try:
     def sliders(p):
         import matplotlib as mpl
         #mpl.rcParams['interactive'] = True
-        mpl.rcParams['backend'] = 'macosx'
+        #mpl.rcParams['backend'] = 'macosx'
         #mpl.rcParams['backend_fallback'] = True
         mpl.rcParams['toolbar'] = 'None'
         import pylab as plt
