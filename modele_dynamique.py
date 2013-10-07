@@ -182,13 +182,17 @@ class Scenario:
             
         if not(self.t_break == 0.):# and not(events[:6] == [0, 0, 0, 0, 0, 0]):
             if (events[-1] == 0): # break #2 or #3 - touche B
-                speed_0 = self.p['speed_0'] *((self.p['A_break']-1) * np.exp(-(self.p['T_break'] - (self.t - self.t_break)) / self.p['tau_break']) + 1)
+                modul = np.exp(-(self.p['T_break'] - (self.t - self.t_break)) / self.p['tau_break'])
+                speed_0 = self.p['speed_0'] *((self.p['A_break']-1) * modul + 1)
+                self.l_seg = self.l_seg_normal * (self.p['T_break'] - (self.t - self.t_break)) / self.p['T_break']
                 damp = self.p['damp_break23']
+                if DEBUG: print 'DEBUG, on est dans le break 2&3, modul ', (self.p['T_break'] - (self.t - self.t_break)) / self.p['T_break']
             # reset the break after T_break seconds AND receiving the resetting signal
-            if DEBUG: print 'DEBUG, on est dans le break, on compte à rebours ',  self.t - self.t_break, speed_0
+            if DEBUG: print 'DEBUG, on est dans le break, on compte à rebours, speed_0 ',  self.t - self.t_break, speed_0
             if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
 
         print 'DEBUG, damp, speed_0 ',  damp, speed_0
+#        print 'DEBUG, self.l_seg ',  self.l_seg
         
         n_s = self.p['kurt_struct']
         n_g = self.p['kurt_gravitation']
