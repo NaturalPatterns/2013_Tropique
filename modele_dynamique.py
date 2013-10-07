@@ -151,15 +151,17 @@ class Scenario:
         elif events == [1, 0, 0, 0, 0, 0, 0, 0]: # phase avec la touche R dans display_modele_dynamique.py
             damp = self.p['damp_R']
         # pulse           
-        if events[1] == 0 and not(events[:6] == [1, 1, 1, 1, 1, 1]): # cas général
-            self.l_seg = self.l_seg_normal
-            G_spring = self.p['G_spring']
-        else:  # événement Pulse avec la touche P dans display_modele_dynamique.py (Pulse)
+        if events[1] == 1 and not(events[:6] == [1, 1, 1, 1, 1, 1]):
             self.l_seg = self.l_seg_pulse
             #self.l_seg[-self.p['N_max_pulse']:] = self.p['l_seg_max']
             G_spring = self.p['G_spring_pulse']
+        else:  # cas général 
+            # événement Pulse avec la touche P dans display_modele_dynamique.py (Pulse)
+            self.l_seg = self.l_seg_normal
+            G_spring = self.p['G_spring']
 
         # événements (breaks)
+        # ===================
         
         # les breaks sont signés par events[:6] == [1, 1, 1, 1, 1, 1], puis =
         # 1 : events[6:] == [1, 1]
