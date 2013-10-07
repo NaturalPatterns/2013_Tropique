@@ -121,7 +121,7 @@ p = {'N': 32,
      'G_gravite_axis_G': 5.0, # parametre d'attraction physique vers les players
      # parametres physiques
      'G_poussee': 0.2, # parametre de poussee créateur de vortex
-     'G_poussee_break': 4.0, # parametre de poussee créateur de vortex
+     'G_poussee_break': 5.0, # parametre de poussee créateur de vortex
      'G_struct': 0.3, # force avec laquelle les bouts de segments s'attirent
      'G_struct_G': .1, # force avec laquelle les bouts de segments s'attirent
      'G_struct_R': 1.0, # force avec laquelle les bouts de segments s'attirent
@@ -134,18 +134,18 @@ p = {'N': 32,
      'eps': 1.e-4, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 5., 'l_seg_min': 0.5, 'l_seg_max': 2., 'N_max': 2, # dureté et longueur des segments
      # parametres break
-     'G_spring_pulse':8., 'l_seg_pulse': 2., 'N_max_pulse': 16,  # dureté et longueur des segments dans un break
-     'damp_break23': .0,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
+     'G_spring_pulse': 15., 'l_seg_pulse': 0.8, 'N_max_pulse': 2,  # dureté et longueur des segments dans un break
+     'damp_break23': .05,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_break1': .3,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
-     'speed_break': 2., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_break': .6, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'T_break': 6., # duration (secondes) of breaks 2&3
      'A_break': 4., # amplitude de l'amplification de speed_0 dans les break #2 et #3
      'tau_break': .103, # duration du transient dans les breaks #2 et #3
      # parametres globaux
-     'damp': 0.06,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp': 0.12,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_G': 0.5,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_R': 0.1,  # facteur de damping / absorbe l'énergie / regle la viscosité
-     'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_0': .7, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 30., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
      'line_width': 3, # line width of segments
      }
