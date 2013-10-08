@@ -122,15 +122,15 @@ p = {'N': 32,
      # parametres physiques
      'G_poussee': 0.2, # parametre de poussee créateur de vortex
      'G_poussee_break': 5.0, # parametre de poussee créateur de vortex
-     'G_struct': 0.3, # force avec laquelle les bouts de segments s'attirent
-     'G_struct_G': .1, # force avec laquelle les bouts de segments s'attirent
-     'G_struct_R': 1.0, # force avec laquelle les bouts de segments s'attirent
+     'G_struct': 0.05, # force avec laquelle les bouts de segments s'attirent
+     'G_struct_G': .01, # force avec laquelle les bouts de segments s'attirent
+     'G_struct_R': .5, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .5, # distance pour laquelle l'attraction des bouts de segments s'inverse
      'distance_struct_R': 1.5,
-     'G_repulsion': .05, # constante de répulsion entre les particules
-     'G_repulsion_G': 0.2, # force avec laquelle les bouts de segments s'attirent
+     'G_repulsion': .2, # constante de répulsion entre les particules
+     'G_repulsion_G': 2., # force avec laquelle les bouts de segments s'attirent
      'G_repulsion_R': .01, # constante de répulsion entre les particules
-     'kurt_struct' : -2., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
+     'kurt_struct' : 0., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
      'eps': 1.e-4, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 5., 'l_seg_min': 0.5, 'l_seg_max': 2., 'N_max': 2, # dureté et longueur des segments
      # parametres break
@@ -158,8 +158,8 @@ info_kinects = [
 		# on tourne les numeros de kinect dans le sens des aiguilles d'une montre en commencant par
            #  le point (0, 0)- le point de vue (az) donne l'ordre dans une colonne de kinects
 
-		{'address':'10.42.0.12', 'port': 0, 'x':18.0, 'y':10.5, 'z': 1.24, 'az':7*pi/6 ,'max':600},#1.1
-		{'address':'10.42.0.12', 'port': 1, 'x':18.0, 'y':10.5, 'z': 1.14, 'az':9*pi/6 ,'max':600}, #1.2
+		{'address':'10.42.0.12', 'port': 0, 'x':18.0, 'y':10.5, 'z': 1.14, 'az':7*pi/6 ,'max':600},#1.1
+		{'address':'10.42.0.12', 'port': 1, 'x':18.0, 'y':10.5, 'z': 1.34, 'az':9*pi/6 ,'max':600}, #1.2
  		{'address':'10.42.0.13', 'port': 0, 'x':14.0, 'y':11.65, 'z': 1.24, 'az':9*pi/6 ,'max':650},#1.3
 
 		{'address':'10.42.0.14', 'port': 0, 'x':8.0, 'y':10.0, 'z': 1.24, 'az':9*pi/6 ,'max':600},#1.1
@@ -167,14 +167,14 @@ info_kinects = [
 		{'address':'10.42.0.15', 'port': 0, 'x':8.0,  'y':10.0,  'z': 1.24, 'az':11*pi/6 ,'max':600},#1.3
   		{'address':'10.42.0.15', 'port': 1, 'x':4.38, 'y':10.0, 'z': 1.24, 'az':9*pi/6 ,'max':400},#1.3
 
-		{'address':'10.42.0.16', 'port': 0, 'x':18.0, 'y':1.61, 'z': 1.24, 'az':5*pi/6 ,'max':600},#Kass
-		{'address':'10.42.0.16', 'port': 1, 'x':18.0, 'y':1.61, 'z': 1.14, 'az':3*pi/6 ,'max':600}, #1.2
+		{'address':'10.42.0.16', 'port': 0, 'x':18.0, 'y':1.61, 'z': 1.14, 'az':5*pi/6 ,'max':600},#Kass
+		{'address':'10.42.0.16', 'port': 1, 'x':18.0, 'y':1.61, 'z': 1.34, 'az':3*pi/6 ,'max':600}, #1.2
 		{'address':'10.42.0.17', 'port': 0, 'x':14.28, 'y':0.0, 'z': 1.24, 'az':3*pi/6 ,'max':650},#1.3
 
 		{'address':'10.42.0.18', 'port': 0, 'x':8.0, 'y':3.11, 'z': 1.24, 'az':3*pi/6 ,'max':600},#Kass
-		{'address':'10.42.0.18', 'port': 1, 'x':8.0, 'y':3.11, 'z': 1.14, 'az':5*pi/6 ,'max':600}, #1.2
+		{'address':'10.42.0.18', 'port': 1, 'x':8.0, 'y':3.11, 'z': 1.24, 'az':5*pi/6 ,'max':600}, #1.2
 		{'address':'10.42.0.19', 'port': 0, 'x':8.0, 'y':3.11, 'z': 1.24, 'az':pi/6 ,'max':600},#Kass
-		{'address':'10.42.0.19', 'port': 1, 'x':4.38, 'y':2.40, 'z': 1.24, 'az':3*pi/6 ,'max':400},#Kass
+		{'address':'10.42.0.19', 'port': 1, 'x':4.38, 'y':2.40, 'z': 1.14, 'az':3*pi/6 ,'max':400},#Kass
 
 		]
 
