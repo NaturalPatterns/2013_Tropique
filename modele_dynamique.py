@@ -184,8 +184,9 @@ class Scenario:
             if (events[-1] == 0): # break #2 or #3 - touche B
                 modul = np.exp(-(self.p['T_break'] - (self.t - self.t_break)) / self.p['tau_break'])
                 speed_0 = self.p['speed_0'] *((self.p['A_break']-1) * modul + 1)
-                modult = 1. - 4*(self.p['T_break'] - (self.t - self.t_break)) *  (self.t - self.t_break) / self.p['T_break']**2
-                self.l_seg = self.l_seg_normal * modult
+                #modult = 1. - 4*(self.p['T_break'] - (self.t - self.t_break)) *  (self.t - self.t_break) / self.p['T_break']**2
+                modult = 1. - 2.* (self.p['T_break'] - (self.t - self.t_break)) / self.p['T_break']
+                self.l_seg = self.l_seg_normal * (modult*(modult>0) + self.p['A_break'] * modul)
                 damp = self.p['damp_break23']
                 if DEBUG: print 'DEBUG, on est dans le break 2&3, modul      , modult ', modul, modult
             # reset the break after T_break seconds AND receiving the resetting signal
@@ -338,11 +339,6 @@ class Scenario:
                 #gravity_struct = - np.sum((distance < distance_struct) * BB_/(distance.T + self.p['eps'])**(n_s+2), axis=1) # 3 x N; en metres
                 gravity_struct = np.sum(BB_/ (np.sqrt((BB_**2).sum(axis=0)) + self.p['eps']) /(distance.T **(n_s+2)), axis=1) # 3 x N; en metres
                 force[3:6, i_VP*N:(i_VP+1)*N] += G_struct * gravity_struct
-                #AB_ = self.particles[0:3, i_VP*N:(i_VP+1)*N, np.newaxis]-self.particles[3:6, np.newaxis, i_VP*N:(i_VP+1)*N]
-                #distance = np.sqrt(np.sum(AB_**2, axis=0)) # NxN ; en metres
-                #distance = distance_struct  * (distance < distance_struct) + distance * (distance > distance_struct) + self.p['eps'] # NxN ; en metres
-                #gravity_struct = - np.sum(AB_/ (np.sqrt((AB_**2).sum(axis=0)) + self.p['eps']) /(distance.T **(n_s+2)), axis=1) # 3 x N; en metres
-                #force[3:6, i_VP*N:(i_VP+1)*N] += G_struct * gravity_struct
 
         ## forces individuelles pour chaque segment
         # ressort
