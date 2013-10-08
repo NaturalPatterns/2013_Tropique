@@ -128,14 +128,14 @@ class Scenario:
         G_poussee = self.p['G_poussee']
         G_gravite_axis = self.p['G_gravite_axis']
         # phases
-        if events == [0, 0, 0, 0, 1, 0, 0, 0]: # phase avec la touche G dans display_modele_dynamique.py
+        if events == [0, 0, 0, 0, 1, 0, 0, 0] or (events == [1, 1, 1, 1, 1, 1, 0, 0]): # phase avec la touche G dans display_modele_dynamique.py
             G_rot_perc = self.p['G_rot_perc_G']
             G_gravite_perc = self.p['G_gravite_perc_G']
             G_struct = self.p['G_struct_G']
             #G_poussee = 0.
             G_gravite_axis = self.p['G_gravite_axis_G']
             G_repulsion = self.p['G_repulsion_G']
-        elif events == [1, 0, 0, 0, 0, 0, 0, 0]: # phase avec la touche R dans display_modele_dynamique.py
+        elif events == [1, 0, 0, 0, 0, 0, 0, 0] or (events == [1, 1, 1, 1, 1, 1, 1, 0]): # phase avec la touche R dans display_modele_dynamique.py
             G_rot_perc = self.p['G_rot_perc_R']
             G_gravite_perc = self.p['G_gravite_perc_R']
             G_gravite_axis = self.p['G_gravite_axis_R']
@@ -150,19 +150,19 @@ class Scenario:
             damp = self.p['damp_G']
         elif events == [1, 0, 0, 0, 0, 0, 0, 0]: # phase avec la touche R dans display_modele_dynamique.py
             damp = self.p['damp_R']
-        # pulse           
+        # pulse
         if events[1] == 1 and not(events[:6] == [1, 1, 1, 1, 1, 1]):
             self.l_seg = self.l_seg_pulse
             #self.l_seg[-self.p['N_max_pulse']:] = self.p['l_seg_max']
             G_spring = self.p['G_spring_pulse']
-        else:  # cas général 
+        else:  # cas général
             # événement Pulse avec la touche P dans display_modele_dynamique.py (Pulse)
             self.l_seg = self.l_seg_normal
             G_spring = self.p['G_spring']
 
         # événements (breaks)
         # ===================
-        
+
         # les breaks sont signés par events[:6] == [1, 1, 1, 1, 1, 1], puis =
         # 1 : events[6:] == [1, 1]
         # 2 : events[6:] == [1, 0]
@@ -179,21 +179,22 @@ class Scenario:
             damp = self.p['damp_break1']
 #        if events[7] == 1  and not(events[:6] == [1, 1, 1, 1, 1, 1]): # event avec la touche S dans display_modele_dynamique.py
 #            damp = self.p['damp_break1']
-            
+
         if not(self.t_break == 0.):# and not(events[:6] == [0, 0, 0, 0, 0, 0]):
             if (events[-1] == 0): # break #2 or #3 - touche B
                 modul = np.exp(-(self.p['T_break'] - (self.t - self.t_break)) / self.p['tau_break'])
                 speed_0 = self.p['speed_0'] *((self.p['A_break']-1) * modul + 1)
-                self.l_seg = self.l_seg_normal * (self.p['T_break'] - (self.t - self.t_break)) / self.p['T_break']
+                modult = 1. - 4*(self.p['T_break'] - (self.t - self.t_break)) *  (self.t - self.t_break) / self.p['T_break']**2
+                self.l_seg = self.l_seg_normal * modult
                 damp = self.p['damp_break23']
-                if DEBUG: print 'DEBUG, on est dans le break 2&3, modul ', (self.p['T_break'] - (self.t - self.t_break)) / self.p['T_break']
+                if DEBUG: print 'DEBUG, on est dans le break 2&3, modul      , modult ', modul, modult
             # reset the break after T_break seconds AND receiving the resetting signal
             if DEBUG: print 'DEBUG, on est dans le break, on compte à rebours, speed_0 ',  self.t - self.t_break, speed_0
             if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
 
         print 'DEBUG, damp, speed_0 ',  damp, speed_0
 #        print 'DEBUG, self.l_seg ',  self.l_seg
-        
+
         n_s = self.p['kurt_struct']
         n_g = self.p['kurt_gravitation']
         #if DEBUG: print G_gravite_axis, G_gravite_perc, G_struct, G_rot_perc, G_repulsion
@@ -327,13 +328,21 @@ class Scenario:
             if not(G_struct==0.):
                 AA_ = self.particles[0:3, i_VP*N:(i_VP+1)*N, np.newaxis]-self.particles[0:3, np.newaxis, i_VP*N:(i_VP+1)*N]
                 distance = np.sqrt(np.sum(AA_**2, axis=0)) # NxN ; en metres
-                gravity_struct = - np.sum((distance < distance_struct) * AA_ /(distance.T + self.p['eps'])**(n_s+2), axis=1) # 3 x N; en metres
+                distance = distance_struct  * (distance < distance_struct) + distance * (distance > distance_struct) # NxN ; en metres
+                gravity_struct = np.sum( AA_  / (np.sqrt((AA_**2).sum(axis=0)) + self.p['eps']) /(distance.T **(n_s+2)), axis=1) # 3 x N; en metres
                 force[0:3, i_VP*N:(i_VP+1)*N] += G_struct * gravity_struct
                 BB_ = self.particles[3:6, i_VP*N:(i_VP+1)*N, np.newaxis]-self.particles[3:6, np.newaxis, i_VP*N:(i_VP+1)*N]
                 #BB_ = self.particles[0:3, :][:, :, np.newaxis]-self.particles[3:6, :][:, :, np.newaxis]
                 distance = np.sqrt(np.sum(BB_**2, axis=0)) # NxN ; en metres
-                gravity_struct = - np.sum((distance < distance_struct) * BB_/(distance.T + self.p['eps'])**(n_s+2), axis=1) # 3 x N; en metres
+                distance = distance_struct  * (distance < distance_struct) + distance * (distance > distance_struct) # NxN ; en metres
+                #gravity_struct = - np.sum((distance < distance_struct) * BB_/(distance.T + self.p['eps'])**(n_s+2), axis=1) # 3 x N; en metres
+                gravity_struct = np.sum(BB_/ (np.sqrt((BB_**2).sum(axis=0)) + self.p['eps']) /(distance.T **(n_s+2)), axis=1) # 3 x N; en metres
                 force[3:6, i_VP*N:(i_VP+1)*N] += G_struct * gravity_struct
+                #AB_ = self.particles[0:3, i_VP*N:(i_VP+1)*N, np.newaxis]-self.particles[3:6, np.newaxis, i_VP*N:(i_VP+1)*N]
+                #distance = np.sqrt(np.sum(AB_**2, axis=0)) # NxN ; en metres
+                #distance = distance_struct  * (distance < distance_struct) + distance * (distance > distance_struct) + self.p['eps'] # NxN ; en metres
+                #gravity_struct = - np.sum(AB_/ (np.sqrt((AB_**2).sum(axis=0)) + self.p['eps']) /(distance.T **(n_s+2)), axis=1) # 3 x N; en metres
+                #force[3:6, i_VP*N:(i_VP+1)*N] += G_struct * gravity_struct
 
         ## forces individuelles pour chaque segment
         # ressort
