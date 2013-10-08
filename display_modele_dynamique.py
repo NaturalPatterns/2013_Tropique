@@ -136,10 +136,12 @@ def on_key_press(symbol, modifiers):
     elif symbol == pyglet.window.key.G:
         events = [0, 0, 0, 0, 1, 0, 0, 0]
         #events[4] = 1 - events[4]
-    elif symbol == pyglet.window.key.B:
-        events = [1, 1, 1, 1, 1, 1, 1, 0]
     elif symbol == pyglet.window.key.J:
-        events = [1, 1, 1, 1, 1, 1, 1, 1]
+        events = [1, 1, 1, 1, 1, 1, 1, 1] # break 1
+    elif symbol == pyglet.window.key.B:
+        events = [1, 1, 1, 1, 1, 1, 1, 0] # break 2
+    elif symbol == pyglet.window.key.O:
+        events = [1, 1, 1, 1, 1, 1, 0, 0] # break 3
     elif symbol == pyglet.window.key.P:
         events[1] = 1 - events[1]
     elif symbol == pyglet.window.key.V:
