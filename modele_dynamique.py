@@ -172,7 +172,7 @@ class Scenario:
         if (events[:6] == [1, 1, 1, 1, 1, 1]) and (self.t_break == 0.):
             self.t_break = self.t
 
-        if (events == [1, 1, 1, 1, 1, 1, 1, 1]) : # break 1 - touche J
+        if (events == [1, 1, 1, 1, 1, 1, 1, 1]) : # break 1 - touche B
             if DEBUG: print 'DEBUG, on est dans le break 1, on compte à rebours ',  self.t - self.t_break, speed_0
             G_poussee = self.p['G_poussee_break']
             speed_0 = self.p['speed_break']
@@ -181,7 +181,7 @@ class Scenario:
 #            damp = self.p['damp_break1']
 
         if not(self.t_break == 0.):# and not(events[:6] == [0, 0, 0, 0, 0, 0]):
-            if (events[-1] == 0): # break #2 or #3 - touche B
+            if (events[:6] == [1, 1, 1, 1, 1, 1]) and (events[-1] == 0): # break #2 or #3 - touche J ou O
                 modul = np.exp(-(self.p['T_break'] - (self.t - self.t_break)) / self.p['tau_break'])
                 speed_0 = self.p['speed_0'] *((self.p['A_break']-1) * modul + 1)
                 #modult = 1. - 4*(self.p['T_break'] - (self.t - self.t_break)) *  (self.t - self.t_break) / self.p['T_break']**2
@@ -193,7 +193,7 @@ class Scenario:
             if DEBUG: print 'DEBUG, on est dans le break, on compte à rebours, speed_0 ',  self.t - self.t_break, speed_0
             if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
 
-        print 'DEBUG, damp, speed_0 ',  damp, speed_0
+        #print 'DEBUG, damp, speed_0 ',  damp, speed_0
 #        print 'DEBUG, self.l_seg ',  self.l_seg
 
         n_s = self.p['kurt_struct']
@@ -239,14 +239,13 @@ class Scenario:
                     SC_0 = SC / (np.sqrt((SC**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
 
                     # TODO : diminuer la force du tabou dans le temps pour les personnes arrétées / parametre T_damp_global
-                    if n_g==-2:
+                    if n_g==-2.:
                         tabou = SC_0 * (distance_closer < distance_tabou) # en metres
                     else:
                         tabou = SC_0 * (distance_closer < distance_tabou) / (distance_closer + self.p['eps'])**(n_g+2) # en metres
 
-                    modul = 1. # - np.exp(-rae_VS[0] / self.p['distance_notabou'] )
-                    force[0:3, i_VP*N:(i_VP+1)*N] += G_tabou * modul * tabou
-                    force[3:6, i_VP*N:(i_VP+1)*N] += G_tabou * modul * tabou
+                    force[0:3, i_VP*N:(i_VP+1)*N] += G_tabou * tabou
+                    force[3:6, i_VP*N:(i_VP+1)*N] += G_tabou * tabou
 
                     # gravitation et rotation
                     arcdis = arcdistance(rae_VS, rae_VC)
