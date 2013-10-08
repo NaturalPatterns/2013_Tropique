@@ -355,14 +355,16 @@ def calc_angle(each, kin):
     y = kin['y']*100 + sin (alpha+ kin['az']) * each[5]
     z = each[4]
     if (z>= -100 and z<= 50) :
-#        pourcent = ((y / ((d_y/2)-y ))/100)*1
+        pourcent = ((each[5] + 0.001) /600)**2
+        
 #        print "alpha=", alpha
 #        print "pourcent  =" ,pourcent
-#        varz = (float(z) * (pourcent))
-##        print "first varz =",varz + z
+        fact= 15
+        varz = int (float(z/100) * (pourcent) * fact)
+        print "z ,  varz =",z," , ", z+varz , kin['z']*100-z
 #        z+=20
 #
-#        z= z+ varz
+        z= z+ varz
 
         test_players(x,y, kin['z']*100-z)
         gl.glPointSize (32.0)
