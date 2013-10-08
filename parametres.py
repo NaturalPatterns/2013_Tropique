@@ -127,8 +127,8 @@ p = {'N': 32,
      'G_struct_R': .5, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .5, # distance pour laquelle l'attraction des bouts de segments s'inverse
      'distance_struct_R': 1.5,
-     'G_repulsion': .2, # constante de répulsion entre les particules
-     'G_repulsion_G': 2., # force avec laquelle les bouts de segments s'attirent
+     'G_repulsion': .1, # constante de répulsion entre les particules
+     'G_repulsion_G': 1., # force avec laquelle les bouts de segments s'attirent
      'G_repulsion_R': .01, # constante de répulsion entre les particules
      'kurt_struct' : 0., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
      'eps': 1.e-4, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
