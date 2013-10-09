@@ -108,7 +108,7 @@ p = {'N': 32,
      'distance_m': 0.9, # distance d'équilibre des segments autour d'une position de player
      'G_gravite_perc': 6.0, # attraction globale vers les centres des positions
      'G_gravite_perc_G': 10.0, # attraction globale vers les centres des positions
-     'G_gravite_perc_R': .1, # attraction globale vers les centres des positions
+     'G_gravite_perc_R': 1., # attraction globale vers les centres des positions
      'kurt_gravitation' : -2., # 0 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
      'G_rot_perc': 1., # Ressort, permet d'axrt et d'avoir Plus ou moins de fan
      'G_rot_perc_G': 10.,
@@ -116,19 +116,19 @@ p = {'N': 32,
      'distance_tabou': 0.3, # distance tabou (perpendiculairement à l'axe VP-player)
      'G_tabou': 30., # force tabou qui expulse tout segment qui rentre dans la zone tabou (je suis completment tabou)
      'G_gravite_axis': 5.0, # parametre d'attraction physique vers les players
-     'G_gravite_axis_R': .5, # parametre d'attraction physique vers les players
+     'G_gravite_axis_R': 5., # parametre d'attraction physique vers les players
      'G_gravite_axis_G': 5., # parametre d'attraction physique vers les players
      # parametres physiques
      'G_poussee': 0.2, # parametre de poussee créateur de vortex
      'G_poussee_break': 7.0, # parametre de poussee créateur de vortex
-     'G_struct': 0.05, # force avec laquelle les bouts de segments s'attirent
+     'G_struct': 0.02, # force avec laquelle les bouts de segments s'attirent
      'G_struct_G': .0, # force avec laquelle les bouts de segments s'attirent
      'G_struct_R': .1, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .2, # distance pour laquelle l'attraction des bouts de segments s'inverse
-     'distance_struct_R': 1.5,
+     'distance_struct_R': .1,
      'G_repulsion': .1, # constante de répulsion entre les particules
-     'G_repulsion_G': 1., # force avec laquelle les bouts de segments s'attirent
-     'G_repulsion_R': .2, # constante de répulsion entre les particules
+     'G_repulsion_G': .3, # force avec laquelle les bouts de segments s'attirent
+     'G_repulsion_R': .3, # constante de répulsion entre les particules
      'kurt_struct' : 0., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
      'eps': 1.e-3, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 15., 'l_seg_min': 0.5, 'l_seg_max': 2., 'N_max': 2, # dureté et longueur des segments
