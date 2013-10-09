@@ -116,6 +116,9 @@ class Scenario:
         self.t_break = 0.
 
     def champ(self, positions, events):
+        N = self.N
+        force = np.zeros((6, self.N*self.nvps)) # one vector per point
+        # parametres
         G_tabou = self.p['G_tabou']
         distance_tabou = self.p['distance_tabou']
         G_spring = self.p['G_spring']
@@ -155,6 +158,7 @@ class Scenario:
             self.l_seg = self.l_seg_pulse
             #self.l_seg[-self.p['N_max_pulse']:] = self.p['l_seg_max']
             G_spring = self.p['G_spring_pulse']
+            #force += 4. * np.random.randn(6, self.N*self.nvps)
         else:  # cas général
             # événement Pulse avec la touche P dans display_modele_dynamique.py (Pulse)
             self.l_seg = self.l_seg_normal
@@ -194,13 +198,12 @@ class Scenario:
             if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
 
         #print 'DEBUG, damp, speed_0 ',  damp, speed_0
-#        print 'DEBUG, self.l_seg ',  self.l_seg
+        #print 'DEBUG, self.l_seg ',  self.l_seg
+        #print 'DEBUG, # player ', len(positions)
 
         n_s = self.p['kurt_struct']
         n_g = self.p['kurt_gravitation']
         #if DEBUG: print G_gravite_axis, G_gravite_perc, G_struct, G_rot_perc, G_repulsion
-        N = self.N
-        force = np.zeros((6, self.N*self.nvps)) # one vector per point
         ###################################################################################################################################
         for i_VP, OV in enumerate(self.vps[:]):
             # point C (centre) du segment
@@ -243,7 +246,6 @@ class Scenario:
                     SC = OC - np.array(position)[:, np.newaxis]
                     SC_0 = SC / (np.sqrt((SC**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
 
-                    # TODO : diminuer la force du tabou dans le temps pour les personnes arrétées / parametre T_damp_global
                     if n_g==-2.:
                         tabou = SC_0 * (distance_closer < distance_tabou) # en metres
                     else:
@@ -256,7 +258,7 @@ class Scenario:
                     arcdis = arcdistance(rae_VS, rae_VC)
                     distance_SC = rae_VS[0]*np.sin(arcdis)
 
-                    # TODO : réduire la dimension de profondeur à une simple convergence vers la position en x / reflète la perception
+                    # réduit la dimension de profondeur à une simple convergence vers la position en x / reflète la perception
                     if n_g==-2:
                         gravity_ = - SC_0 * (distance_SC - self.p['distance_m']) # en metres
                     else:
@@ -313,7 +315,6 @@ class Scenario:
                     #gravity_repuls[:, i_N] = CC[:, i_N, ind_plus_proche[i_N]]/(distance_CC[i_N,ind_plus_proche[i_N]] + self.p['eps'])**(n_s+2)# # 3 x N; en metres
                 force[0:3, i_VP*N:(i_VP+1)*N] += G_repulsion * gravity_repulsion
                 force[3:6, i_VP*N:(i_VP+1)*N] += G_repulsion * gravity_repulsion
-                # TODO attraction / repulsion des angles relatifs des segments
 
             if not(G_poussee==0.):
                 CC = OC[:, :, np.newaxis]-OC[:, np.newaxis, :] # 3xNxN ; en metres
@@ -328,8 +329,6 @@ class Scenario:
 
             # attraction des extremites des segments au dessous d'une distance
             # critique pour créer des clusters de lignes
-            # TODO: créer des structures autour des lignes de type gabor avec lobes
-            # positifs et négatifs
             if not(G_struct==0.):
                 AA_ = self.particles[0:3, i_VP*N:(i_VP+1)*N, np.newaxis]-self.particles[0:3, np.newaxis, i_VP*N:(i_VP+1)*N]
                 distance = np.sqrt(np.sum(AA_**2, axis=0)) # NxN ; en metres
@@ -352,16 +351,6 @@ class Scenario:
         #print 'DEBUG: longueur segments ', distance.mean(), distance.std()
         force[0:3, :] -= G_spring * (distance[np.newaxis, :] - self.l_seg) * AB_0
         force[3:6, :] += G_spring * (distance[np.newaxis, :] - self.l_seg) * AB_0
-
-        # volume : TODO :check
-        #if not(self.p['G_volume']==0.): #
-            #SC = (self.particles[0:3, :]+self.particles[3:6, :])/2-self.center[:, np.newaxis]
-            #distance_SC = np.sqrt(np.sum(SC**2, axis=0)) # en metres
-            #SC_0 = SC / (distance_SC + self.p['eps']) # unit vector going from the player to the center of the segment
-            #gravity = -SC_0 *  (distance_SC[np.newaxis, :]/ self.volume[:, np.newaxis])**2  # en metres
-            #force[0:3, :] += self.p['G_volume'] * gravity
-            #force[3:6, :] += self.p['G_volume'] * gravity
-            #print distance_SC.mean(), SC[2, :].mean(), gravity[2, :].mean(), force[2, :].mean()
 
 
         # normalisation des forces pour éviter le chaos
