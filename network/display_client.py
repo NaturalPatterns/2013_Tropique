@@ -17,7 +17,7 @@ sys.path.append('..')
 #my_ip = get_ip_address('eth0')
 
 my_ip = str(sys.argv[1])
-print "my ip is =", my_ip
+print "DEBUG: display client says my ip is =", my_ip
 
 # Screen information
 # ------------------
@@ -56,11 +56,11 @@ for i in range (6):
 
 import pyglet
 platform = pyglet.window.get_platform()
-print "platform" , platform
+print "DEBUG: display client says platform" , platform
 display = platform.get_default_display()
-print "display" , display
+print "DEBUG: display client says display" , display
 screens = display.get_screens()
-print "screens" , screens
+print "DEBUG: display client says screens" , screens
 for i, screen in enumerate(screens):
     print 'Screen %d: %dx%d at (%d,%d)' % (i, screen.width, screen.height, screen.x, screen.y)
 N_screen = len(screens) # number of screens
@@ -101,7 +101,7 @@ center = np.array([0., d_y/2, d_z/2], dtype='f') # central point of the room  / 
 #VPs = VPs
 N = p['N']
 nVPs = len(VPs)
-print "DEBUG: the N= ", N, ": #VPs= ", nVPs
+#print "DEBUG: the N= ", N, ": #VPs= ", nVPs
 
 order = 2
 particles = np.zeros((6*order, N*nVPs), dtype='f') # x, y, z, u, v, w
@@ -182,7 +182,7 @@ def callback(dt):
     ry += dt / dy
     ry %= 6.28
     try :
-        if DEBUG: print 'DEBUG display client : %f seconds since last callback' % dt , '%f  fps' % pyglet.clock.get_fps()
+        if DEBUG: pass # print 'DEBUG display client : %f seconds since last callback' % dt , '%f  fps' % pyglet.clock.get_fps()
     except :
         pass
 
