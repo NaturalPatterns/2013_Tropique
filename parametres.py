@@ -112,7 +112,7 @@ p = {'N': 32,
      'kurt_gravitation' : -2., # 0 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
      'G_rot_perc': 1., # Ressort, permet d'axrt et d'avoir Plus ou moins de fan
      'G_rot_perc_G': 10.,
-     'G_rot_perc_R': 0.1,
+     'G_rot_perc_R': 1.5,
      'distance_tabou': 0.3, # distance tabou (perpendiculairement à l'axe VP-player)
      'G_tabou': 30., # force tabou qui expulse tout segment qui rentre dans la zone tabou (je suis completment tabou)
      'G_gravite_axis': 5.0, # parametre d'attraction physique vers les players
@@ -128,7 +128,7 @@ p = {'N': 32,
      'distance_struct_R': .1,
      'G_repulsion': .1, # constante de répulsion entre les particules
      'G_repulsion_G': .3, # force avec laquelle les bouts de segments s'attirent
-     'G_repulsion_R': .3, # constante de répulsion entre les particules
+     'G_repulsion_R': .4, # constante de répulsion entre les particules
      'kurt_struct' : 0., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
      'eps': 1.e-3, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 15., 'l_seg_min': 0.5, 'l_seg_max': 2., 'N_max': 2, # dureté et longueur des segments
