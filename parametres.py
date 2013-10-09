@@ -105,14 +105,14 @@ print 'DEBUG parametres , position croix: ', calibration['croix']
 # parametres du champ
 p = {'N': 32,
      # parametres perceptifs
-     'distance_m': 0.9, # distance d'équilibre des segments autour d'une position de player
+     'distance_m': 0.7, # distance d'équilibre des segments autour d'une position de player
      'G_gravite_perc': 6.0, # attraction globale vers les centres des positions
      'G_gravite_perc_G': 10.0, # attraction globale vers les centres des positions
      'G_gravite_perc_R': 1., # attraction globale vers les centres des positions
      'kurt_gravitation' : -2., # 0 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
-     'G_rot_perc': 1., # Ressort, permet d'axrt et d'avoir Plus ou moins de fan
+     'G_rot_perc': 2., # Ressort, permet d'axrt et d'avoir Plus ou moins de fan
      'G_rot_perc_G': 10.,
-     'G_rot_perc_R': 1.5,
+     'G_rot_perc_R': 5.,
      'distance_tabou': 0.3, # distance tabou (perpendiculairement à l'axe VP-player)
      'G_tabou': 30., # force tabou qui expulse tout segment qui rentre dans la zone tabou (je suis completment tabou)
      'G_gravite_axis': 5.0, # parametre d'attraction physique vers les players
@@ -131,7 +131,7 @@ p = {'N': 32,
      'G_repulsion_R': .4, # constante de répulsion entre les particules
      'kurt_struct' : 0., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
      'eps': 1.e-3, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
-     'G_spring': 15., 'l_seg_min': 0.4, 'l_seg_max': 2., 'N_max': 2, # dureté et longueur des segments
+     'G_spring': 15., 'l_seg_min': 0.4, 'l_seg_max': 2.5, 'N_max': 2, # dureté et longueur des segments
      # parametres break
      'G_spring_pulse': 15., 'l_seg_pulse': 0.8, 'N_max_pulse': 2,  # dureté et longueur des segments dans un break
      'damp_break23': .05,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
@@ -143,10 +143,10 @@ p = {'N': 32,
      # parametres globaux
      'damp': 0.1,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_G': 0.2,  # facteur de damping / absorbe l'énergie / regle la viscosité
-     'damp_R': 0.05,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp_R': 0.1,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 19., # facteur global régler la saturation de la force - inopérant au dessus de 20 par définition
-     'line_width': 1, # line width of segments
+     'line_width': 2, # line width of segments
      }
 
 from numpy import pi
