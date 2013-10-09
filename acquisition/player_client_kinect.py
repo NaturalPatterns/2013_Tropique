@@ -59,6 +59,8 @@ def stream_acqui():
     nbr_data = 0
     i = 0
     total = 0
+    goodsend =0
+
     while (i==0) :
         a = time.time()
         serverkinects = []
@@ -69,7 +71,17 @@ def stream_acqui():
             nbr_data +=1
             if the_pos <= 1 :
                 time.sleep(the_pos)
-            sock_pd.sendto((all_pos.partition("   ")[2] ), (my_host, my_port))
+            try :
+                sendor, Client = sock_confirm.recvfrom (1024)
+            except (KeyboardInterrupt):
+                raise
+            except:
+                pass
+            else :
+                goodsend = 1
+            if goodsend == 1:
+                sock_pd.sendto((all_pos.partition("   ")[2] ), (my_host, my_port))
+                goodsend =0
             b = a - last_time 
             total +=b
 #            print "the time lapsed = , for time ",b , the_pos, all_pos.partition("   ")[2]
@@ -128,6 +140,10 @@ if __name__ == "__main__":
     # SOCK_DGRAM is the socket type to use for UDP sockets
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock_pd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock_confirm = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock_confirm.bind(("127.0.0.1", 5555))
+    sock_confirm.setblocking(0)
+
     host_pd = '89.226.106.164'
     port_pd = 3002
     host_affi = '10.42.0.100'
