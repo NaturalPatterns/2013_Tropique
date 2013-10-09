@@ -133,7 +133,7 @@ p = {'N': 32,
      'eps': 1.e-3, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 15., 'l_seg_min': 0.4, 'l_seg_max': 2.5, 'N_max': 2, # dureté et longueur des segments
      # parametres break
-     'G_spring_pulse': 50., 'l_seg_pulse': 0.5, 'N_max_pulse': 2,  # dureté et longueur des segments dans un break
+     'G_spring_pulse': 30., 'l_seg_pulse': 0.43, 'N_max_pulse': 2,  # dureté et longueur des segments dans un break
      'damp_break23': .05,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'damp_break1': .1,  # facteur de damping / absorbe l'énergie / regle la viscosité  / absorbe la péchitude
      'speed_break': .6, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
