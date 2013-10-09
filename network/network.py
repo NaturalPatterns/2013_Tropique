@@ -83,7 +83,7 @@ class Kinects:
         except:
            pass # detect = 0
         else :
-#            print"data =" ,Donnee , Client
+#            print "data =" ,Donnee , Client
             #Donnee = ( x + y + z +";")*nbr_player)
             datasplit = Donnee.split(";")
     #	print "datasplit =" , datasplit

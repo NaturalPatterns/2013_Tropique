@@ -52,6 +52,8 @@ def stream_acqui():
     print "listen to kinects server "
     teston =0
     last_time = 0
+    goodsend = 0
+
     while (teston < 1) :
 #        a = time.time()
 #        b = a - last_time
@@ -67,18 +69,32 @@ def stream_acqui():
         all_pos=""
         for server in serverkinects:
             server.join()
-            try: var = int(server.status)
-            except:all_pos +=server.status
-            else: pass
-        all_pos = all_pos[0:(len(all_pos) -1)]
-        if all_pos !="":
+            try: 
+                var = int(server.status)
+            except:
+                all_pos += server.status
+            else:
+                pass
+        all_pos = all_pos[0:(len(all_pos) - 1)]
+        try:
+            sendor, Client = sock_confirm.recvfrom(1024)
+        except (KeyboardInterrupt):
+            raise
+        except:
+            pass
+        else:
+            goodsend = 1
+            
+        if (goodsend == 1 and all_pos != ""):
 #            print "send  =", all_pos
-            sock_to_affi.sendto((all_pos ), (affi_host, affi_port))
+            sock_to_affi.sendto((all_pos), (affi_host, affi_port))
+            goodsend = 0
+
 
 def segment():
     os.system('clear')
     print "listen to kinects server "
-    for kin in info_kinects :
+    for kin in info_kinects:
         print kin['address'], kin['port']
         HOST = kin['address']
         PORT = kin['port']
@@ -120,6 +136,9 @@ if __name__ == "__main__":
 #    sock_pd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     affi_host = 'localhost'
     affi_port = 3004
+    sock_confirm = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock_confirm.bind(("127.0.0.1", 5555))
+    sock_confirm.setblocking(0)
     list_kinect()
     if DEBUG: print "send to ",affi_host, affi_port
     stream_acqui()
