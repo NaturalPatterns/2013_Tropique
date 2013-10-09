@@ -361,7 +361,7 @@ def calc_angle(each, kin):
 #        print "pourcent  =" ,pourcent
         fact= 15
         varz = int (float(z/100) * (pourcent) * fact)
-        print "z ,  varz =",z," , ", z+varz , kin['z']*100-z
+#        print "z ,  varz =",z," , ", z+varz , kin['z']*100-z
 #        z+=20
 #
         z= z+ varz
@@ -424,7 +424,7 @@ def on_draw():
                 if ( ( kin['address']==('10.42.0.'+str(int(each3[0])))) and (kin['port'] == int(each3[1])) ):
 #                   print 'reconise ', each3[0] , ('as 10.42.0.1'+ str(int(each3[0]/2)) ),', kin0'
                     calc_angle(each3, kin)
-
+    sock.sendto("ok", ("127.0.0.1", 5555) )
     display_player()
     try :
         sendor, Client = testsend.recvfrom (1024)
@@ -441,7 +441,7 @@ def callback(dt):
     rx %= 6.28
     ry += dt
     ry %= 6.28
-#    print '%f seconds since last callback' % dt , '%f  fps' % pyglet.clock.get_fps()
+    print '%f seconds since last callback' % dt , '%f  fps' % pyglet.clock.get_fps()
 
 
 pyglet.clock.schedule(callback)
