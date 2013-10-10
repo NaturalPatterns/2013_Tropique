@@ -226,8 +226,6 @@ class Scenario:
             # modulation des forces en fonction de la longueur des segments
             AB = self.particles[0:3, i_VP*N:(i_VP+1)*N]-self.particles[3:6, i_VP*N:(i_VP+1)*N] # 3 x N
             distance = np.sqrt(np.sum(AB**2, axis=0)) # en metres
-            #l_modul = distance.mean() / distance
-            l_modul = 1. #self.l_seg[i_VP*N:(i_VP+1)*N] / (distance + self.p['eps'])
 
             # attraction / repulsion des angles relatifs des segments
             if not(positions == None) and not(positions == []):
@@ -289,10 +287,10 @@ class Scenario:
 
                 force[0:3, i_VP*N:(i_VP+1)*N] += G_gravite_axis * gravity_axis_A
                 force[3:6, i_VP*N:(i_VP+1)*N] += G_gravite_axis * gravity_axis_B
-                force[0:3, i_VP*N:(i_VP+1)*N] += G_gravite_perc * l_modul * gravity
-                force[3:6, i_VP*N:(i_VP+1)*N] += G_gravite_perc * l_modul * gravity
-                force[0:3, i_VP*N:(i_VP+1)*N] += G_rot_perc * l_modul * rotation
-                force[3:6, i_VP*N:(i_VP+1)*N] -= G_rot_perc * l_modul * rotation
+                force[0:3, i_VP*N:(i_VP+1)*N] += G_gravite_perc * gravity
+                force[3:6, i_VP*N:(i_VP+1)*N] += G_gravite_perc * gravity
+                force[0:3, i_VP*N:(i_VP+1)*N] += G_rot_perc * rotation
+                force[3:6, i_VP*N:(i_VP+1)*N] -= G_rot_perc * rotation
 
                 # FORCES GLOBALES  dans l'espace physique
                 ## forces entres les particules
@@ -335,14 +333,14 @@ class Scenario:
                 distance = np.sqrt(np.sum(AA_**2, axis=0)) # NxN ; en metres
                 distance = distance_struct  * (distance < distance_struct) + distance * (distance > distance_struct) # NxN ; en metres
                 gravity_struct = np.sum( AA_  / (np.sqrt((AA_**2).sum(axis=0)) + self.p['eps']) /(distance.T **(n_s+2) + self.p['eps']), axis=1) # 3 x N; en metres
-                force[0:3, i_VP*N:(i_VP+1)*N] += G_struct  * l_modul * gravity_struct
+                force[0:3, i_VP*N:(i_VP+1)*N] += G_struct  gravity_struct
                 BB_ = self.particles[3:6, i_VP*N:(i_VP+1)*N, np.newaxis]-self.particles[3:6, np.newaxis, i_VP*N:(i_VP+1)*N]
                 #BB_ = self.particles[0:3, :][:, :, np.newaxis]-self.particles[3:6, :][:, :, np.newaxis]
                 distance = np.sqrt(np.sum(BB_**2, axis=0)) # NxN ; en metres
                 distance = distance_struct  * (distance < distance_struct) + distance * (distance > distance_struct) # NxN ; en metres
                 #gravity_struct = - np.sum((distance < distance_struct) * BB_/(distance.T + self.p['eps'])**(n_s+2), axis=1) # 3 x N; en metres
                 gravity_struct = np.sum(BB_/ (np.sqrt((BB_**2).sum(axis=0)) + self.p['eps']) /(distance.T **(n_s+2) + self.p['eps']), axis=1) # 3 x N; en metres
-                force[3:6, i_VP*N:(i_VP+1)*N] += G_struct  * l_modul * gravity_struct
+                force[3:6, i_VP*N:(i_VP+1)*N] += G_struct  gravity_struct
 
         ## forces individuelles pour chaque segment
         # ressort
