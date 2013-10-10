@@ -125,7 +125,7 @@ p = {'N': 32,
      'G_struct_G': .0, # force avec laquelle les bouts de segments s'attirent
      'G_struct_R': .1, # force avec laquelle les bouts de segments s'attirent
      'distance_struct': .2, # distance pour laquelle l'attraction des bouts de segments s'inverse
-     'distance_struct_R': .1,
+     'distance_struct_R': .13,
      'G_repulsion': .1, # constante de répulsion entre les particules
      'G_repulsion_G': .3, # force avec laquelle les bouts de segments s'attirent
      'G_repulsion_R': .4, # constante de répulsion entre les particules
