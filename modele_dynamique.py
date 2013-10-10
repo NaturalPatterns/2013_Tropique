@@ -358,7 +358,8 @@ class Scenario:
         #if DEBUG: print  self.particles[0:3, :].mean(axis=1)
         #if DEBUG: print 'Force ', force.mean(axis=1), force.std(axis=1)
         if self.p['scale'] < self.p['scale_max']: force = self.p['scale'] * np.tanh(force/self.p['scale'])
-        force *= self.l_seg.mean()/self.l_seg*speed_0
+        #force *= self.l_seg.mean()/self.l_seg*speed_0
+        force *= self.l_seg_normal.mean()/self.l_seg_normal*speed_0
         # damping
         force -= damp * self.particles[6:12, :]/self.dt
 

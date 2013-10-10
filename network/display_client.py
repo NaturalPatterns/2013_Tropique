@@ -38,7 +38,7 @@ dx ,dy = 10.0 , 10.0
 
 global my_x ,my_y,my_z, my_cx,my_cy,my_cz,my_foc,my_pc_min,my_pc_max
 
-for i in range (6):
+for i in range (len(VPs)):
     print VPs[i]['address']
     if (my_ip == VPs[i]['address']) :
         i_win= i
