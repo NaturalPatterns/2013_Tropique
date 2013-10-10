@@ -185,14 +185,15 @@ class Scenario:
 #            damp = self.p['damp_break1']
 
         if not(self.t_break == 0.):# and not(events[:6] == [0, 0, 0, 0, 0, 0]):
-            if (events[:6] == [1, 1, 1, 1, 1, 1]) and (events[-1] == 0): # break #2 or #3 - touche J ou O
+            #if (events[:6] == [1, 1, 1, 1, 1, 1]) and (events[-1] == 0): # break #2 or #3 - touche J ou O
+            if (events[-1] == 0): # break #2 or #3 - touche J ou O
                 modul = np.exp(-(self.p['T_break'] - (self.t - self.t_break)) / self.p['tau_break'])
                 speed_0 = self.p['speed_0'] *((self.p['A_break']-1) * modul + 1)
                 #modult = 1. - 4*(self.p['T_break'] - (self.t - self.t_break)) *  (self.t - self.t_break) / self.p['T_break']**2
-                modult = 1. - 2.* (self.p['T_break'] - (self.t - self.t_break)) / self.p['T_break']
+                modult = -1. + 2.* (self.p['T_break'] - (self.t - self.t_break)) / self.p['T_break']
                 self.l_seg = self.l_seg_normal * (modult*(modult>0) + self.p['A_break'] * modul)
                 damp = self.p['damp_break23']
-                if DEBUG: print 'DEBUG, on est dans le break 2&3, modul      , modult ', modul, modult
+                if DEBUG: print 'DEBUG, on est dans le break 2&3, modul      , modult, lseg ', modul, modult, modult*(modult>0) + self.p['A_break'] * modul
             # reset the break after T_break seconds AND receiving the resetting signal
             if DEBUG: print 'DEBUG, on est dans le break, on compte à rebours, speed_0 ',  self.t - self.t_break, speed_0
             if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
