@@ -22,8 +22,8 @@ Par convention, la position de la croix est au centre de la salle: [d_x/2, d_y/2
 """
 
 # pour savoir si on imprime des messages d'erreur
-DEBUG  = False
 DEBUG  = True
+DEBUG  = False
 
 # taille de l'espace
 #d_y, d_z = 4.9, 6.22*3/4
