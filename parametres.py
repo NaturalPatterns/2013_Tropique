@@ -130,7 +130,7 @@ p = {'N': 32,
      'G_repulsion_G': .3, # force avec laquelle les bouts de segments s'attirent
      'G_repulsion_R': .4, # constante de répulsion entre les particules
      'kurt_struct' : 0., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
-     'eps': 1.e-3, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
+     'eps': 1.e-4, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 15., 'l_seg_min': 0.4, 'l_seg_max': 2.5, 'N_max': 2, # dureté et longueur des segments
      # parametres break
      'G_spring_pulse': 30., 'l_seg_pulse': 0.43, 'N_max_pulse': 2,  # dureté et longueur des segments dans un break
@@ -144,10 +144,10 @@ p = {'N': 32,
      'damp': 0.1,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_G': 0.2,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_R': 0.1,  # facteur de damping / absorbe l'énergie / regle la viscosité
-     'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
+     'speed_0': .95, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 19., # facteur global régler la saturation de la force - inopérant au dessus de  scale_max
      'scale_max': 20., # facteur global régler la saturation de la force - inopérant au dessus de scale_max
-     'line_width': 2, # line width of segments
+     'line_width': 3, # line width of segments
      }
 
 from numpy import pi
