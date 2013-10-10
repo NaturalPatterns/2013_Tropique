@@ -672,24 +672,5 @@ class Scenario:
             self.particles[0:3, :] += np.array(positions[0])[:, np.newaxis]
             self.particles[3:6, :] += np.array(positions[0])[:, np.newaxis]
 
-#
-        #  permet de ne pas sortir du volume
-        #if (self.scenario == 'leapfrog') or (self.scenario == 'euler') :
-            #if True: #
-                #for i in range(6):
-                    #self.particles[i, (self.particles[i, :] < -1*self.volume[i % 3]) ] = -1*self.volume[i % 3]
-                    #self.particles[i, (self.particles[i, :] > 2* self.volume[i % 3]) ] = 2*self.volume[i % 3]
-                    #self.particles[i+6, (self.particles[i, :] < -1*self.volume[i % 3]) ] *= -1.
-                    #self.particles[i+6, (self.particles[i, :] > 2* self.volume[i % 3]) ] *= -1.
-                    #self.particles[i, (self.particles[i, :] < -.0*self.volume[i % 3]) ] = -.0*self.volume[i % 3]
-            #else:
-                #for i_N in range(self.N):
-                    #if (self.particles[:3, i_N] < -.5*self.volume).any() or (self.particles[:3, i_N] > 1.5* self.volume).any()\
-                       #or (self.particles[3:6, i_N] < -.5*self.volume).any() or (self.particles[3:6, i_N] > 1.5* self.volume).any():
-                        #self.particles[:3, i_N] = self.center + .01*np.random.randn(3)*self.volume
-                        #self.particles[3:6, i_N] = self.particles[:3, i_N]
-                        #self.particles[6:, i_N] = 0.
-#
-#
 if __name__ == "__main__":
     import display_modele_dynamique
