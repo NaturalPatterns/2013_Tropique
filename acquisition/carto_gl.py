@@ -356,7 +356,7 @@ def calc_angle(each, kin):
     z = each[4]
     if (z>= -100 and z<= 50) :
         pourcent = ((each[5] + 0.001) /600)**2
-        
+
 #        print "alpha=", alpha
 #        print "pourcent  =" ,pourcent
         fact= 15
@@ -441,7 +441,7 @@ def callback(dt):
     rx %= 6.28
     ry += dt
     ry %= 6.28
-    print '%f seconds since last callback' % dt , '%f  fps' % pyglet.clock.get_fps()
+    #print '%f seconds since last callback' % dt , '%f  fps' % pyglet.clock.get_fps()
 
 
 pyglet.clock.schedule(callback)
