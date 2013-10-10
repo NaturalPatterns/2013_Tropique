@@ -119,8 +119,8 @@ p = {'N': 32,
      'G_gravite_axis_R': 5., # parametre d'attraction physique vers les players
      'G_gravite_axis_G': 5., # parametre d'attraction physique vers les players
      # parametres physiques
-     'G_poussee': 0.2, # parametre de poussee créateur de vortex
-     'G_poussee_break': 7.0, # parametre de poussee créateur de vortex
+     'G_poussee': 0.15, # parametre de poussee créateur de vortex
+     'G_poussee_break': 3.0, # parametre de poussee créateur de vortex
      'G_struct': 0.02, # force avec laquelle les bouts de segments s'attirent
      'G_struct_G': .0, # force avec laquelle les bouts de segments s'attirent
      'G_struct_R': .1, # force avec laquelle les bouts de segments s'attirent
