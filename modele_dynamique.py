@@ -333,14 +333,14 @@ class Scenario:
                 distance = np.sqrt(np.sum(AA_**2, axis=0)) # NxN ; en metres
                 distance = distance_struct  * (distance < distance_struct) + distance * (distance > distance_struct) # NxN ; en metres
                 gravity_struct = np.sum( AA_  / (np.sqrt((AA_**2).sum(axis=0)) + self.p['eps']) /(distance.T **(n_s+2) + self.p['eps']), axis=1) # 3 x N; en metres
-                force[0:3, i_VP*N:(i_VP+1)*N] += G_struct  gravity_struct
+                force[0:3, i_VP*N:(i_VP+1)*N] += G_struct * gravity_struct
                 BB_ = self.particles[3:6, i_VP*N:(i_VP+1)*N, np.newaxis]-self.particles[3:6, np.newaxis, i_VP*N:(i_VP+1)*N]
                 #BB_ = self.particles[0:3, :][:, :, np.newaxis]-self.particles[3:6, :][:, :, np.newaxis]
                 distance = np.sqrt(np.sum(BB_**2, axis=0)) # NxN ; en metres
                 distance = distance_struct  * (distance < distance_struct) + distance * (distance > distance_struct) # NxN ; en metres
                 #gravity_struct = - np.sum((distance < distance_struct) * BB_/(distance.T + self.p['eps'])**(n_s+2), axis=1) # 3 x N; en metres
                 gravity_struct = np.sum(BB_/ (np.sqrt((BB_**2).sum(axis=0)) + self.p['eps']) /(distance.T **(n_s+2) + self.p['eps']), axis=1) # 3 x N; en metres
-                force[3:6, i_VP*N:(i_VP+1)*N] += G_struct  gravity_struct
+                force[3:6, i_VP*N:(i_VP+1)*N] += G_struct * gravity_struct
 
         ## forces individuelles pour chaque segment
         # ressort
