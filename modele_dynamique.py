@@ -322,7 +322,7 @@ class Scenario:
                 ind_min = np.argmin(distance + np.eye(self.N)*1e6, axis=0)
                 speed_CC = (self.particles[6:9, i_VP*N:(i_VP+1)*N] + self.particles[6:9, i_VP*N + ind_min]) + (self.particles[9:12, i_VP*N:(i_VP+1)*N] + self.particles[9:12, i_VP*N + ind_min])
                 poussee =  np.sign(np.sum(speed_CC * CC[:,ind_min,:].diagonal(axis1=1, axis2=2), axis=0)) * CC[:,ind_min,:].diagonal(axis1=1, axis2=2)
-                poussee /= (distance[:,ind_min].diagonal() + self.p['eps'])**(n_g+2) # 3 x N; en metres
+                poussee /= (distance[:,ind_min].diagonal() + self.p['eps'])**(n_s+2) # 3 x N; en metres
                 force[0:3, i_VP*N:(i_VP+1)*N] += G_poussee * poussee
                 force[3:6, i_VP*N:(i_VP+1)*N] += G_poussee * poussee
 
