@@ -84,7 +84,6 @@ class Scenario:
         self.t = time.time()
         self.scenario = scenario
         self.volume = volume
-        d_x, d_y, d_z = self.volume
         self.center = calibration['center'] # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
         self.croix =  calibration['croix'] # definition de la position de la croix
         self.roger =  calibration['roger'] #  fixation dot  (AKA Roger?)
@@ -104,16 +103,19 @@ class Scenario:
             self.l_seg_pulse[i_VP*self.N:((i_VP+1)*self.N-self.p['N_max_pulse'])] = self.p['l_seg_pulse'] * np.ones(self.N-self.p['N_max_pulse'])
             self.l_seg_pulse[((i_VP+1)*self.N-self.p['N_max_pulse']):(i_VP+1)*self.N] = self.p['l_seg_max']
         self.order = 2
+        self.t_break = 0.
+        self.init()
 
+    def init(self):
         # initialisation des particules
-        self.particles = np.zeros((6*self.order, N*self.nvps), dtype='f') # x, y, z, u, v, w
-        self.particles[0:3, :] = self.center[:, np.newaxis]
-        self.particles[3:6, :] = self.center[:, np.newaxis]
+        self.particles = np.zeros((6*self.order, self.N*self.nvps), dtype='f') # x, y, z, u, v, w
+        self.particles[0:3, :] = self.croix[:, np.newaxis]
+        self.particles[3:6, :] = self.croix[:, np.newaxis]
+        d_x, d_y, d_z = self.volume
         self.particles[1, :] = np.linspace(0., d_y, self.N*self.nvps)
-        #self.particles[3:6, :] = self.particles[0:3, :] + np.ones((3, self.N*self.nvps))*self.l_seg
+        #self.particles[3:6, :] = self.particles[0:3, :] + np.ones((3, self.self.N*self.nvps))*self.l_seg
         self.particles[4, :] = self.particles[1, :]
         self.particles[5, :] -= self.l_seg
-        self.t_break = 0.
 
     def champ(self, positions, events):
         N = self.N
@@ -655,7 +657,9 @@ class Scenario:
             # application de l'acceleration calculée sur les positions
             self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
             if np.isnan(self.particles[:6, :]).any():
-                raise ValueError("some values like NaN breads")
+                #raise ValueError("some values like NaN breads")
+                self.init()
+                print("some values like NaN breads")
 
         elif self.scenario == 'euler':
             force = self.champ(positions=positions, events=events)
