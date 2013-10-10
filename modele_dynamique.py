@@ -226,7 +226,7 @@ class Scenario:
             AB = self.particles[0:3, i_VP*N:(i_VP+1)*N]-self.particles[3:6, i_VP*N:(i_VP+1)*N] # 3 x N
             distance = np.sqrt(np.sum(AB**2, axis=0)) # en metres
             #l_modul = distance.mean() / distance
-            l_modul = self.l_seg[i_VP*N:(i_VP+1)*N] / (distance + self.p['eps'])
+            l_modul = 1. #self.l_seg[i_VP*N:(i_VP+1)*N] / (distance + self.p['eps'])
 
             # attraction / repulsion des angles relatifs des segments
             if not(positions == None) and not(positions == []):
@@ -356,8 +356,8 @@ class Scenario:
         # normalisation des forces pour éviter le chaos
         #if DEBUG: print  self.particles[0:3, :].mean(axis=1)
         #if DEBUG: print 'Force ', force.mean(axis=1), force.std(axis=1)
-        if self.p['scale'] < 20: force = self.p['scale'] * np.tanh(force/self.p['scale'])
-        force *= speed_0
+        if self.p['scale'] < self.p['scale_max']: force = self.p['scale'] * np.tanh(force/self.p['scale'])
+        force *= self.l_seg.mean()/self.l_seg*speed_0
         # damping
         force -= damp * self.particles[6:12, :]/self.dt
 
