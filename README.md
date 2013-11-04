@@ -63,7 +63,7 @@ Méthodes: Créer l'espace
 
  * une lame - multiplicité des perceptions et des espaces - continuité dans le temps (leapfrog newtonien; speed_0 / damp) - un objet dans l'espace=synchronicités sur les VPs
 
- * des points de vues - une personne (vue subjective, coordonnées perceptives) / non-accidental properties (Biedermann) 
+ * des points de vues - une personne (vue subjective, coordonnées perceptives) / non-accidental properties (Biedermann)  points de fuite - horizon
 
  * des lames - aggregation; du cristal au gaz - temps d'émergence (G_*) / stabilisation / cristallisation en rapport avec l'expérience intime du spectateur
 
