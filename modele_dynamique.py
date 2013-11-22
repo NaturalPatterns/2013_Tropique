@@ -365,10 +365,12 @@ class Scenario:
 
         return force
 
-    def do_scenario(self, positions=None, events=[0, 0, 0, 0, 0, 0, 0, 0]):
+    def do_scenario(self, positions=None, events=[0, 0, 0, 0, 0, 0, 0, 0], dt=None):
         self.t_last = self.t
         self.t = time.time()
         self.dt = (self.t - self.t_last)
+        if (dt==None): dt = self.dt
+        else: self.dt = dt
         d_x, d_y, d_z = self.volume
         #print 'DEBUG modele dyn ', self.particles.shape
 
@@ -650,13 +652,13 @@ class Scenario:
             self.particles[3:6, :] += self.center[:, np.newaxis]
 
         elif self.scenario == 'leapfrog':
-            self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
+            self.particles[:6, :] += self.particles[6:12, :] * dt/2
             force = self.champ(positions=positions, events=events)
-            self.particles[6:12, :] += force * self.dt
+            self.particles[6:12, :] += force * dt
             # TODO utiliser mla force comme la vitesse désirée?
             #self.particles[6:12, :] = force
             # application de l'acceleration calculée sur les positions
-            self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
+            self.particles[:6, :] += self.particles[6:12, :] * dt/2
             if np.isnan(self.particles[:6, :]).any():
                 #raise ValueError("some values like NaN breads")
                 self.init()
@@ -664,9 +666,9 @@ class Scenario:
 
         elif self.scenario == 'euler':
             force = self.champ(positions=positions, events=events)
-            self.particles[6:12, :] += force * self.dt
+            self.particles[6:12, :] += force * dt
             # application de l'acceleration calculée sur les positions
-            self.particles[:6, :] += self.particles[6:12, :] * self.dt
+            self.particles[:6, :] += self.particles[6:12, :] * dt
 
         # pour les scenarios de controle du suivi, on centre autour de la position du premier player
         if not(positions == None) and not(positions == []) and (self.scenario in ['croix', 'fan', '2fan', 'rotating-circle', 'calibration']):
