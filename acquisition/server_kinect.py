@@ -39,7 +39,7 @@ def get_ip_address(ifname):
         struct.pack('256s', ifname[:15])
     )[20:24])
 #my_ip = get_ip_address('eth0')
-my_ip = get_ip_address('eth0')
+my_ip = get_ip_address('wlan0')
 #print "my ip is =", my_ip
 global my_number  
 #my_number= (int(my_ip[len(my_ip)-1])*2)+ server_kin
@@ -64,7 +64,7 @@ if show :
     
 #---- definition du threshold (distance ) max etablie dans parametres.py
 global threshold
-threshold = 400
+threshold = 300
 level = 5
 for kin in info_kinects:
     if ( (kin['address'] == my_ip) and (kin['port'] == server_kin) )  :
@@ -264,10 +264,10 @@ def make_my_thresholdarray():
         a=0
         if long_test == 0:
             img_moy = my_array2
-            print "test  reduction bruit 1"
+#            print "test  reduction bruit 1"
         else :
-            print img_moy.shape[0]
-            print "test  reduction bruit 2"
+#            print img_moy.shape[0]
+#            print "test  reduction bruit 2"
             img_moy = np.add (img_moy, my_array2) 
 #        img_moy/=11
         img_moy = img_moy.astype(np.uint8)
@@ -275,12 +275,12 @@ def make_my_thresholdarray():
             cv2.imshow("img_moy", img_moy.astype(np.uint8))
 
 
-    print img_moy.shape[0]
+#    print img_moy.shape[0]
     print "test  reduction bruit 12"
     for i in range (0 ,img_moy.shape[0] , 1) :
-        print i, img_moy.shape[0] , np.mean(img_moy[i,:])
+#        print i, img_moy.shape[0] , np.mean(img_moy[i,:])
         if ( np.mean(img_moy[i,:]) >= 50 ):
-            print "test  reduction bruit 13"
+#            print "test  reduction bruit 13"
 
 #            print "ligne ",i,int(np.mean(my_array2[i,:]))
             if a==0:
@@ -288,10 +288,10 @@ def make_my_thresholdarray():
                     a+=1
             else :
                 my_thresholdarray = np.append(my_thresholdarray, [ [i,int(np.mean(img_moy[i,:])) +10 ] ] , axis =0)
-    if a==0:
-        print "il ny a pas de my_thresholdarray"
-    else :
-        print"my_thresholdarray  = ",   my_thresholdarray , my_thresholdarray.shape, my_thresholdarray.shape[0]
+#    if a==0:
+#        print "il ny a pas de my_thresholdarray"
+#    else :
+#        print"my_thresholdarray  = ",   my_thresholdarray , my_thresholdarray.shape, my_thresholdarray.shape[0]
     
 #    for i in range (my_thresholdarray)
 
