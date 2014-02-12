@@ -77,7 +77,7 @@ class Kinects:
 
     def read_sock(self):
         try :
-            Donnee, Client = self.sock.recvfrom (128)
+            Donnee, Client = self.sock.recvfrom (4096)
         except (KeyboardInterrupt):
             raise
         except:
@@ -92,10 +92,14 @@ class Kinects:
                 store_blob = [[float(each2) for each2 in each.split(" ") ] for each in datasplit[:len(datasplit)-1]]
 #                print "store =" ,store_blob
             else:
-                store_blob = [[float(each2) for each2 in each.split(",") ] for each in datasplit]
-
-            store_blob = [ [float(k)/100. for k in position] for position in store_blob ]
-            return store_blob
+                try :
+                    store_blob = [[float(each2) for each2 in each.split(",") ] for each in datasplit]
+                except:
+                    pass
+                else :
+                    passthru = 1
+                    store_blob = [ [float(k)/100. for k in position] for position in store_blob ]
+                    return store_blob
 
     def trigger(self):
         self.send_sock.sendto("1", (self.kinects['send_UDP_IP'], self.kinects['send_UDP_PORT']) )
