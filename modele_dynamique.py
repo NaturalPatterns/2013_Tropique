@@ -68,8 +68,8 @@ def xyz2azel(xyz, OV = np.zeros((3,)), eps=1.e-6):
     if (rae.ndim > 2): OV = OV[:, np.newaxis]
     rae[0, ...] = np.sqrt(np.sum((xyz - OV)**2, axis=0))
     #xyz[0, xyz[0, ...] == OV[0]] = OV[0] + eps
-    rae[1, ...] = np.arctan((xyz[1, ...] - OV[1])/(xyz[0, ...] - OV[0]))
-    rae[2, ...] = np.arccos((xyz[2, ...] - OV[2])/(rae[0, ...] + eps))
+    rae[1, ...] = np.arctan((xyz[1, ...] - OV[1, ...])/(xyz[0, ...] - OV[0, ...]))
+    rae[2, ...] = np.arcsin((xyz[2, ...] - OV[2, ...])/(rae[0, ...] + eps))
     return rae
 
 def rae2xyz(rae, OV = np.zeros((3,))):
