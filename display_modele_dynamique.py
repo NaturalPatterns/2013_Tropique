@@ -9,6 +9,7 @@ Exploration mode.
     - TAB pour passer/sortir du fulscreen
     - espace : passage en first-person perspective
     - H : more players
+    - C : change viewpoint (cycle from one VP to another)
 
     Les interactions visuo - sonores sont simulées ici par des switches lançant des phases:
     - R : rugosité physique G_struct distance_struct

@@ -1,4 +1,6 @@
+#! /usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import division
 """
 
 Modèle dynamique
@@ -47,7 +49,7 @@ def orientation(rae1, rae2):
     """
     return np.arctan2(np.sin(rae2[1, ...] - rae1[1, ...]), np.cos(rae1[2, ...])*np.tan(rae2[2, ...]) - np.sin(rae1[2, ...])*np.cos(rae2[1, ...] - rae1[1, ...]))
 
-def xyz2azel(xyz, OV = np.zeros((3,))):
+def xyz2azel(xyz, OV = np.zeros((3,)), eps=1.e-6):
     """
     renvoie le vecteur de coordonnées perceptuelles en fonction des coordonnées physiques
 
@@ -57,20 +59,25 @@ def xyz2azel(xyz, OV = np.zeros((3,))):
     - O est la référence des coordonnées cartésiennes et
     - V les coordonnées cartesiennes du centre (typiquement du videoprojecteur).
 
+    cf. https://en.wikipedia.org/wiki/Spherical_coordinates
+
     """
     rae = np.zeros(xyz.shape)
 #     print rae.shape, xyz, VP
     if (rae.ndim > 1): OV = OV[:, np.newaxis]
     if (rae.ndim > 2): OV = OV[:, np.newaxis]
     rae[0, ...] = np.sqrt(np.sum((xyz - OV)**2, axis=0))
-    rae[1, ...] = np.arctan2(xyz[1, ...] - OV[1], xyz[0, ...] - OV[0])
-    rae[2, ...] = np.arctan2(xyz[2, ...] - OV[2], rae[0, ...])
+    #xyz[0, xyz[0, ...] == OV[0]] = OV[0] + eps
+    rae[1, ...] = np.arctan((xyz[1, ...] - OV[1])/(xyz[0, ...] - OV[0]))
+    rae[2, ...] = np.arccos((xyz[2, ...] - OV[2])/(rae[0, ...] + eps))
     return rae
 
 def rae2xyz(rae, OV = np.zeros((3,))):
     """
     renvoie le vecteur de coordonnées physiques en fonction des coordonnées perceptuelles
 
+    cf. https://en.wikipedia.org/wiki/Spherical_coordinates
+    
     """
     xyz = np.zeros(rae.shape)
     xyz[0, ...] = rae[0, ...] * np.cos(rae[2, ...])  * np.cos(rae[1, ...]) + OV[0]
