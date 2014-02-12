@@ -276,8 +276,8 @@ class Scenario:
                     VS_0 = VS / (np.sqrt((VS**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
                     gravity_axis_A_ = - VA_0 * (rae_VA[0]-rae_VS[0]) # en metres
                     gravity_axis_B_ = - VB_0 * (rae_VB[0]-rae_VS[0]) # en metres
-                    #print "Convergence dans l'axe - A: ", (rae_VA[0]-rae_VS[0]).mean(), (rae_VA[0]-rae_VS[0]).std()
-                    #print "Convergence dans l'axe - B: ", (rae_VB[0]-rae_VS[0]).mean(), (rae_VB[0]-rae_VS[0]).std()
+                    #print "Convergence dans l'axe - A: ", (rae_VA[0]-rae_VS[0]).mean(), " +/- ", (rae_VA[0]-rae_VS[0]).std()
+                    #print "Convergence dans l'axe - B: ", (rae_VB[0]-rae_VS[0]).mean(), " +/- ", (rae_VB[0]-rae_VS[0]).std()
 
                     # compute desired rotation
                     cap_SC = orientation(rae_VS, rae_VC)
@@ -356,7 +356,7 @@ class Scenario:
         AB = self.particles[0:3, :]-self.particles[3:6, :] # 3 x N
         distance = np.sqrt(np.sum(AB**2, axis=0)) # en metres
         AB_0 = AB / (distance[np.newaxis, :] + self.p['eps'])
-        #print 'DEBUG: longueur segments ', distance.mean(), distance.std()
+        # print 'DEBUG: longueur segments ', distance.mean(), distance.std()
         force[0:3, :] -= G_spring * (distance[np.newaxis, :] - self.l_seg) * AB_0
         force[3:6, :] += G_spring * (distance[np.newaxis, :] - self.l_seg) * AB_0
 

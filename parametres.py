@@ -108,7 +108,7 @@ print 'DEBUG parametres , position croix: ', calibration['croix']
 # parametres du champ
 p = {'N': 32,
      # parametres perceptifs
-     'distance_m': 0.7, # distance d'équilibre des segments autour d'une position de player
+     'distance_m': 0.5, # distance d'équilibre des segments autour d'une position de player
      'G_gravite_perc': 6.0, # attraction globale vers les centres des positions
      'G_gravite_perc_G': 10.0, # attraction globale vers les centres des positions
      'G_gravite_perc_R': 1., # attraction globale vers les centres des positions
@@ -150,7 +150,7 @@ p = {'N': 32,
      'speed_0': .95, # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
      'scale': 19., # facteur global régler la saturation de la force - inopérant au dessus de  scale_max
      'scale_max': 20., # facteur global régler la saturation de la force - inopérant au dessus de scale_max
-     'line_width': 3, # line width of segments  
+     'line_width': 3, # line width of segments
      }
 
 from numpy import pi
