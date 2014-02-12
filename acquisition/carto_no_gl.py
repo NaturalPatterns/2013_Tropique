@@ -109,6 +109,12 @@ compt_freq_network = 0
 global my_players
 my_players = [[ 0 for x in range (12) ] for y in range (10)]
 print my_players
+print " CARTO GL "
+print "------------"
+print "No Preview available"
+print "CARTO NO GL"
+print "CARTO NO GL"
+
 global my_ghost
 my_ghost = [[ 0 for x in range (12) ] for y in range (10)]
 global tour
@@ -267,7 +273,7 @@ def display_player():
 #            print "the osc mess is=", msg
 #            batch = pyglet.graphics.Batch()
 
-            if ( (float(float(player[0])/(d_x*100)) != 0 ) and (float(float(player[1])/(d_y*100)) != 0 ) ):
+            if ( (float(float(player[0])/(d_x*100)) > 0 ) and (float(player[0]) < (d_x*100 - 150) ) and (float(float(player[1])/(d_y*100)) > 0) ):
                 send_osc(msg)
                 sendx = player[0]
                 sendy = player[1]

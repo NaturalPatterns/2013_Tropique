@@ -90,7 +90,7 @@ def on_resize(width, height):
     gl.glColor3f(1.0, 1.0, 1.0)
     gl.glMatrixMode(gl.GL_PROJECTION)
     gl.glLoadIdentity()
-    gl.gluOrtho2D(-10.0, 2500, -10.0, 2500)
+    gl.gluOrtho2D(-10.0, 1200, -10.0, 1200)
 
 win_0.on_resize = on_resize
 win_0.set_visible(True)
@@ -108,6 +108,11 @@ gl.glShadeModel(gl.GL_FLAT)
 global my_players
 my_players = [[ 0 for x in range (12) ] for y in range (10)]
 print my_players
+print " CARTO GL "
+print "------------"
+print "No Preview available"
+print "CARTO  GL"
+print "CARTO  GL"
 global my_ghost
 my_ghost = [[ 0 for x in range (12) ] for y in range (10)]
 global tour
@@ -148,7 +153,7 @@ def test_players(x,y,z):
 	global my_players
 	global nbr_player
 	global detect
-	detect = 150
+	detect = 100
 	#print "x,y",x,y
 
 	for player in my_players:
@@ -266,7 +271,9 @@ def display_player():
 #            print "the osc mess is=", msg
             batch = pyglet.graphics.Batch()
 
-            if ( (float(float(player[0])/(d_x*100)) != 0 ) and (float(float(player[1])/(d_y*100)) != 0 ) ):
+#            if ( (float(float(player[0])/(d_x*100)) != 0 ) and (float(float(player[1])/(d_y*100)) != 0 ) ):
+            if ( (float(float(player[0])/(d_x*100)) > 0 ) and (float(player[0]) < (d_x*100 - 150) ) and (float(float(player[1])/(d_y*100)) > 0) ):
+
                 send_osc(msg)
                 sendx = player[0]
                 sendy = player[1]

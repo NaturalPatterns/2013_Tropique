@@ -4,20 +4,19 @@
 """
 import sys
 sys.path.append('..')
-from parametres import info_kinects , DEBUG
+from parametres import info_kinects, DEBUG
 import socket
 import os
-
 nbr_kinect = 0
 import time as time
-
 from threading import Thread
-
-global DEBUG
-DEBUG = False
 global f
+global matrix
+matrix = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+#DEBUG=True
+
 class testkin(Thread):
-    def __init__ (self,ip, port):
+    def __init__(self, ip, port):
         Thread.__init__(self)
         self.ip = ip
         self.status = -1
@@ -26,50 +25,60 @@ class testkin(Thread):
 
     def run(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.sendto ('data' , (self.ip, self.port ) )
+        sock.sendto('data', (self.ip, self.port))
         sock.settimeout(0.5)
-        try :
+        try:
             received = sock.recv(512)
-        except KeyboardInterrupt:
-            print "stop acquisition kinect"
-        except :
-            print "PROBLEME no data in ", self.ip , self.port
+#        except KeyboardInterrupt:
+#            print "stop acquisition kinect"
+        except:
+            print "PROBLEME no data in ", self.ip, self.port
+#            matrix[int(self.ip[8:]) - 10] += 1
+##            print "matrix =", matrix
+#            if matrix[int(self.ip[8:]) - 10] > 10000:
+#                print "send reboot to ", self.ip
+#                matrix[int(self.ip[8:]) - 10] = 0
+#                sock.sendto('boot', (self.ip, self.port))
             self.status = 0
-        else :
-            if (DEBUG and received !="" ) : print "received = ", received," from ", self.ip, self.port
-            if (DEBUG and received =="" ) : print "received 0", " from ",self.ip, self.port
+        else:
+            if (DEBUG and received != ""):
+                print "received = ", received, " from ", self.ip, self.port
+            if (DEBUG and received == ""):
+                print "received 0", " from ", self.ip, self.port
             self.status = received
+
 
 def list_kinect():
     os.system('clear')
     print "\n \t liste des kinects dans architecture \n"
-    print "il y a ", (len (info_kinects)) , " kinects configuré \n",
-    for ligne in range (len (info_kinects)):
+    print "il y a ", (len(info_kinects)), " kinects configuré \n"
+    for ligne in range(len(info_kinects)):
         print ligne, info_kinects[ligne]
+
 
 def stream_acqui():
 #    os.system('clear')
     print "listen to kinects server "
-    teston =0
+    teston = 0
     last_time = 0
     goodsend = 0
 
-    while (teston < 1) :
+    while (teston < 1):
 #        a = time.time()
 #        b = a - last_time
 #        print "the time lapsed = ",b , 1/float(b)
 #        last_time = a
         serverkinects = []
-        for kin in info_kinects :
+        for kin in info_kinects:
             ip = kin['address']
             port = kin['port']
-            current = testkin(ip,9998+port)
+            current = testkin(ip, 9998+port)
             serverkinects.append(current)
             current.start()
-        all_pos=""
+        all_pos = ""
         for server in serverkinects:
             server.join()
-            try: 
+            try:
                 var = int(server.status)
             except:
                 all_pos += server.status
@@ -79,12 +88,14 @@ def stream_acqui():
         try:
             sendor, Client = sock_confirm.recvfrom(1024)
         except (KeyboardInterrupt):
-            raise
+            print "break demande"
+#            break
+#            raise
         except:
             pass
         else:
             goodsend = 1
-            
+
         if (goodsend == 1 and all_pos != ""):
 #            print "send  =", all_pos
             sock_to_affi.sendto((all_pos), (affi_host, affi_port))
@@ -93,41 +104,16 @@ def stream_acqui():
 
 def segment():
     os.system('clear')
-    print "listen to kinects server "
+    print "calibration"
     for kin in info_kinects:
-        print kin['address'], kin['port']
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        print "send calibration to ", kin['address'], kin['port'], kin['max']
         HOST = kin['address']
-        PORT = kin['port']
-        sock.sendto("segm" , (HOST, PORT))
-        sock.settimeout(20)
-        try :
-            received = sock.recv(1024)
-        except :
-            if DEBUG: print "PROBLEME no data in ", HOST, PORT
-        else :
-            if DEBUG: print "Received: %s" % received
-
-def send_kinect(com):
-    last_kinect=""
-    for kin in info_kinects:
-        if kin['address'] != last_kinect :
-            print "send to", kin['address'] ," comm ", com
-            sock.sendto(str(com) , (kin['address'], 3002))
-            last_kinect = kin['address']
-def display():
-    os.system('clear')
-    if DEBUG: print "display server "
-    send_kinect(2)
-def start_kinect():
-    os.system('clear')
-    if DEBUG: print "try to start kinects server "
-    send_kinect(1)
-def kill_kinect():
-    os.system('clear')
-    if DEBUG: print "try to kill kinects server "
-    send_kinect(0)
-
-
+        PORT = 9998 + kin['port']
+        sock.sendto("init " + str(kin['max']), (HOST, PORT))
+        time.sleep(1)
+    time.sleep(20)
+    print "end calibration "
 
 if __name__ == "__main__":
     os.system('clear')
@@ -140,7 +126,10 @@ if __name__ == "__main__":
     sock_confirm.bind(("127.0.0.1", 5555))
     sock_confirm.setblocking(0)
     list_kinect()
-    if DEBUG: print "send to ",affi_host, affi_port
+    print "send to ",affi_host, affi_port
+    print "calibration des kinects"
+#    segment()
+
     stream_acqui()
 
     while 1 :
@@ -148,9 +137,6 @@ if __name__ == "__main__":
         print "0 - stop prog"
         print "1 - liste des kinects"
         print "..."
-        print "5 - start kinect DISPLAY = 1"
-        print "6 - start kinect"
-        print "7 - kill kinect"
         print "8 - segmentation/calib"
         print "9 - stream aquisition (ctrl-c to quit)"
 
