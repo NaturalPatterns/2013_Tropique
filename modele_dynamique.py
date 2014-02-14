@@ -31,11 +31,11 @@ def arcdistance(rae1, rae2):
     """
 #    a = np.sin((azel[2, ...] - azel[0, ...])/2) **2 + np.cos(azel[0, ...]) * np.cos(azel[2, ...]) * np.sin((azel[3, ...] - azel[1, ...])/2) **2
 #    return 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
-#     a =  (np.cos(rae2[2, ...]) * np.sin(rae2[1, ...] - rae1[1, ...]))**2
-#     a += (np.cos(rae1[2, ...]) * np.sin(rae2[2, ...]) -  np.sin(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...]))**2
+    a =  (np.cos(rae2[2, ...]) * np.sin(rae2[1, ...] - rae1[1, ...]))**2
+    a += (np.cos(rae1[2, ...]) * np.sin(rae2[2, ...]) -  np.sin(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...]))**2
     b =   np.sin(rae1[2, ...]) * np.sin(rae2[2, ...]) +  np.cos(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...])
-#     return np.arctan(np.sqrt(a) / b)
-    return np.arccos(b)
+    return np.arctan(np.sqrt(a) / b)
+#     return np.arccos(b)
 
 def orientation(rae1, rae2):
     """
