@@ -31,11 +31,11 @@ def arcdistance(rae1, rae2):
     """
 #    a = np.sin((azel[2, ...] - azel[0, ...])/2) **2 + np.cos(azel[0, ...]) * np.cos(azel[2, ...]) * np.sin((azel[3, ...] - azel[1, ...])/2) **2
 #    return 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
-    a =  (np.cos(rae2[2, ...]) * np.sin(rae2[1, ...] - rae1[1, ...]))**2
-    a += (np.cos(rae1[2, ...]) * np.sin(rae2[2, ...]) -  np.sin(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...]))**2
+#     a =  (np.cos(rae2[2, ...]) * np.sin(rae2[1, ...] - rae1[1, ...]))**2
+#     a += (np.cos(rae1[2, ...]) * np.sin(rae2[2, ...]) -  np.sin(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...]))**2
     b =   np.sin(rae1[2, ...]) * np.sin(rae2[2, ...]) +  np.cos(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...])
-    return np.arctan(np.sqrt(a) / b)
-# #     return np.arccos(b)
+#     return np.arctan(np.sqrt(a) / b)
+    return np.arccos(b)
 
 def orientation(rae1, rae2):
     """
@@ -275,6 +275,8 @@ class Scenario:
                     else:
                         gravity_ = - SC_0 * (distance_SC - self.p['distance_m'])/(distance_SC + self.p['eps'])**(n_g+2) # en metres
 
+                    VS = np.array(position) - OV
+                    VS_0 = VS / (np.sqrt((VS**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
                     gravity_axis_A_ = - VA_0 * (rae_VA[0]-rae_VS[0]) # en metres
                     gravity_axis_B_ = - VB_0 * (rae_VB[0]-rae_VS[0]) # en metres
                     #print "Convergence dans l'axe - A: ", (rae_VA[0]-rae_VS[0]).mean(), " +/- ", (rae_VA[0]-rae_VS[0]).std()
@@ -284,8 +286,6 @@ class Scenario:
                     cap_SC = orientation(rae_VS, rae_VC)
                     cap_AB = orientation(rae_VA, rae_VB)
                     # produit vecoriel VS /\ AB
-                    VS = np.array(position) - OV
-                    VS_0 = VS / (np.sqrt((VS**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
                     rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.cross(VS_0, SC_0, axis=0)
 
                     # only assign on the indices that correspond to the minimal distance

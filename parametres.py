@@ -157,7 +157,7 @@ from numpy import pi
 # pour des kinects dans le segment (0, d_y) --- (d_x, d_y) alors  az : 11*pi/6 = a gauche , 9*pi/6 = tout droit, 7*pi/6 = a droite
 info_kinects = [
 		# on tourne les numeros de kinect dans le sens des aiguilles d'une montre en commencant par
-           #  le point (0, 0)- le point de vue (az) donne l'ordre dans une colonne de kinects
+           #  le point (0, 0)- le point de vue (az) donne l'ordre dans une colonne de kinects(cf document "notice")
 
 		{'address':'10.42.0.12', 'port': 0, 'x':5.50, 'y':0.2, 'z': 1.14, 'az':3*pi/6 ,'max':200},#1.1
 		{'address':'10.42.0.12', 'port': 1, 'x':5.50, 'y':0.2, 'z': 1.34, 'az':1*pi/6 ,'max':500}, #1.2
