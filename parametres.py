@@ -26,9 +26,8 @@ DEBUG  = True
 DEBUG  = False
 
 # taille de l'espace
-#d_y, d_z = 4.9, 6.22*3/4
-d_y, d_z = 7.0, 6.
-d_x = 11.24 # distance en metres du plan sur lequel se positionnent les fenetres des VPs
+d_y, d_z = 8.0, 4.
+d_x = 11. # distance en metres du plan sur lequel se positionnent les fenetres des VPs
 
 
 # mesures au telemetre
@@ -62,38 +61,37 @@ scenario = "leapfrog" # integration d'Euler améliorée pour simuler le champ
 # profondeur du plan de référence
 cz = 1.36  # hauteur des VPs
 # les VPs sont positionnés en rang (x constants) sur un coté de la salle (cx_0) ou l'autre de la salle (cx_1)
-cx_0, cx_1 = 1.45-x_shift, d_x + x_shift
-cx_0, cx_1 = 1.45-x_shift, d_x + x_shift
+cx_0, cx_1 = 1.-x_shift, d_x + x_shift
 
 # tous les VPs regardent vers le VP central (positionné à d_y /2) au fond opposé
 cy = d_y/2 # on regarde le centre du plan de reference
 # une liste des video projs donnant:
 # leur adresse, port, leurs parametres physiques
 VPs = [
-#        {'address':'10.42.0.51',
-#            'x':cx_0, 'y':9.0, 'z': cz,
-#            'cx':cx_1, 'cy':cy, 'cz': cz,
-#         'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
-#        {'address':'10.42.0.52',
-#             'x':cx_0, 'y':6.5, 'z': cz,
-#             'cx':cx_1, 'cy':cy, 'cz': cz,
-#             'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
-#        {'address':'10.42.0.53',
-#             'x':cx_0, 'y':4.0, 'z': cz,
-#             'cx':cx_1, 'cy':cy, 'cz': cz,
-#             'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
-        {'address':'10.42.0.54',
-            'x':d_x-0.4, 'y':6.37, 'z': cz,
-            'cx':0, 'cy':cy, 'cz': cz,
-            'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
-        {'address':'10.42.0.55',
-            'x':d_x-0.4, 'y':3.77, 'z': cz,
-            'cx':0, 'cy':cy, 'cz': cz,
-            'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
-        {'address':'10.42.0.56',
-            'x':d_x-0.4, 'y':1.2, 'z': cz,
-            'cx':0, 'cy':cy, 'cz': cz,
-            'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
+        {'address':'10.42.0.51',
+            'x':cx_0, 'y':7.0, 'z': cz,
+            'cx':cx_1, 'cy':cy, 'cz': cz,
+         'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
+        {'address':'10.42.0.52',
+             'x':cx_0, 'y':4., 'z': cz,
+             'cx':cx_1, 'cy':cy, 'cz': cz,
+             'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
+        {'address':'10.42.0.53',
+             'x':cx_0, 'y':1.0, 'z': cz,
+             'cx':cx_1, 'cy':cy, 'cz': cz,
+             'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
+        #{'address':'10.42.0.54',
+            #'x':d_x-0.4, 'y':6.37, 'z': cz,
+            #'cx':0, 'cy':cy, 'cz': cz,
+            #'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
+        #{'address':'10.42.0.55',
+            #'x':d_x-0.4, 'y':3.77, 'z': cz,
+            #'cx':0, 'cy':cy, 'cz': cz,
+            #'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
+        #{'address':'10.42.0.56',
+            #'x':d_x-0.4, 'y':1.2, 'z': cz,
+            #'cx':0, 'cy':cy, 'cz': cz,
+            #'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
         ]
 import numpy as np
 calibration = {
