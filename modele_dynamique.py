@@ -31,10 +31,11 @@ def arcdistance(rae1, rae2):
     """
 #    a = np.sin((azel[2, ...] - azel[0, ...])/2) **2 + np.cos(azel[0, ...]) * np.cos(azel[2, ...]) * np.sin((azel[3, ...] - azel[1, ...])/2) **2
 #    return 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
-    a =  (np.cos(rae2[2, ...]) * np.sin(rae2[1, ...] - rae1[1, ...]))**2
-    a += (np.cos(rae1[2, ...]) * np.sin(rae2[2, ...]) -  np.sin(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...]))**2
+#     a =  (np.cos(rae2[2, ...]) * np.sin(rae2[1, ...] - rae1[1, ...]))**2
+#     a += (np.cos(rae1[2, ...]) * np.sin(rae2[2, ...]) -  np.sin(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...]))**2
     b =   np.sin(rae1[2, ...]) * np.sin(rae2[2, ...]) +  np.cos(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...])
-    return np.arctan2(np.sqrt(a), b)
+#     return np.arctan(np.sqrt(a) / b)
+    return np.arccos(b)
 
 def orientation(rae1, rae2):
     """
@@ -47,7 +48,8 @@ def orientation(rae1, rae2):
      http://en.wikipedia.org/wiki/Great-circle_navigation
                 #http://en.wikipedia.org/wiki/Haversine_formula
     """
-    return np.arctan2(np.sin(rae2[1, ...] - rae1[1, ...]), np.cos(rae1[2, ...])*np.tan(rae2[2, ...]) - np.sin(rae1[2, ...])*np.cos(rae2[1, ...] - rae1[1, ...]))
+    return np.arctan2(np.sin(rae2[1, ...] - rae1[1, ...]),
+            np.cos(rae1[2, ...])*np.tan(rae2[2, ...]) - np.sin(rae1[2, ...])*np.cos(rae2[1, ...] - rae1[1, ...]))
 
 def xyz2azel(xyz, OV = np.zeros((3,)), eps=1.e-6):
     """
@@ -68,7 +70,7 @@ def xyz2azel(xyz, OV = np.zeros((3,)), eps=1.e-6):
     if (rae.ndim > 2): OV = OV[:, np.newaxis]
     rae[0, ...] = np.sqrt(np.sum((xyz - OV)**2, axis=0))
     #xyz[0, xyz[0, ...] == OV[0]] = OV[0] + eps
-    rae[1, ...] = np.arctan((xyz[1, ...] - OV[1, ...])/(xyz[0, ...] - OV[0, ...]))
+    rae[1, ...] = np.arctan2((xyz[1, ...] - OV[1, ...]), (xyz[0, ...] - OV[0, ...]))
     rae[2, ...] = np.arcsin((xyz[2, ...] - OV[2, ...])/(rae[0, ...] + eps))
     return rae
 
@@ -77,7 +79,7 @@ def rae2xyz(rae, OV = np.zeros((3,))):
     renvoie le vecteur de coordonnées physiques en fonction des coordonnées perceptuelles
 
     cf. https://en.wikipedia.org/wiki/Spherical_coordinates
-    
+
     """
     xyz = np.zeros(rae.shape)
     xyz[0, ...] = rae[0, ...] * np.cos(rae[2, ...])  * np.cos(rae[1, ...]) + OV[0]
@@ -116,8 +118,8 @@ class Scenario:
     def init(self):
         # initialisation des particules
         self.particles = np.zeros((6*self.order, self.N*self.nvps), dtype='f') # x, y, z, u, v, w
-        self.particles[0:3, :] = self.croix[:, np.newaxis]
-        self.particles[3:6, :] = self.croix[:, np.newaxis]
+        self.particles[0:3, :] = self.center[:, np.newaxis]
+        self.particles[3:6, :] = self.center[:, np.newaxis]
         d_x, d_y, d_z = self.volume
         self.particles[1, :] = np.linspace(0., d_y, self.N*self.nvps)
         #self.particles[3:6, :] = self.particles[0:3, :] + np.ones((3, self.self.N*self.nvps))*self.l_seg
