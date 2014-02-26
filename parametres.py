@@ -20,6 +20,8 @@ Par convention, la position spatiale des VPs par rapport au centre du plan de re
 Par convention, la position de la croix est au centre de la salle: [d_x/2, d_y/2]
 
 """
+from numpy import arctan2, pi
+import numpy as np
 
 # pour savoir si on imprime des messages d'erreur
 DEBUG  = True
@@ -28,11 +30,10 @@ DEBUG  = False
 # taille de l'espace
 d_y, d_z = 8.0, 4.
 d_x = 11. # distance en metres du plan sur lequel se positionnent les fenetres des VPs
-
+volume = np.array([d_x, d_y, d_z])
 
 # mesures au telemetre
-from numpy import arctan2, pi
-import numpy as np
+
 #largeur_ecran = 1.7 # ouvert à fond
 # https://unspecified.wordpress.com/2012/06/21/calculating-the-gluperspective-matrix-and-other-opengl-matrix-maths/
 #hauteur_ecran = 1.7*9./16. # ouvert à fond
@@ -46,22 +47,20 @@ foc_estim = 2. * arctan2(hauteur_ecran/2., distance_ecran) * 180. / pi # ref P10
 foc =  foc_estim
 # d'autres références http://www.glprogramming.com/red/chapter03.html ou http://www.songho.ca/opengl/gl_transform.html
 pc_min, pc_max = 0.001, 1000000.0
-
-volume = np.array([d_x, d_y, d_z])
+cz = 1.36  # hauteur des VPs
 
 # scenario qui est joué par le modele physique
-scenario = "fan" # une aura autour de la position du premier player
-scenario = 'rotating-circle'
-scenario = 'cristal'
-scenario = "croix" # calibration autour de la croix
+#scenario = "fan" # une aura autour de la position du premier player
+#scenario = 'rotating-circle'
+#scenario = 'cristal'
+#scenario = "croix" # calibration autour de la croix
 scenario = "leapfrog" # integration d'Euler améliorée pour simuler le champ
 
 # et direction d'angle de vue (cx, cy, cz) comme le point de fixation ainsi que le champ de vue (en deg)
 # distance des VPs du plan de reference
 # profondeur du plan de référence
-cz = 1.36  # hauteur des VPs
 # les VPs sont positionnés en rang (x constants) sur un coté de la salle (cx_0) ou l'autre de la salle (cx_1)
-cx_0, cx_1 = 1.-x_shift, d_x + x_shift
+cx_0, cx_1 = 1. - x_shift, d_x + x_shift
 
 # tous les VPs regardent vers le VP central (positionné à d_y /2) au fond opposé
 cy = d_y/2 # on regarde le centre du plan de reference
@@ -233,4 +232,3 @@ if __name__ == "__main__":
     import display_modele_dynamique
     #sys.path.append('network')
     #import modele_dynamique_server
-
