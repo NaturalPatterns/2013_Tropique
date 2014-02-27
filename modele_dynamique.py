@@ -90,7 +90,6 @@ def rae2xyz(rae, OV = np.zeros((3,))):
 class Scenario:
     def __init__(self, N, scenario, volume, VPs, p, calibration):
         self.t = time.time()
-        self.t_last = self.t - 0.01
         self.scenario = scenario
         self.volume = volume
         self.center = calibration['center'] # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
@@ -380,9 +379,8 @@ class Scenario:
     def do_scenario(self, positions=None, events=[0, 0, 0, 0, 0, 0, 0, 0], dt=None):
         d_x, d_y, d_z = self.volume
         if (dt==None): 
+            self.dt = (time.time() - self.t)
             self.t = time.time()
-            self.dt = (self.t - self.t_last)
-            self.t_last = self.t
             # dt = self.dt
         else: 
             self.dt = dt
