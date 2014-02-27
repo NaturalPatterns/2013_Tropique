@@ -1,4 +1,4 @@
-default: test_coordonees_perceptives.pdf  test_modele_dynamique.pdf
+default: editing_the_model.pdf test_coordonees_perceptives.pdf  test_modele_dynamique.pdf
 
 todo:
 	grep -R * (^|#)[ ]*(TODO|FIXME|XXX|HINT|TIP)( |:)([^#]*)
