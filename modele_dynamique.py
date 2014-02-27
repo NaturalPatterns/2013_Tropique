@@ -90,6 +90,7 @@ def rae2xyz(rae, OV = np.zeros((3,))):
 class Scenario:
     def __init__(self, N, scenario, volume, VPs, p, calibration):
         self.t = time.time()
+        self.t_last = self.t - 0.01
         self.scenario = scenario
         self.volume = volume
         self.center = calibration['center'] # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
@@ -286,7 +287,7 @@ class Scenario:
                     # produit vecoriel VS /\ AB
                     rotation_ = np.sin(cap_SC-cap_AB)[np.newaxis, :] * np.cross(VS_0, SC_0, axis=0)
 
-                    # only assign on the indices that correspond to the minimal distance
+                    # only assign on the indices that correspond to the minimal distance (on each voronoi cell)
                     ind_assign = (distance_closer < distance_min)
                     #print ' DEBUG, pour le VP ', i_VP, ' # de points assignés ',  ind_assign.sum()
                     gravity[:, ind_assign] = gravity_[:, ind_assign]
@@ -365,21 +366,26 @@ class Scenario:
         # normalisation des forces pour éviter le chaos
         #if DEBUG: print  self.particles[0:3, :].mean(axis=1)
         #if DEBUG: print 'Force ', force.mean(axis=1), force.std(axis=1)
-        if self.p['scale'] < self.p['scale_max']: force = self.p['scale'] * np.tanh(force/self.p['scale'])
+        force *= speed_0
         #force *= self.l_seg.mean()/self.l_seg*speed_0
-        force *= self.l_seg_normal.mean()/self.l_seg_normal*speed_0
+        #print self.l_seg_normal.mean()/self.l_seg_normal
+        force *= self.p['l_seg_min']/self.l_seg_normal
+        if self.p['scale'] < self.p['scale_max']: force = self.p['scale'] * np.tanh(force/self.p['scale'])
+
         # damping
         force -= damp * self.particles[6:12, :]/self.dt
 
         return force
 
     def do_scenario(self, positions=None, events=[0, 0, 0, 0, 0, 0, 0, 0], dt=None):
-        self.t_last = self.t
-        self.t = time.time()
-        self.dt = (self.t - self.t_last)
-        if (dt==None): dt = self.dt
-        else: self.dt = dt
         d_x, d_y, d_z = self.volume
+        if (dt==None): 
+            self.t = time.time()
+            self.dt = (self.t - self.t_last)
+            self.t_last = self.t
+            # dt = self.dt
+        else: 
+            self.dt = dt
         #print 'DEBUG modele dyn ', self.particles.shape
 
         if self.scenario == 'croix':
@@ -660,24 +666,25 @@ class Scenario:
             self.particles[3:6, :] += self.center[:, np.newaxis]
 
         elif self.scenario == 'leapfrog':
-            self.particles[:6, :] += self.particles[6:12, :] * dt/2
+            self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
             force = self.champ(positions=positions, events=events)
-            self.particles[6:12, :] += force * dt
+            #self.particles[6:12, :] *= (1. - self.p['damp'])
+            self.particles[6:12, :] += force * self.dt
             # TODO utiliser mla force comme la vitesse désirée?
             #self.particles[6:12, :] = force
             # application de l'acceleration calculée sur les positions
-            self.particles[:6, :] += self.particles[6:12, :] * dt/2
+            self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
             if np.isnan(self.particles[:6, :]).any():
-                print self.p
+                #print self.p
                 #raise ValueError("some values like NaN breads")
                 self.init()
                 print("some values like NaN breads")
 
         elif self.scenario == 'euler':
             force = self.champ(positions=positions, events=events)
-            self.particles[6:12, :] += force * dt
+            self.particles[6:12, :] += force * self.dt
             # application de l'acceleration calculée sur les positions
-            self.particles[:6, :] += self.particles[6:12, :] * dt
+            self.particles[:6, :] += self.particles[6:12, :] * self.dt
 
         # pour les scenarios de controle du suivi, on centre autour de la position du premier player
         if not(positions == None) and not(positions == []) and (self.scenario in ['croix', 'fan', '2fan', 'rotating-circle', 'calibration']):
