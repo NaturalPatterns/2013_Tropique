@@ -166,7 +166,7 @@ def on_resize(width, height):
     print 'The window was resized to %dx%d' % (width, height)
 @win_0.event
 def on_draw():
-    global s, s_VP, s_VP_fp, n_players
+    global s, s_VP, s_VP_fp, n_players, t1, t0
     t = s.t
 
     if do_sock:
