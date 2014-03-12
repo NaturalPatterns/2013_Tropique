@@ -6,7 +6,7 @@ import time
 start_time = time.time()
 from time import gmtime, strftime
 import socket
-from parametres import VPs, volume, p, kinects_network_config, run_thread_network_config, scenario, calibration, DEBUG
+from parametres import VPs, volume, p, kinects_network_config, run_thread_network_config, scenario, calibration, DEBUG 
 # si on ne donne pas d'argument, on prend le parametre scenario par défaut
 if len(sys.argv) >1:
     # mais si on en donne un (genre `croix`), il est utilisé pour ce run
@@ -64,25 +64,31 @@ if do_slider:
 #----------------------
 positions_old = []
 import pylab as plt
+bad_detector = 0
 while True:
     positions = []
     if (mode == 'dynamique'):
         k.trigger()
-        test_positions = k.read_sock()
-        if (test_positions!=None):
-            for position in test_positions:
-                positions.append([position[0], position[1],position[2] ])
+        rcvd_positions = k.read_sock()
+        if not rcvd_positions is None:
+            for position in rcvd_positions:
+                positions.append([position[0], position[1],position[2]])
             positions_old = positions
+            bad_detector =0
         else:
-            # HACK pour pas perdre de trames de detection
-            positions = positions_old
+             # HACK pour pas perdre de trames de detection
+             positions = positions_old
+             bad_detector += 1
+             if bad_detector >= 100:
+                     positions = []
+                     positions_old= []
     else:
         positions.append(s.croix)
-    #if DEBUG: print 'DEBUG modele dynamique ,  events, positions ', events, positions
+#     if DEBUG: print 'DEBUG modele dynamique ,  events, positions ', events, positions
     #if DEBUG: print 'DEBUG modele dynamique , events ', events
     s.do_scenario(positions=positions, events=events)
     #if DEBUG: print 'DEBUG modele dynamique , check taille ', s.particles[0:6, :].shape
-    #if DEBUG: print 'DEBUG modele dynamique , check taille ', s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
+    if DEBUG: print 'DEBUG modele dynamique , mean A, mean B, std A, std B ', s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
     # envoi aux VPs
     str_send = s.particles[0:6, :].tostring(order='C')
     from_send.sendto(str_send, (from_IP, from_PORT) )
@@ -93,7 +99,7 @@ while True:
     if DEBUG:
         elapsed_time = time.time() - start_time
         start_time = time.time()
-        #if elapsed_time>0: print "DEBUG modele dynamique , FPS =" , int (1/elapsed_time), events, positions
+        if elapsed_time>0: print "DEBUG modele dynamique , FPS =" , int (1/elapsed_time), " events, positions ",  events, positions
     #plt.draw()
     #fig.show()
     try:

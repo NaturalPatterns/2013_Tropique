@@ -275,9 +275,9 @@ def display_player():
 
             if ( (float(float(player[0])/(d_x*100)) > 0 ) and (float(player[0]) < (d_x*100 - 150) ) and (float(float(player[1])/(d_y*100)) > 0) ):
                 send_osc(msg)
-                sendx = player[0]
-                sendy = player[1]
-                sendz = player[2]
+                sendx = abs(player[0])
+                sendy = abs(player[1])
+                sendz = abs(player[2])
 #                gl.glPointSize (16.0);
 #                gl.glColor4f(0.5, 0.5, 1, 1);
 #                makemedraw(sendx,sendy,sendz)

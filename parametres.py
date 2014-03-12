@@ -24,8 +24,8 @@ from numpy import arctan2, pi
 import numpy as np
 
 # pour savoir si on imprime des messages d'erreur
-DEBUG  = True
 DEBUG  = False
+DEBUG  = True
 
 # taille de l'espace
 d_y, d_z = 10.85, 6.
@@ -43,7 +43,8 @@ hauteur_ecran, distance_ecran  = 0.52, 1.35
 # on calcule
 foc_estim = 2. * arctan2(hauteur_ecran/2., distance_ecran) * 180. / pi # ref P101L1
 #print foc_estim
-foc =  foc_estim
+# foc = 30 * 9 /16.
+foc = foc_estim
 # d'autres références http://www.glprogramming.com/red/chapter03.html ou http://www.songho.ca/opengl/gl_transform.html
 pc_min, pc_max = 0.001, 1000000.0
 cz = 1.36  # hauteur des VPs
@@ -100,7 +101,7 @@ calibration = {
         #'croix': np.array([6.65, 3.13, 1.36], dtype='f'), # definition de la position de la croix
 #        'croix': np.array([11.95, 2.2, 1.36], dtype='f'), # definition de la position de la croix
 #         'roger': np.array([10.91, 6.24, 1.37], dtype='f'), #  fixation dot  (AKA Roger?)
-        'roger': np.array([d_x/2., d_y/2, VPs[0]['z']], dtype='f'), # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
+        'roger': np.array([d_x/2., VPs[1]['y'], VPs[0]['z']], dtype='f'), # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
                 }
 print 'DEBUG parametres , position croix: ', calibration['croix']
 # parametres du champ
@@ -114,11 +115,11 @@ p = {'N': 32,
      'G_rot_perc': 2., # Ressort, permet d'axrt et d'avoir Plus ou moins de fan
      'G_rot_perc_G': 10.,
      'G_rot_perc_R': 5.,
-     'distance_tabou': 0.3, # distance tabou (perpendiculairement à l'axe VP-player)
+     'distance_tabou': 0.25, # distance tabou (perpendiculairement à l'axe VP-player)
      'G_tabou': 30., # force tabou qui expulse tout segment qui rentre dans la zone tabou (je suis completment tabou)
-     'G_gravite_axis': 5.0, # parametre d'attraction physique vers les players
+     'G_gravite_axis': 8.0, # parametre d'attraction physique vers les players
      'G_gravite_axis_R': 5., # parametre d'attraction physique vers les players
-     'G_gravite_axis_G': 5., # parametre d'attraction physique vers les players
+     'G_gravite_axis_G': 15., # parametre d'attraction physique vers les players
      # parametres physiques
      'G_poussee': 0.15, # parametre de poussee créateur de vortex
      'G_poussee_break': 3.0, # parametre de poussee créateur de vortex
@@ -130,7 +131,7 @@ p = {'N': 32,
      'G_repulsion': .1, # constante de répulsion entre les particules
      'G_repulsion_G': .3, # force avec laquelle les bouts de segments s'attirent
      'G_repulsion_R': .05, # constante de répulsion entre les particules
-     'kurt_struct' : -2., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
+     'kurt_struct' : 0., # 1 is normal gravity, higher makes the attraction more local, lower more global, -2 is a spring
      'eps': 1.e-4, # longueur (en metres) minimale pour eviter les overflows: ne doit pas avoir de qualité au niveau de la dynamique
      'G_spring': 15., 'l_seg_min': 0.4, 'l_seg_max': 2.5, 'N_max': 2, # dureté et longueur des segments
      # parametres break
@@ -144,13 +145,13 @@ p = {'N': 32,
      # parametres globaux
      'damp': 0.1,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_G': 0.2,  # facteur de damping / absorbe l'énergie / regle la viscosité
-     'damp_R': 0.2,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp_R': 0.08,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
-     'scale': 21., # facteur global régler la saturation de la force - inopérant au dessus de  scale_max
+     'scale': 19., # facteur global régler la saturation de la force - inopérant au dessus de  scale_max
      'scale_max': 20., # facteur global régler la saturation de la force - inopérant au dessus de scale_max
      'line_width': 3, # line width of segments
      }
-
+#position_repos = ([, position[1],position[2]])
 from numpy import pi
 #parametres des kinects
 # une liste des kinects donnant leur adresse, port, position (x; y; z) et azimuth.
