@@ -128,7 +128,7 @@ if __name__ == "__main__":
     list_kinect()
     print "send to ",affi_host, affi_port
     print "calibration des kinects"
-#    segment()
+    segment()
 
     stream_acqui()
 

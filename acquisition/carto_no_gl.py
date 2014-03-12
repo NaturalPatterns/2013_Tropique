@@ -424,13 +424,17 @@ def on_draw():
         #Donnee = ((angle + x + y + "o")*nbr_player)+";"
         datasplit = Donnee.split(";")
 		#print "datasplit =" , datasplit
-        store_blob = [[ int(each2) for each2 in each.split(",") ] for each in datasplit]
-        for each3 in store_blob:
-#            print "alleach =",each3
-            for kin in info_kinects:
-                if ( ( kin['address']==('10.42.0.'+str(int(each3[0])))) and (kin['port'] == int(each3[1])) ):
+        try : 
+            store_blob = [[ int(each2) for each2 in each.split(",") ] for each in datasplit]
+        except :
+            pass
+        else :
+            for each3 in store_blob:
+#               print "alleach =",each3
+                for kin in info_kinects:
+                    if ( ( kin['address']==('10.42.0.'+str(int(each3[0])))) and (kin['port'] == int(each3[1])) ):
 #                   print 'reconise ', each3[0] , ('as 10.42.0.1'+ str(int(each3[0]/2)) ),', kin0'
-                    calc_angle(each3, kin)
+                        calc_angle(each3, kin)
     sock.sendto("ok", ("127.0.0.1", 5555) )
     display_player()
     try :
