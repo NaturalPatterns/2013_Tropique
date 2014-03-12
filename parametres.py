@@ -28,8 +28,8 @@ DEBUG  = False
 DEBUG  = True
 
 # taille de l'espace
-d_y, d_z = 10.85, 6.
-d_x = 10.38 # distance en metres du plan sur lequel se positionnent les fenetres des VPs
+d_y, d_z = 10.38, 6.
+d_x = 10.85 # distance en metres du plan sur lequel se positionnent les fenetres des VPs
 volume = np.array([d_x, d_y,d_z])
 # mesures au telemetre
 

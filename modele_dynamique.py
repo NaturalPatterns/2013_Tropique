@@ -34,8 +34,8 @@ def arcdistance(rae1, rae2):
     a =  (np.cos(rae2[2, ...]) * np.sin(rae2[1, ...] - rae1[1, ...]))**2
     a += (np.cos(rae1[2, ...]) * np.sin(rae2[2, ...]) -  np.sin(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...]))**2
     b =   np.sin(rae1[2, ...]) * np.sin(rae2[2, ...]) +  np.cos(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...])
-    return np.arctan(np.sqrt(a) / b)
-
+    #return np.arctan(np.sqrt(a) / b)
+    return np.arctan2(np.sqrt(a), b)
 def orientation(rae1, rae2):
     """
     renvoie le cap suivant le grand cercle (en radians)
@@ -68,9 +68,10 @@ def xyz2azel(xyz, OV = np.zeros((3,)), eps=1.e-6):
     if (rae.ndim > 1): OV = OV[:, np.newaxis]
     if (rae.ndim > 2): OV = OV[:, np.newaxis]
     rae[0, ...] = np.sqrt(np.sum((xyz - OV)**2, axis=0))
-    #xyz[0, xyz[0, ...] == OV[0]] = OV[0] + eps
-    rae[1, ...] = np.arctan2((xyz[1, ...] - OV[1, ...]), (xyz[0, ...] - OV[0, ...]))
-    rae[2, ...] = np.arcsin((xyz[2, ...] - OV[2, ...])/(rae[0, ...] + eps))
+#     rae[1, ...] = np.arctan2((xyz[1, ...] - OV[1, ...]), (xyz[0, ...] - OV[0, ...]))
+    rae[1, ...] = np.arctan2(xyz[1, ...] - OV[1], xyz[0, ...] - OV[0])
+    rae[2, ...] = np.arctan2(xyz[2, ...] - OV[2], rae[0, ...])
+#     rae[2, ...] = np.arcsin((xyz[2, ...] - OV[2, ...])/(rae[0, ...] + eps))
     return rae
 
 def rae2xyz(rae, OV = np.zeros((3,))):
@@ -271,7 +272,7 @@ class Scenario:
                     distance_SC = rae_VS[0]*np.sin(arcdis)
 
                     # réduit la dimension de profondeur à une simple convergence vers la position en x / reflète la perception
-                    if n_g==-2:
+                    if n_g==-2.:
                         gravity_ = - SC_0 * (distance_SC - self.p['distance_m']) # en metres
                     else:
                         gravity_ = - SC_0 * (distance_SC - self.p['distance_m'])/(distance_SC + self.p['eps'])**(n_g+2) # en metres
@@ -280,8 +281,9 @@ class Scenario:
                     VS_0 = VS / (np.sqrt((VS**2).sum(axis=0)) + self.p['eps']) # unit vector going from the player to the center of the segment
                     gravity_axis_A_ = - VA_0 * (rae_VA[0]-rae_VS[0]) # en metres
                     gravity_axis_B_ = - VB_0 * (rae_VB[0]-rae_VS[0]) # en metres
-                    #print "Convergence dans l'axe - A: ", (rae_VA[0]-rae_VS[0]).mean(), " +/- ", (rae_VA[0]-rae_VS[0]).std()
-                    #print "Convergence dans l'axe - B: ", (rae_VB[0]-rae_VS[0]).mean(), " +/- ", (rae_VB[0]-rae_VS[0]).std()
+                    if False: #if DEBUG:
+                        print "Convergence dans l'axe - A: ", (rae_VA[0]-rae_VS[0]).mean(), " +/- ", (rae_VA[0]-rae_VS[0]).std()
+                        print "Convergence dans l'axe - B: ", (rae_VB[0]-rae_VS[0]).mean(), " +/- ", (rae_VB[0]-rae_VS[0]).std()
 
                     # compute desired rotation
                     cap_SC = orientation(rae_VS, rae_VC)
@@ -368,10 +370,9 @@ class Scenario:
         # normalisation des forces pour éviter le chaos
         #if DEBUG: print  self.particles[0:3, :].mean(axis=1)
         #if DEBUG: print 'Force ', force.mean(axis=1), force.std(axis=1)
-        force *= speed_0
         #force *= self.l_seg.mean()/self.l_seg*speed_0
-        #print self.l_seg_normal.mean()/self.l_seg_normal
-        force *= self.p['l_seg_min']/self.l_seg_normal
+        force *= self.l_seg_normal.mean()/self.l_seg_normal*speed_0
+
         if self.p['scale'] < self.p['scale_max']: force = self.p['scale'] * np.tanh(force/self.p['scale'])
 
         # damping
@@ -382,9 +383,9 @@ class Scenario:
     def do_scenario(self, positions=None, events=[0, 0, 0, 0, 0, 0, 0, 0], dt=None):
         d_x, d_y, d_z = self.volume
         if (dt==None):
-            self.dt = (time.time() - self.t)
+            self.t_last = self.t
             self.t = time.time()
-            # dt = self.dt
+            self.dt = (self.t - self.t_last)
         else:
             self.dt = dt
         #print 'DEBUG modele dyn ', self.particles.shape
