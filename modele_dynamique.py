@@ -78,7 +78,7 @@ def rae2xyz(rae, OV = np.zeros((3,))):
     renvoie le vecteur de coordonnées physiques en fonction des coordonnées perceptuelles
 
     cf. https://en.wikipedia.org/wiki/Spherical_coordinates
-    
+
     """
     xyz = np.zeros(rae.shape)
     xyz[0, ...] = rae[0, ...] * np.cos(rae[2, ...])  * np.cos(rae[1, ...]) + OV[0]
@@ -237,6 +237,9 @@ class Scenario:
             AB = self.particles[0:3, i_VP*N:(i_VP+1)*N]-self.particles[3:6, i_VP*N:(i_VP+1)*N] # 3 x N
             distance = np.sqrt(np.sum(AB**2, axis=0)) # en metres
 
+            # HACK            else: # on veut avoir un etat quand ya personne
+            if (positions == None) or (positions == []): positions = [self.center]
+
             # attraction / repulsion des angles relatifs des segments
             if not(positions == None) and not(positions == []):
                 distance_min = 1.e6 * np.ones((self.N)) # very big to begin with
@@ -378,11 +381,11 @@ class Scenario:
 
     def do_scenario(self, positions=None, events=[0, 0, 0, 0, 0, 0, 0, 0], dt=None):
         d_x, d_y, d_z = self.volume
-        if (dt==None): 
+        if (dt==None):
             self.dt = (time.time() - self.t)
             self.t = time.time()
             # dt = self.dt
-        else: 
+        else:
             self.dt = dt
         #print 'DEBUG modele dyn ', self.particles.shape
 
