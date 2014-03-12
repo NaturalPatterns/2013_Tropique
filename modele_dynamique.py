@@ -388,7 +388,7 @@ class Scenario:
 
         if self.scenario == 'croix':
             longueur_segments_z = .8
-            longueur_segments_y = 15.
+            longueur_segments_y = 0.8
             for i_VP, OV in enumerate(self.vps[:]):
                 # ligne horizontale
                 self.particles[0, i_VP*self.N:(i_VP*self.N+self.N/2)] = self.croix[0] # on the reference plane

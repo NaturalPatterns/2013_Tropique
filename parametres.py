@@ -15,7 +15,7 @@ Les coordonnées dans la salle sont par convention définis par rapport à un pl
 Par convention, la position spatiale des VPs par rapport au centre du plan de reference
 - placement regulier en profondeur a equidistance du plan de ref (le long d'un mur)
 - placement regulier, le centre en premier
-- on place les VPs vers 1m30 de haut
+- on place les VPs à 1m36 de haut
 
 Par convention, la position de la croix est au centre de la salle: [d_x/2, d_y/2]
 
@@ -28,10 +28,9 @@ DEBUG  = True
 DEBUG  = False
 
 # taille de l'espace
-d_y, d_z = 8.0, 4.
-d_x = 11. # distance en metres du plan sur lequel se positionnent les fenetres des VPs
-volume = np.array([d_x, d_y, d_z])
-
+d_y, d_z = 10.85, 6.
+d_x = 10.38 # distance en metres du plan sur lequel se positionnent les fenetres des VPs
+volume = np.array([d_x, d_y,d_z])
 # mesures au telemetre
 
 #largeur_ecran = 1.7 # ouvert à fond
@@ -60,23 +59,24 @@ scenario = "leapfrog" # integration d'Euler améliorée pour simuler le champ
 # distance des VPs du plan de reference
 # profondeur du plan de référence
 # les VPs sont positionnés en rang (x constants) sur un coté de la salle (cx_0) ou l'autre de la salle (cx_1)
-cx_0, cx_1 = 1. - x_shift, d_x + x_shift
+#cx_0, cx_1 = 1. - x_shift, d_x + x_shift
+cx_0, cx_1 = 1. - x_shift, d_x 
 
 # tous les VPs regardent vers le VP central (positionné à d_y /2) au fond opposé
-cy = d_y/2 # on regarde le centre du plan de reference
+cy = (d_y/2) # on regarde le centre du plan de reference
 # une liste des video projs donnant:
 # leur adresse, port, leurs parametres physiques
 VPs = [
-        {'address':'10.42.0.51',
-            'x':cx_0, 'y':7.0, 'z': cz,
+        {'address':'10.42.0.55',
+            'x':0.55, 'y':1.69, 'z': cz,
             'cx':cx_1, 'cy':cy, 'cz': cz,
          'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
-        {'address':'10.42.0.52',
-             'x':cx_0, 'y':4., 'z': cz,
+        {'address':'10.42.0.56',
+             'x':0.55, 'y':5.19, 'z': cz,
              'cx':cx_1, 'cy':cy, 'cz': cz,
              'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
-        {'address':'10.42.0.53',
-             'x':cx_0, 'y':1.0, 'z': cz,
+        {'address':'10.42.0.51',
+             'x':0.55, 'y':8.69, 'z': cz,
              'cx':cx_1, 'cy':cy, 'cz': cz,
              'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
         #{'address':'10.42.0.54',
@@ -92,10 +92,12 @@ VPs = [
             #'cx':0, 'cy':cy, 'cz': cz,
             #'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
         ]
+        #Calibration Visée VP
 import numpy as np
 calibration = {
         'center': np.array([d_x/2., d_y/2, VPs[0]['z']], dtype='f'), # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
-        'croix': np.array([0.0, 3.77, 1.37], dtype='f'), # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
+        # !!!!!!! ATTENTION POUR CROIX C'est inversé on a d_y,d_x!!!!!!!
+        'croix': np.array([10.8, 5.2, VPs[0]['z']], dtype='f'), # Visée Croix fond de salle = d_y ou milieu d_y/2
         #'croix': np.array([6.65, 3.13, 1.36], dtype='f'), # definition de la position de la croix
 #        'croix': np.array([11.95, 2.2, 1.36], dtype='f'), # definition de la position de la croix
 #         'roger': np.array([10.91, 6.24, 1.37], dtype='f'), #  fixation dot  (AKA Roger?)
@@ -158,17 +160,15 @@ info_kinects = [
 		# on tourne les numeros de kinect dans le sens des aiguilles d'une montre en commencant par
            #  le point (0, 0)- le point de vue (az) donne l'ordre dans une colonne de kinects(cf document "notice")
 
-		{'address':'10.42.0.12', 'port': 0, 'x':5.50, 'y':0.2, 'z': 1.14, 'az':3*pi/6 ,'max':200},#1.1
-		{'address':'10.42.0.12', 'port': 1, 'x':5.50, 'y':0.2, 'z': 1.34, 'az':1*pi/6 ,'max':500}, #1.2
- 		{'address':'10.42.0.13', 'port': 0, 'x':5.0, 'y':0.2, 'z': 1.24, 'az':5*pi/6 ,'max':500},#1.3
-# 		{'address':'10.42.0.13', 'port': 1, 'x':8.2, 'y':0.2, 'z': 1.24, 'az':3*pi/6 ,'max':500},#1.3
+		{'address':'10.42.0.12', 'port': 0, 'x':4.10, 'y':0.5, 'z': 1.14, 'az':3*pi/6 ,'max':600},#1.1
+		{'address':'10.42.0.12', 'port': 1, 'x':4.10, 'y':0.5, 'z': 1.34, 'az':1*pi/6 ,'max':600}, #1.2
+ 		{'address':'10.42.0.13', 'port': 0, 'x':4.10, 'y':0.5, 'z': 1.24, 'az':5*pi/6 ,'max':300},#1.3
+ 		{'address':'10.42.0.13', 'port': 1, 'x':7.2, 'y':0.3, 'z': 1.24, 'az':3*pi/6 ,'max':600},#1.3
 
-		{'address':'10.42.0.19', 'port': 0, 'x':5.5, 'y':7.0, 'z': 1.24, 'az':7*pi/6 ,'max':555},#1.1
-		{'address':'10.42.0.18', 'port': 1, 'x':5.50, 'y':7.0, 'z': 1.14, 'az':9*pi/6 ,'max':500}, #1.2
-		{'address':'10.42.0.18', 'port': 0, 'x':5.50, 'y':7.0,  'z': 1.24, 'az':11*pi/6 ,'max':500},#1.3
-  		{'address':'10.42.0.19', 'port': 1, 'x':10.8, 'y':0.50, 'z': 1.24, 'az':3*pi/6 ,'max':400},#1.3
-
-
+		{'address':'10.42.0.14', 'port': 0, 'x':5.7, 'y':10.00, 'z': 1.24, 'az':9*pi/6 ,'max':555},#1.1
+		{'address':'10.42.0.14', 'port': 1, 'x':5.70, 'y':10.00, 'z': 1.14, 'az':7*pi/6 ,'max':300}, #1.2
+		{'address':'10.42.0.15', 'port': 0, 'x':5.70, 'y':10.00,  'z': 1.24, 'az':11*pi/6 ,'max':450},#1.3
+  		{'address':'10.42.0.15', 'port': 1, 'x':2.55, 'y':10.00, 'z': 1.24, 'az':9*pi/6 ,'max':400},#1.3
 
 		]
 
