@@ -36,6 +36,7 @@ def arcdistance(rae1, rae2):
     b =   np.sin(rae1[2, ...]) * np.sin(rae2[2, ...]) +  np.cos(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...])
     #return np.arctan(np.sqrt(a) / b)
     return np.arctan2(np.sqrt(a), b)
+
 def orientation(rae1, rae2):
     """
     renvoie le cap suivant le grand cercle (en radians)
@@ -47,10 +48,9 @@ def orientation(rae1, rae2):
      http://en.wikipedia.org/wiki/Great-circle_navigation
                 #http://en.wikipedia.org/wiki/Haversine_formula
     """
-    return np.arctan2(np.sin(rae2[1, ...] - rae1[1, ...]), 
-                      np.cos(rae1[2, ...])*np.tan(rae2[2, ...]) - np.sin(rae1[2, ...])*np.cos(rae2[1, ...] - rae1[1, ...]))
+    return np.arctan2(np.sin(rae2[1, ...] - rae1[1, ...]), np.cos(rae1[2, ...])*np.tan(rae2[2, ...]) - np.sin(rae1[2, ...])*np.cos(rae2[1, ...] - rae1[1, ...]))
 
-def xyz2azel(xyz, OV = np.zeros((3,)), eps=1.e-6):
+def xyz2azel(xyz, OV = np.zeros((3,)), eps=1.e-3):
     """
     renvoie le vecteur de coordonnées perceptuelles en fonction des coordonnées physiques
 
@@ -69,9 +69,9 @@ def xyz2azel(xyz, OV = np.zeros((3,)), eps=1.e-6):
     if (rae.ndim > 2): OV = OV[:, np.newaxis]
     rae[0, ...] = np.sqrt(np.sum((xyz - OV)**2, axis=0))
 #     rae[1, ...] = np.arctan2((xyz[1, ...] - OV[1, ...]), (xyz[0, ...] - OV[0, ...]))
-    rae[1, ...] = np.arctan2(xyz[1, ...] - OV[1], xyz[0, ...] - OV[0])
-    rae[2, ...] = np.arctan2(xyz[2, ...] - OV[2], rae[0, ...])
-#     rae[2, ...] = np.arcsin((xyz[2, ...] - OV[2, ...])/(rae[0, ...] + eps))
+    rae[1, ...] = np.arctan2(xyz[1, ...] - OV[1, ...], xyz[0, ...] - OV[0, ...])
+#     rae[2, ...] = np.arctan2(xyz[2, ...] - OV[2], rae[0, ...])
+    rae[2, ...] = np.arcsin((xyz[2, ...] - OV[2, ...])/(rae[0, ...] + eps))
     return rae
 
 def rae2xyz(rae, OV = np.zeros((3,))):
