@@ -39,7 +39,7 @@ volume = np.array([d_x, d_y,d_z])
 #distance_ecran = 2.446
 hauteur_ecran, distance_ecran  = 0.52, 1.35
 # distance dans l'axe de visee (essentiellement x)  entre le point mesuré (la vitre du VP) et le centre théorique du VP
-x_shift = .022/hauteur_ecran*distance_ecran
+# x_shift = .022/hauteur_ecran*distance_ecran
 # on calcule
 foc_estim = 2. * arctan2(hauteur_ecran/2., distance_ecran) * 180. / pi # ref P101L1
 #print foc_estim
@@ -60,7 +60,7 @@ scenario = "leapfrog" # integration d'Euler améliorée pour simuler le champ
 # profondeur du plan de référence
 # les VPs sont positionnés en rang (x constants) sur un coté de la salle (cx_0) ou l'autre de la salle (cx_1)
 #cx_0, cx_1 = 1. - x_shift, d_x + x_shift
-cx_0, cx_1 = 1. - x_shift, d_x 
+#cx_0, cx_1 = 1. - x_shift, d_x
 
 # tous les VPs regardent vers le VP central (positionné à d_y /2) au fond opposé
 cy = (d_y/2) # on regarde le centre du plan de reference
@@ -69,15 +69,15 @@ cy = (d_y/2) # on regarde le centre du plan de reference
 VPs = [
         {'address':'10.42.0.55',
             'x':0.55, 'y':1.69, 'z': cz,
-            'cx':cx_1, 'cy':cy, 'cz': cz,
+            'cx':d_x, 'cy':cy, 'cz': cz,
          'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
         {'address':'10.42.0.56',
              'x':0.55, 'y':5.19, 'z': cz,
-             'cx':cx_1, 'cy':cy, 'cz': cz,
+             'cx':d_x, 'cy':cy, 'cz': cz,
              'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
         {'address':'10.42.0.51',
              'x':0.55, 'y':8.69, 'z': cz,
-             'cx':cx_1, 'cy':cy, 'cz': cz,
+             'cx':d_x, 'cy':cy, 'cz': cz,
              'foc': foc, 'pc_min': pc_min, 'pc_max': pc_max},
         #{'address':'10.42.0.54',
             #'x':d_x-0.4, 'y':6.37, 'z': cz,
@@ -96,8 +96,7 @@ VPs = [
 import numpy as np
 calibration = {
         'center': np.array([d_x/2., d_y/2, VPs[0]['z']], dtype='f'), # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
-        # !!!!!!! ATTENTION POUR CROIX C'est inversé on a d_y,d_x!!!!!!!
-        'croix': np.array([10.8, 5.2, VPs[0]['z']], dtype='f'), # Visée Croix fond de salle = d_y ou milieu d_y/2
+        'croix': np.array([d_x, VPs[1]['y'], VPs[0]['z']], dtype='f'), # Visée Croix fond de salle x= d_x au milieu y=d_y/2
         #'croix': np.array([6.65, 3.13, 1.36], dtype='f'), # definition de la position de la croix
 #        'croix': np.array([11.95, 2.2, 1.36], dtype='f'), # definition de la position de la croix
 #         'roger': np.array([10.91, 6.24, 1.37], dtype='f'), #  fixation dot  (AKA Roger?)
