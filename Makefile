@@ -1,4 +1,4 @@
-default: editing_the_model.pdf test_coordonees_perceptives.pdf  test_modele_dynamique.pdf
+default: workflow.pdf test_coordonees_perceptives.pdf  test_modele_dynamique.pdf
 
 todo:
 	grep -R * (^|#)[ ]*(TODO|FIXME|XXX|HINT|TIP)( |:)([^#]*)
@@ -9,9 +9,9 @@ todo:
 
 # cleaning macros
 touch:
-	touch *.tex
+	touch *.ipynb
 
 clean:
-	rm -f *.dvi *.ps *.out *.log *.aux *.bbl *.blg *.snm *.fls *.nav *.toc *.fff *.synctex.gz* *.fdb_latexmk
+	rm -fr  *.tex test_modele_dynamique_files test_coordonees_perceptives_files workflow_files *.dvi *.ps *.out *.log *.aux *.bbl *.blg *.snm *.fls *.nav *.idx *.toc *.fff *.synctex.gz* *.fdb_latexmk
 
 .PHONY:  all clean
