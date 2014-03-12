@@ -142,7 +142,7 @@ p = {'N': 32,
      'A_break': 4., # amplitude de l'amplification de speed_0 dans les break #2 et #3
      'tau_break': .103, # duration du transient dans les breaks #2 et #3
      # parametres globaux
-     'damp': 0.15,  # facteur de damping / absorbe l'énergie / regle la viscosité
+     'damp': 0.1,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_G': 0.2,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_R': 0.2,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
