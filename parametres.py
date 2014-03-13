@@ -147,7 +147,7 @@ p = {'N': 32,
      'damp_G': 0.2,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'damp_R': 0.08,  # facteur de damping / absorbe l'énergie / regle la viscosité
      'speed_0': 1., # facteur global (et redondant avec les G_*) pour régler la vitesse des particules
-     'scale': 19., # facteur global régler la saturation de la force - inopérant au dessus de  scale_max
+     'scale': 21., # facteur global régler la saturation de la force - inopérant au dessus de  scale_max
      'scale_max': 20., # facteur global régler la saturation de la force - inopérant au dessus de scale_max
      'line_width': 3, # line width of segments
      }
