@@ -124,10 +124,9 @@ class Scenario:
         self.particles[3:6, :] = self.center[:, np.newaxis]
         d_x, d_y, d_z = self.volume
         self.particles[1, :] = np.linspace(0., d_y, self.N*self.nvps)
-        #self.particles[3:6, :] = self.particles[0:3, :] + np.ones((3, self.self.N*self.nvps))*self.l_seg
         self.particles[4, :] = self.particles[1, :]
-        self.particles[2, :] = d_z
-        self.particles[5, :] = d_z + self.l_seg
+        self.particles[2, :] = d_z # tombent du plafond
+        self.particles[5, :] = d_z - self.l_seg
 
     def champ(self, positions, events):
         N = self.N
@@ -686,9 +685,13 @@ class Scenario:
                 self.init()
                 print("some values like NaN breads")
 
-            vmax = 100.
-            index_out =  self.particles[:, :] < np.array([0., 0., 0., 0., 0., 0., -vmax, -vmax, -vmax, -vmax, -vmax, -vmax])[:, np.newaxis]
-            index_out += self.particles[:, :] > np.array([d_x, d_y, d_z, d_x, d_y, d_z, vmax, vmax, vmax, vmax, vmax, vmax])[:, np.newaxis]
+            pos_barrier, vmax = 1, 100.
+            index_out =  self.particles[:, :] < np.array([-pos_barrier, -pos_barrier, -pos_barrier,
+                                                          -pos_barrier, -pos_barrier, -pos_barrier,
+                                                          -vmax, -vmax, -vmax, -vmax, -vmax, -vmax])[:, np.newaxis]
+            index_out += self.particles[:, :] > np.array([d_x+pos_barrier, d_y+pos_barrier, d_z+pos_barrier,
+                                                          d_x+pos_barrier, d_y+pos_barrier, d_z+pos_barrier,
+                                                          vmax, vmax, vmax, vmax, vmax, vmax])[:, np.newaxis]
 #             print self.particles.shape, self.particles_init.shape, index_out.shape
 #             index_out_any = index_out
             if DEBUG: print 'DEBUG modele dynamique # of corrected particles coordinates ',  index_out.sum()
