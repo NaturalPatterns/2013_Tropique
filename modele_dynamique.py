@@ -29,13 +29,14 @@ def arcdistance(rae1, rae2):
     http://en.wikipedia.org/wiki/Great-circle_distance
     http://en.wikipedia.org/wiki/Vincenty%27s_formulae
     """
-#    a = np.sin((azel[2, ...] - azel[0, ...])/2) **2 + np.cos(azel[0, ...]) * np.cos(azel[2, ...]) * np.sin((azel[3, ...] - azel[1, ...])/2) **2
-#    return 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
     a =  (np.cos(rae2[2, ...]) * np.sin(rae2[1, ...] - rae1[1, ...]))**2
     a += (np.cos(rae1[2, ...]) * np.sin(rae2[2, ...]) -  np.sin(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...]))**2
     b =   np.sin(rae1[2, ...]) * np.sin(rae2[2, ...]) +  np.cos(rae1[2, ...]) *  np.cos(rae2[2, ...]) * np.cos(rae2[1, ...] - rae1[1, ...])
+#
     #return np.arctan(np.sqrt(a) / b)
     return np.arctan2(np.sqrt(a), b)
+#     print b.min(), b.max()
+#     return np.arccos(b)
 
 def orientation(rae1, rae2):
     """
@@ -46,7 +47,7 @@ def orientation(rae1, rae2):
      e =  elevation = ascension droite = lattitude (radians)
 
      http://en.wikipedia.org/wiki/Great-circle_navigation
-                #http://en.wikipedia.org/wiki/Haversine_formula
+
     """
     return np.arctan2(np.sin(rae2[1, ...] - rae1[1, ...]), np.cos(rae1[2, ...])*np.tan(rae2[2, ...]) - np.sin(rae1[2, ...])*np.cos(rae2[1, ...] - rae1[1, ...]))
 
@@ -114,6 +115,7 @@ class Scenario:
         self.order = 2
         self.t_break = 0.
         self.init()
+        self.particles_init = self.particles.copy()
 
     def init(self):
         # initialisation des particules
@@ -124,7 +126,8 @@ class Scenario:
         self.particles[1, :] = np.linspace(0., d_y, self.N*self.nvps)
         #self.particles[3:6, :] = self.particles[0:3, :] + np.ones((3, self.self.N*self.nvps))*self.l_seg
         self.particles[4, :] = self.particles[1, :]
-        self.particles[5, :] -= self.l_seg
+        self.particles[2, :] = d_z
+        self.particles[5, :] = d_z + self.l_seg
 
     def champ(self, positions, events):
         N = self.N
@@ -676,11 +679,22 @@ class Scenario:
             #self.particles[6:12, :] = force
             # application de l'acceleration calculée sur les positions
             self.particles[:6, :] += self.particles[6:12, :] * self.dt/2
+#             if DEBUG: print 'DEBUG modele dynamique , mean A, mean B, std A, std B ', self.particles[0:3, :].mean(axis=1), self.particles[3:6, :].mean(axis=1), self.particles[0:3, :].std(axis=1), self.particles[3:6, :].std(axis=1)
             if np.isnan(self.particles[:6, :]).any():
                 #print self.p
                 #raise ValueError("some values like NaN breads")
                 self.init()
                 print("some values like NaN breads")
+
+            vmax = 100.
+            index_out =  self.particles[:, :] < np.array([0., 0., 0., 0., 0., 0., -vmax, -vmax, -vmax, -vmax, -vmax, -vmax])[:, np.newaxis]
+            index_out += self.particles[:, :] > np.array([d_x, d_y, d_z, d_x, d_y, d_z, vmax, vmax, vmax, vmax, vmax, vmax])[:, np.newaxis]
+#             index_out = np.absolute(self.particles[:, :]) > np.array([d_x, d_y, d_z, d_x, d_y, d_z, vmax, vmax, vmax, vmax, vmax, vmax])[:, np.newaxis]
+#             print self.particles.shape, self.particles_init.shape, index_out.shape
+#             index_out_any = index_out
+            print index_out.sum()
+            self.particles[index_out] = self.particles_init[index_out]
+            if DEBUG: print 'DEBUG modele dynamique , mean , min, std, max ', self.particles[:, :].mean(), self.particles[:, :].min(), self.particles[:, :].std(), self.particles[:, :].max()
 
         elif self.scenario == 'euler':
             force = self.champ(positions=positions, events=events)
@@ -698,4 +712,3 @@ class Scenario:
 
 if __name__ == "__main__":
     import display_modele_dynamique
-    
