@@ -689,12 +689,12 @@ class Scenario:
             vmax = 100.
             index_out =  self.particles[:, :] < np.array([0., 0., 0., 0., 0., 0., -vmax, -vmax, -vmax, -vmax, -vmax, -vmax])[:, np.newaxis]
             index_out += self.particles[:, :] > np.array([d_x, d_y, d_z, d_x, d_y, d_z, vmax, vmax, vmax, vmax, vmax, vmax])[:, np.newaxis]
-#             index_out = np.absolute(self.particles[:, :]) > np.array([d_x, d_y, d_z, d_x, d_y, d_z, vmax, vmax, vmax, vmax, vmax, vmax])[:, np.newaxis]
 #             print self.particles.shape, self.particles_init.shape, index_out.shape
 #             index_out_any = index_out
-            print index_out.sum()
+            if DEBUG: print 'DEBUG modele dynamique # of corrected particles coordinates ',  index_out.sum()
             self.particles[index_out] = self.particles_init[index_out]
-            if DEBUG: print 'DEBUG modele dynamique , mean , min, std, max ', self.particles[:, :].mean(), self.particles[:, :].min(), self.particles[:, :].std(), self.particles[:, :].max()
+            if DEBUG: print 'DEBUG modele dynamique POS, mean , min, std, max ', self.particles[:6, :].mean(), self.particles[:6, :].min(), self.particles[:6, :].std(), self.particles[:6, :].max(),
+            if DEBUG: print 'DEBUG modele dynamique VEL, mean , min, std, max ', self.particles[6:, :].mean(), self.particles[6:, :].min(), self.particles[6:, :].std(), self.particles[6:, :].max()
 
         elif self.scenario == 'euler':
             force = self.champ(positions=positions, events=events)
