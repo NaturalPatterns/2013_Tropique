@@ -103,7 +103,7 @@ calibration = {
 #         'roger': np.array([10.91, 6.24, 1.37], dtype='f'), #  fixation dot  (AKA Roger?)
         'roger': np.array([d_x/2., VPs[1]['y'], VPs[0]['z']], dtype='f'), # central point of the room  / point focal, pour lequel on optimise kinect et VPs?
                 }
-print 'DEBUG parametres , position croix: ', calibration['croix']
+print ('DEBUG parametres , position croix: ', calibration['croix'])
 # parametres du champ
 p = {'N': 32,
      # parametres perceptifs
@@ -214,16 +214,16 @@ try:
                 value.append(slider_pylab(ax[i_key], key,  -(p[key] + (p[key]==0)*1.)*10, (p[key] + (p[key]==0)*1.)*10, valinit=p[key]))
 
         def update(val):
-            print '-'*80
+            print( '-'*80)
             for i_key, key in enumerate(liste_keys):
                 p[key]= value[i_key].val
-                print key, p[key]#, value[i_key].val
+                print (key, p[key])#, value[i_key].val
             plt.draw()
 
         for i_key, key in enumerate(liste_keys): value[i_key].on_changed(update)
         plt.show(block=False) # il faut pylab.ion() pour pas avoir de blocage
         return fig
-except Exception, e:
+except Exception as e:
     print('problem while importing sliders ! Error = ', e)
 
 if __name__ == "__main__":

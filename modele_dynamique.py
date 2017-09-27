@@ -190,7 +190,7 @@ class Scenario:
             self.t_break = self.t
 
         if (events == [1, 1, 1, 1, 1, 1, 1, 1]) : # break 1 - touche B
-            if DEBUG: print 'DEBUG, on est dans le break 1, on compte à rebours ',  self.t - self.t_break, speed_0
+            if DEBUG: print ('DEBUG, on est dans le break 1, on compte à rebours ',  self.t - self.t_break, speed_0)
             G_poussee = self.p['G_poussee_break']
             speed_0 = self.p['speed_break']
             damp = self.p['damp_break1']
@@ -206,9 +206,9 @@ class Scenario:
                 modult = -1. + 2.* (self.p['T_break'] - (self.t - self.t_break)) / self.p['T_break']
                 self.l_seg = self.l_seg_normal * (modult*(modult>0) + self.p['A_break'] * modul)
                 damp = self.p['damp_break23']
-                if DEBUG: print 'DEBUG, on est dans le break 2&3, modul      , modult, lseg ', modul, modult, modult*(modult>0) + self.p['A_break'] * modul
+                if DEBUG: print ('DEBUG, on est dans le break 2&3, modul      , modult, lseg ', modul, modult, modult*(modult>0) + self.p['A_break'] * modul)
             # reset the break after T_break seconds AND receiving the resetting signal
-            if DEBUG: print 'DEBUG, on est dans le break, on compte à rebours, speed_0 ',  self.t - self.t_break, speed_0
+            if DEBUG: print ('DEBUG, on est dans le break, on compte à rebours, speed_0 ',  self.t - self.t_break, speed_0)
             if self.t > self.t_break + self.p['T_break']: self.t_break = 0.
 
         #print 'DEBUG, damp, speed_0 ',  damp, speed_0
@@ -284,8 +284,8 @@ class Scenario:
                     gravity_axis_A_ = - VA_0 * (rae_VA[0]-rae_VS[0]) # en metres
                     gravity_axis_B_ = - VB_0 * (rae_VB[0]-rae_VS[0]) # en metres
                     if False: #if DEBUG:
-                        print "Convergence dans l'axe - A: ", (rae_VA[0]-rae_VS[0]).mean(), " +/- ", (rae_VA[0]-rae_VS[0]).std()
-                        print "Convergence dans l'axe - B: ", (rae_VB[0]-rae_VS[0]).mean(), " +/- ", (rae_VB[0]-rae_VS[0]).std()
+                        print ("Convergence dans l'axe - A: ", (rae_VA[0]-rae_VS[0]).mean(), " +/- ", (rae_VA[0]-rae_VS[0]).std())
+                        print ("Convergence dans l'axe - B: ", (rae_VB[0]-rae_VS[0]).mean(), " +/- ", (rae_VB[0]-rae_VS[0]).std())
 
                     # compute desired rotation
                     cap_SC = orientation(rae_VS, rae_VC)
@@ -694,10 +694,10 @@ class Scenario:
                                                           vmax, vmax, vmax, vmax, vmax, vmax])[:, np.newaxis]
 #             print self.particles.shape, self.particles_init.shape, index_out.shape
 #             index_out_any = index_out
-            if DEBUG: print 'DEBUG modele dynamique # of corrected particles coordinates ',  index_out.sum()
+            if DEBUG: print ('DEBUG modele dynamique # of corrected particles coordinates ',  index_out.sum())
             self.particles[index_out] = self.particles_init[index_out]
-            if DEBUG: print 'DEBUG modele dynamique POS, mean , min, std, max ', self.particles[:6, :].mean(), self.particles[:6, :].min(), self.particles[:6, :].std(), self.particles[:6, :].max(),
-            if DEBUG: print 'DEBUG modele dynamique VEL, mean , min, std, max ', self.particles[6:, :].mean(), self.particles[6:, :].min(), self.particles[6:, :].std(), self.particles[6:, :].max()
+            if DEBUG: print ('DEBUG modele dynamique POS, mean , min, std, max ', self.particles[:6, :].mean(), self.particles[:6, :].min(), self.particles[:6, :].std(), self.particles[:6, :].max(),)
+            if DEBUG: print ('DEBUG modele dynamique VEL, mean , min, std, max ', self.particles[6:, :].mean(), self.particles[6:, :].min(), self.particles[6:, :].std(), self.particles[6:, :].max())
 
         elif self.scenario == 'euler':
             force = self.champ(positions=positions, events=events)

@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
+help = """
 Particle-like simulations using pyglet.app
 
 Exploration mode.
 
     Interaction keyboard:
+    - H : toggle this help screen
     - TAB pour passer/sortir du fulscreen
     - espace : passage en first-person perspective
-    - H : more players
+    - M : more players
     - C : change viewpoint (cycle from one VP to another)
 
     Les interactions visuo - sonores sont simulées ici par des switches lançant des phases:
@@ -23,11 +24,12 @@ Exploration mode.
     - D : Down
 
 """
+toggle_help = True
 # HACK to avoid the "AccessInit: hash collision: 3 for both 1 and 1" bug...
 # see http://forum.jetbrains.com/thread/PyCharm-938
 import sys
-import PIL.Image
-sys.modules['Image'] = PIL.Image
+#import pillow.Image
+#sys.modules['Image'] = PIL.Image
 # TODO: modele 3D blending fog / épaisseur du triangle / projection fond de la salle
 # TODO: paramètre scan pour rechercher des bifurcations (edge of chaos)
 # TODO: contrôle de la vitesse du mouvement de position simulé
@@ -63,13 +65,13 @@ else:
 # ------------------
 import pyglet
 platform = pyglet.window.get_platform()
-print "platform" , platform
+print ("platform" , platform)
 display = platform.get_default_display()
-print "display" , display
+print ("display" , display)
 screens = display.get_screens()
-print "screens" , screens
+print ("screens" , screens)
 for i, screen in enumerate(screens):
-    print 'Screen %d: %dx%d at (%d,%d)' % (i, screen.width, screen.height, screen.x, screen.y)
+    print ('Screen %d: %dx%d at (%d,%d)' % (i, screen.width, screen.height, screen.x, screen.y))
 N_screen = len(screens) # number of screens
 N_screen = 1# len(screens) # number of screens
 assert N_screen == 1 # we should be running on one screen only
@@ -148,130 +150,141 @@ def on_key_press(symbol, modifiers):
         events[2] = 1 - events[2]
     elif symbol == pyglet.window.key.S:
         events[7] = 1 - events[7]
-    elif symbol == pyglet.window.key.H:
+    elif symbol == pyglet.window.key.M:
         n_players = (n_players + 1) %5
-        print 'n_players: ', n_players
+        print ('n_players: ', n_players)
+    elif symbol == pyglet.window.key.H:
+        toggle_help = not(toggle_help)
     elif symbol == pyglet.window.key.C:
         s_VP = (s_VP + 1) % s.nvps
         s_VP_fp = (s_VP_fp + 1) % s.nvps
-        print 'you are sitting in the eye of VP no ', s_VP
+        print( 'you are sitting in the eye of VP no ', s_VP)
     else:
-        print symbol
-        print events
+        print (symbol)
+        print (events)
 
 from numpy import sin, cos, pi
 
 @win_0.event
 def on_resize(width, height):
-    print 'The window was resized to %dx%d' % (width, height)
+    print ('The window was resized to %dx%d' % (width, height))
 @win_0.event
 def on_draw():
-    global s, s_VP, s_VP_fp, n_players, t1, t0
-    t = s.t
-
-    if do_sock:
-        positions = k.read_sock() #
+    if toggle_help:
+        label = pyglet.text.Label('Hello, world',
+                          font_name='Times New Roman',
+                          font_size=36,
+                          x=win_0.width//2, y=win_0.height//2,
+                          anchor_x='center', anchor_y='center')
+        win_0.clear()
+        label.draw()
     else:
-        # pour simuler ROGER:
-        amp, amp2 = .1, .3
-        T, T2 = 25., 30. # periode en secondes
-        positions_ = []
-        positions_.append([s.roger[0], s.roger[1], s.roger[2]]) #  bouge pas, roger.
-        positions_.append([s.roger[0] * (1. + amp*cos(2*pi*s.t/T2)), s.roger[1] * (.8 + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
-        positions_.append([s.roger[0] * (1. + amp*sin(2*pi*s.t/T2)), s.roger[1] * (1.2 + amp*sin(2*pi*s.t/T)), 1.2*s.roger[2]]) # une autre personne dans un mouvement en phase
-        positions_.append([s.roger[0] * (1. + amp2*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp2*cos(2*pi*s.t/T)), .5*s.roger[2]]) # une autre personne dans un mouvement en phase
-        positions_.append([s.roger[0], s.roger[1] * (1. + amp2*cos(2*pi*s.t/T2)), .9*s.roger[2]]) # une personne dans un mouvement circulaire (elipse)
-        positions = []
-        for position in positions_[:n_players]:
-            positions.append(position)
+        global s, s_VP, s_VP_fp, n_players, t1, t0
+        t = s.t
 
-         #[[9.71, 1.5, 1.03], [9.17, 3.61, 1.17], [10.98, 4.43, 1.85], [7.68, 4.53, 1.68]]
+        if do_sock:
+            positions = k.read_sock() #
+        else:
+            # pour simuler ROGER:
+            amp, amp2 = .1, .3
+            T, T2 = 25., 30. # periode en secondes
+            positions_ = []
+            positions_.append([s.roger[0], s.roger[1], s.roger[2]]) #  bouge pas, roger.
+            positions_.append([s.roger[0] * (1. + amp*cos(2*pi*s.t/T2)), s.roger[1] * (.8 + amp*cos(2*pi*s.t/T)), 1.*s.roger[2]]) # une autre personne dans un mouvement en phase
+            positions_.append([s.roger[0] * (1. + amp*sin(2*pi*s.t/T2)), s.roger[1] * (1.2 + amp*sin(2*pi*s.t/T)), 1.2*s.roger[2]]) # une autre personne dans un mouvement en phase
+            positions_.append([s.roger[0] * (1. + amp2*cos(2*pi*s.t/T2)), s.roger[1] * (1. + amp2*cos(2*pi*s.t/T)), .5*s.roger[2]]) # une autre personne dans un mouvement en phase
+            positions_.append([s.roger[0], s.roger[1] * (1. + amp2*cos(2*pi*s.t/T2)), .9*s.roger[2]]) # une personne dans un mouvement circulaire (elipse)
+            positions = []
+            for position in positions_[:n_players]:
+                positions.append(position)
 
-    s.do_scenario(positions=positions, events=events)
-    #if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
+             #[[9.71, 1.5, 1.03], [9.17, 3.61, 1.17], [10.98, 4.43, 1.85], [7.68, 4.53, 1.68]]
 
-    win_0.clear()
-    gl.glMatrixMode(gl.GL_MODELVIEW)
-    gl.glLoadIdentity()
-    if do_firstperson:
-        gl.glEnable(gl.GL_FOG)
-        gl.glFogi (gl.GL_FOG_MODE, gl.GL_LINEAR)
-        # gl.glFogfv (gl.GL_FOG_COLOR, [0.8,0.8,0.8, 1.])
-        gl.glHint (gl.GL_FOG_HINT, gl.GL_NICEST)#GL_DONT_CARE)
-        gl.glFogf (gl.GL_FOG_DENSITY, 0.0000001)
-        gl.glFogf (gl.GL_FOG_START, .0)
-        gl.glFogf (gl.GL_FOG_END, 60.0)
-        # gl.glClearColor(0.5, 0.5, 0.5, 1.0)
+        s.do_scenario(positions=positions, events=events)
+        #if DEBUG: print  s.particles[0:3, :].mean(axis=1), s.particles[3:6, :].mean(axis=1), s.particles[0:3, :].std(axis=1), s.particles[3:6, :].std(axis=1)
 
-        gl.gluPerspective(foc_fp, 1.0*win_0.width/win_0.height,
-                          VPs[s_VP_fp]['pc_min'], VPs[s_VP_fp]['pc_max'])
-        #x_fp, y_fp, z_fp = positions[0][0], positions[0][1], positions[0][2]
-        x_fp, y_fp, z_fp = s.croix
-        s.heading_fp += s.rot_heading_fp * (s.t -t) # 2* pi * s.t / 30
-        gluLookAt(x_fp, y_fp, z_fp,
-                  x_fp + np.cos(s.heading_fp), y_fp + np.sin(s.heading_fp), z_fp,
-                  0., 0, 1.0)
-        # montre la salle comme un joli parallélipède bleu
-        #gl.glPointSize(10)
-        #gl.glColor3f(0., 0., 1.)
-        #salle = [[0., 0., 0., d_x, 0., 0.], [0., 0., 0., 0., d_y, 0.], [0., 0., 0., 0., 0., d_z]]
-        #pyglet.graphics.draw(2*3, gl.GL_LINES, ('v3f', salle))¬
-        for i_VP, VP in enumerate(VPs):
-            # marque la postion de chaque VP par un joli carré vert
-            if show_VP:
+        win_0.clear()
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+        gl.glLoadIdentity()
+        if do_firstperson:
+            gl.glEnable(gl.GL_FOG)
+            gl.glFogi (gl.GL_FOG_MODE, gl.GL_LINEAR)
+            # gl.glFogfv (gl.GL_FOG_COLOR, [0.8,0.8,0.8, 1.])
+            gl.glHint (gl.GL_FOG_HINT, gl.GL_NICEST)#GL_DONT_CARE)
+            gl.glFogf (gl.GL_FOG_DENSITY, 0.0000001)
+            gl.glFogf (gl.GL_FOG_START, .0)
+            gl.glFogf (gl.GL_FOG_END, 60.0)
+            # gl.glClearColor(0.5, 0.5, 0.5, 1.0)
+
+            gl.gluPerspective(foc_fp, 1.0*win_0.width/win_0.height,
+                              VPs[s_VP_fp]['pc_min'], VPs[s_VP_fp]['pc_max'])
+            #x_fp, y_fp, z_fp = positions[0][0], positions[0][1], positions[0][2]
+            x_fp, y_fp, z_fp = s.croix
+            s.heading_fp += s.rot_heading_fp * (s.t -t) # 2* pi * s.t / 30
+            gluLookAt(x_fp, y_fp, z_fp,
+                      x_fp + np.cos(s.heading_fp), y_fp + np.sin(s.heading_fp), z_fp,
+                      0., 0, 1.0)
+            # montre la salle comme un joli parallélipède bleu
+            #gl.glPointSize(10)
+            #gl.glColor3f(0., 0., 1.)
+            #salle = [[0., 0., 0., d_x, 0., 0.], [0., 0., 0., 0., d_y, 0.], [0., 0., 0., 0., 0., d_z]]
+            #pyglet.graphics.draw(2*3, gl.GL_LINES, ('v3f', salle))¬
+            for i_VP, VP in enumerate(VPs):
+                # marque la postion de chaque VP par un joli carré vert
+                if show_VP:
+                    gl.glPointSize(10)
+                    gl.glColor3f(0., 1., 0.)
+                    pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', [VP['x'], VP['y'], VP['z']]))
+
+                VP_ = np.array([[VP['x'], VP['y'], VP['z']]]).T * np.ones((1, s.N))
+                p_ = s.particles[0:6, i_VP*s.N:(i_VP+1)*s.N].copy()
+                # projecting the segment on the wall opposite to the VPs
+                if VP['x'] > d_x/2: # un VP du coté x=0, on projete sur le plan x=0
+                    p_[1] = d_x / (d_x - p_[0]) * (p_[1]-VP['y']) + VP['y']
+                    p_[2] = d_x / (d_x - p_[0]) * (p_[2]-VP['z']) + VP['z']
+                    p_[4] = d_x / (d_x - p_[3]) * (p_[4]-VP['y']) + VP['y']
+                    p_[5] = d_x / (d_x - p_[3]) * (p_[5]-VP['z']) + VP['z']
+                    p_[0] = 0
+                    p_[3] = 0
+                else:
+                    p_[1] = d_x / (p_[0]) * (p_[1]-VP['y']) + VP['y']
+                    p_[2] = d_x / (p_[0]) * (p_[2]-VP['z']) + VP['z']
+                    p_[4] = d_x / (p_[3]) * (p_[4]-VP['y']) + VP['y']
+                    p_[5] = d_x / (p_[3]) * (p_[5]-VP['z']) + VP['z']
+                    p_[0] = d_x
+                    p_[3] = d_x
+                colors_ = np.array([int_fp, int_fp, int_fp, alpha_fp, intB_fp, intB_fp, intB_fp, alpha_fp, intB_fp, intB_fp, intB_fp, alpha_fp])[:, np.newaxis] * np.ones((1, s.N))
+                pyglet.graphics.draw(3*s.N, gl.GL_TRIANGLES,
+                                     ('v3f', np.vstack((VP_, p_)).T.ravel().tolist()),
+                                     ('c4f', colors_.T.ravel().tolist()))
+
+        else:
+            gl.glDisable(gl.GL_FOG)
+            #gl.glMatrixMode(gl.GL_PROJECTION)
+            #gl.glLoadIdentity()
+            gl.gluPerspective(foc_VP, 1.0*win_0.width/win_0.height,
+                              VPs[s_VP]['pc_min'], VPs[s_VP]['pc_max'])
+            gluLookAt(VPs[s_VP]['x'], VPs[s_VP]['y'], VPs[s_VP]['z'],
+                      VPs[s_VP]['cx'], VPs[s_VP]['cy'], VPs[s_VP]['cz'],
+                      0., 0, 1.0)
+            #gl.glMatrixMode(gl.GL_MODELVIEW)
+            #gl.glLoadIdentity()
+
+            # TODO: make an option to view particles from above
+            #gl.gluOrtho2D(0.0, d_y, 0., d_z) #left, right, bottom, top, near, far
+
+            gl.glLineWidth (p['line_width'])
+            # marque la postion des personnes par un joli carré rouge
+            for position in positions:
                 gl.glPointSize(10)
-                gl.glColor3f(0., 1., 0.)
-                pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', [VP['x'], VP['y'], VP['z']]))
+                gl.glColor3f(1., 0., 0.)
+                pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', position))
 
-            VP_ = np.array([[VP['x'], VP['y'], VP['z']]]).T * np.ones((1, s.N))
-            p_ = s.particles[0:6, i_VP*s.N:(i_VP+1)*s.N].copy()
-            # projecting the segment on the wall opposite to the VPs
-            if VP['x'] > d_x/2: # un VP du coté x=0, on projete sur le plan x=0
-                p_[1] = d_x / (d_x - p_[0]) * (p_[1]-VP['y']) + VP['y']
-                p_[2] = d_x / (d_x - p_[0]) * (p_[2]-VP['z']) + VP['z']
-                p_[4] = d_x / (d_x - p_[3]) * (p_[4]-VP['y']) + VP['y']
-                p_[5] = d_x / (d_x - p_[3]) * (p_[5]-VP['z']) + VP['z']
-                p_[0] = 0
-                p_[3] = 0
-            else:
-                p_[1] = d_x / (p_[0]) * (p_[1]-VP['y']) + VP['y']
-                p_[2] = d_x / (p_[0]) * (p_[2]-VP['z']) + VP['z']
-                p_[4] = d_x / (p_[3]) * (p_[4]-VP['y']) + VP['y']
-                p_[5] = d_x / (p_[3]) * (p_[5]-VP['z']) + VP['z']
-                p_[0] = d_x
-                p_[3] = d_x
-            colors_ = np.array([int_fp, int_fp, int_fp, alpha_fp, intB_fp, intB_fp, intB_fp, alpha_fp, intB_fp, intB_fp, intB_fp, alpha_fp])[:, np.newaxis] * np.ones((1, s.N))
-            pyglet.graphics.draw(3*s.N, gl.GL_TRIANGLES,
-                                 ('v3f', np.vstack((VP_, p_)).T.ravel().tolist()),
-                                 ('c4f', colors_.T.ravel().tolist()))
+            gl.glColor3f(1., 1., 1.)
 
-    else:
-        gl.glDisable(gl.GL_FOG)
-        #gl.glMatrixMode(gl.GL_PROJECTION)
-        #gl.glLoadIdentity()
-        gl.gluPerspective(foc_VP, 1.0*win_0.width/win_0.height,
-                          VPs[s_VP]['pc_min'], VPs[s_VP]['pc_max'])
-        gluLookAt(VPs[s_VP]['x'], VPs[s_VP]['y'], VPs[s_VP]['z'],
-                  VPs[s_VP]['cx'], VPs[s_VP]['cy'], VPs[s_VP]['cz'],
-                  0., 0, 1.0)
-        #gl.glMatrixMode(gl.GL_MODELVIEW)
-        #gl.glLoadIdentity()
+            pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, s_VP*s.N:(s_VP+1)*s.N].T.ravel().tolist()))
 
-        # TODO: make an option to view particles from above
-        #gl.gluOrtho2D(0.0, d_y, 0., d_z) #left, right, bottom, top, near, far
-
-        gl.glLineWidth (p['line_width'])
-        # marque la postion des personnes par un joli carré rouge
-        for position in positions:
-            gl.glPointSize(10)
-            gl.glColor3f(1., 0., 0.)
-            pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', position))
-
-        gl.glColor3f(1., 1., 1.)
-
-        pyglet.graphics.draw(2*s.N, gl.GL_LINES, ('v3f', s.particles[0:6, s_VP*s.N:(s_VP+1)*s.N].T.ravel().tolist()))
-
-    if do_sock: k.trigger()
+        if do_sock: k.trigger()
 
 def callback(dt):
     global do_sock
@@ -287,4 +300,4 @@ if s.scenario=='leapfrog' and do_slider:
 
 pyglet.clock.schedule(callback)
 pyglet.app.run()
-print 'Goodbye'
+print ('Goodbye')
