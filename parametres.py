@@ -24,8 +24,8 @@ from numpy import arctan2, pi
 import numpy as np
 
 # pour savoir si on imprime des messages d'erreur
-DEBUG  = False
 DEBUG  = True
+DEBUG  = False
 
 # taille de l'espace
 d_y, d_z = 10.38, 6.
