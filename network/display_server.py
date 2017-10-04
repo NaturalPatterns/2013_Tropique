@@ -7,7 +7,7 @@ Created on Fri May 18 14:41:46 2012
 """
 import sys
 sys.path.append('..')
-from parametres import VPs, volume, p, calibration, run_thread_network_config
+from parametres_vasarely import VPs, volume, p, calibration, run_thread_network_config
 
 import socket
 from network import VP

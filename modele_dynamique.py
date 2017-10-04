@@ -12,7 +12,8 @@ Rassemble les fonctions:
     - de l'intégration de ce champ en mouvement
 
 """
-from parametres import DEBUG
+from parametres_vasarely import DEBUG
+
 import numpy as np
 import time
 

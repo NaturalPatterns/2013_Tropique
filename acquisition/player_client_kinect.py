@@ -6,7 +6,7 @@ import sys
 sys.path.append('..')
 import socket
 import os
-from parametres import info_kinects , DEBUG
+from parametres_vasarely import info_kinects , DEBUG
 
 nbr_kinect = 0
 import time as time

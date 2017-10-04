@@ -10,7 +10,7 @@ import fcntl
 import struct
 global my_thresholdarray
 sys.path.append('..')
-from parametres import info_kinects
+from parametres_vasarely import info_kinects
 
 #-----parametre de normalisation des infos (pixel to metre)
 global fx_d , fy_d , cx_d , cy_d

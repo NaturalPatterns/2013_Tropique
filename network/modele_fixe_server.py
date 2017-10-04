@@ -9,7 +9,7 @@ Script renvoyant des données de calibration au réseau des VPs.
 
 import sys
 sys.path.append('..')
-from parametres import VPs, volume, p , run_thread_network_config, DEBUG, calibration, scenario
+from parametres_vasarely import VPs, volume, p , run_thread_network_config, DEBUG, calibration, scenario
 # si on ne donne pas d'argument, on prend le parametre scenario par défaut
 if len(sys.argv) == 2:
     # mais si on en donne un (genre `croix`), il est utilisé pour ce run

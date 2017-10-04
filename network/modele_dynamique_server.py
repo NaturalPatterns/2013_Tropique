@@ -6,7 +6,7 @@ import time
 start_time = time.time()
 from time import gmtime, strftime
 import socket
-from parametres import VPs, volume, p, kinects_network_config, run_thread_network_config, scenario, calibration, DEBUG 
+from parametres_vasarely import VPs, volume, p, kinects_network_config, run_thread_network_config, scenario, calibration, DEBUG 
 # si on ne donne pas d'argument, on prend le parametre scenario par défaut
 if len(sys.argv) >1:
     # mais si on en donne un (genre `croix`), il est utilisé pour ce run
@@ -57,7 +57,7 @@ do_slider = True
 do_slider = False
 if do_slider:
     try:
-        from parametres import sliders
+        from parametres_vasarely import sliders
         if s.scenario=='leapfrog': fig = sliders(s.p)
     except Exception, e:
         print('problem while importing sliders ! Error = ', e)

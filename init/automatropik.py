@@ -23,7 +23,7 @@ x_mouse=0
 y_mouse=0
 
 #sys.path.append('..')
-#from parametres import  p, volume , info_kinects,d_y, d_z,d_x
+#from parametres_vasarely import  p, volume , info_kinects,d_y, d_z,d_x
 
 import sys
 x = int(sys.argv[1])*100.0

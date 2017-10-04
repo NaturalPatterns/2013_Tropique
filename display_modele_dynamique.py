@@ -37,7 +37,7 @@ import sys
 # TODO: paramètre scan pour rechercher des bifurcations (edge of chaos)
 # TODO: contrôle de la vitesse du mouvement de position simulé
 ########################################
-from parametres import sliders, VPs, volume, p, kinects_network_config, d_x, d_y, d_z, scenario, calibration, DEBUG
+from parametres_vasarely import sliders, VPs, volume, p, kinects_network_config, d_x, d_y, d_z, scenario, calibration, DEBUG
 from modele_dynamique import Scenario
 s = Scenario(p['N'], scenario, volume, VPs, p, calibration)
 ########################################
@@ -47,6 +47,7 @@ s_VP = 0  # VP utilisé comme projecteur en mode projection
 do_slider = True
 do_slider = False
 do_fs = not do_slider
+# do_fs = False
 do_sock = True
 do_sock = False
 do_interference = True
@@ -81,43 +82,18 @@ assert N_screen == 1 # we should be running on one screen only
 
 from pyglet.window import Window
 
-# window = pyglet.window.Window()
-# label = pyglet.text.Label(help_txt,
-#                           font_name='Times New Roman',
-#                           font_size=18,
-#                           x=window.width//2, y=window.height//2,
-#                           anchor_x='center', anchor_y='center')
-    # label = pyglet.text.Label('Hello, world',
-    #                   font_size=36,
-    #                   color=(255, 255, 0, 255),
-    #                   x=win_0.width//2, y=win_0.height//2,
-    #                   anchor_x='center', anchor_y='center'
-    #                   )
-# @window.event
-# def on_draw():
-#     window.clear()
-#     label.draw()
-#
-# pyglet.app.run()
-
 if do_fs:
     win_0 = Window(screen=screens[0], fullscreen=True, resizable=True)
 else:
     win_0 = Window(width=screen.width*2/3, height=screen.height*2/3, screen=screens[0], fullscreen=False, resizable=True)
     win_0.set_location(screen.width/3, screen.height/3)
 
-label = pyglet.text.Label('Hello, world', #help_txt,
-                          font_name='Times New Roman',
-                          font_size=18,
-                          x=20, y=20, #x=win_0.width//2, y=win_0.height//2,
-                          anchor_x='center', anchor_y='center'
-                          )
-
 import pyglet.gl as gl
-fps_text = pyglet.clock.ClockDisplay()
+# fps_text = pyglet.clock.ClockDisplay()
 from pyglet.gl.glu import gluLookAt
 import numpy as np
 
+@win_0.event
 def on_resize(width, height):
     gl.glViewport(0, 0, width, height)
     gl.glEnable(gl.GL_BLEND)
@@ -195,22 +171,17 @@ def on_key_press(symbol, modifiers):
 
 from numpy import sin, cos, pi
 
-@win_0.event
-def on_resize(width, height):
-    print ('The window was resized to %dx%d' % (width, height))
+# @win_0.event
+# def on_resize(width, height):
+#     print ('The window was resized to %dx%d' % (width, height))
 
 @win_0.event
 def on_draw():
+    global toggle_help
     if toggle_help:
         print(help_txt)
         toggle_help = not(toggle_help)
 
-    #
-    #     # win_0.clear()
-    #     # gl.glMatrixMode(gl.GL_MODELVIEW)
-    #     # gl.glLoadIdentity()
-    #     label.draw()
-    # else:
     global s, s_VP, s_VP_fp, n_players, t1, t0
     t = s.t
 
@@ -249,24 +220,28 @@ def on_draw():
         gl.glFogf (gl.GL_FOG_END, 60.0)
         # gl.glClearColor(0.5, 0.5, 0.5, 1.0)
 
+        print ('perspective ', (foc_fp, 1.0*win_0.width/win_0.height, VPs[s_VP_fp]['pc_min'], VPs[s_VP_fp]['pc_max']))
         gl.gluPerspective(foc_fp, 1.0*win_0.width/win_0.height,
                           VPs[s_VP_fp]['pc_min'], VPs[s_VP_fp]['pc_max'])
         #x_fp, y_fp, z_fp = positions[0][0], positions[0][1], positions[0][2]
         x_fp, y_fp, z_fp = s.croix
         s.heading_fp += s.rot_heading_fp * (s.t -t) # 2* pi * s.t / 30
+        print ('gluLookAt ', (x_fp, y_fp, z_fp,
+                  x_fp + np.cos(s.heading_fp), y_fp + np.sin(s.heading_fp), z_fp))
         gluLookAt(x_fp, y_fp, z_fp,
                   x_fp + np.cos(s.heading_fp), y_fp + np.sin(s.heading_fp), z_fp,
                   0., 0, 1.0)
         # montre la salle comme un joli parallélipède bleu
-        #gl.glPointSize(10)
-        #gl.glColor3f(0., 0., 1.)
-        #salle = [[0., 0., 0., d_x, 0., 0.], [0., 0., 0., 0., d_y, 0.], [0., 0., 0., 0., 0., d_z]]
-        #pyglet.graphics.draw(2*3, gl.GL_LINES, ('v3f', salle))¬
+        # gl.glPointSize(10)
+        # gl.glColor3f(0., 0., 1.)
+        # salle = [[0., 0., 0., d_x, 0., 0.], [0., 0., 0., 0., d_y, 0.], [0., 0., 0., 0., 0., d_z]]
+        # pyglet.graphics.draw(6*3, gl.GL_LINES, ('v3f', salle))
         for i_VP, VP in enumerate(VPs):
             # marque la postion de chaque VP par un joli carré vert
             if show_VP:
                 gl.glPointSize(10)
                 gl.glColor3f(0., 1., 0.)
+                print('VP=', [VP['x'], VP['y'], VP['z']])
                 pyglet.graphics.draw(1, gl.GL_POINTS, ('v3f', [VP['x'], VP['y'], VP['z']]))
 
             VP_ = np.array([[VP['x'], VP['y'], VP['z']]]).T * np.ones((1, s.N))

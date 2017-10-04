@@ -4,7 +4,7 @@
 """
 import sys
 sys.path.append('..')
-from parametres import info_kinects , DEBUG
+from parametres_vasarely import info_kinects , DEBUG
 import socket
 import os
 

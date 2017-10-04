@@ -13,7 +13,7 @@ import time as time
 
 import sys
 sys.path.append('..')
-from parametres import VPs, p, volume , info_kinects,d_y, d_z,d_x, DEBUG
+from parametres_vasarely import VPs, p, volume , info_kinects,d_y, d_z,d_x, DEBUG
 # Screen information
 # ------------------
 print d_y, d_z, d_x

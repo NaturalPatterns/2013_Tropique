@@ -11,7 +11,7 @@ import fcntl
 import struct
 global my_thresholdarray
 sys.path.append('..')
-from parametres import info_kinects
+from parametres_vasarely import info_kinects
 global fx_d , fy_d , cx_d , cy_d
 fx_d = 1.0 / 5.9421434211923247e+02;
 fy_d = 1.0 / 5.9104053696870778e+02;

@@ -21,7 +21,7 @@ print "DEBUG: display client says my ip is =", my_ip
 
 # Screen information
 # ------------------
-from parametres import VPs, p, volume, run_thread_network_config, DEBUG
+from parametres_vasarely import VPs, p, volume, run_thread_network_config, DEBUG
 
 from network import VP
 vps= VP(run_thread_network_config['ip_to_line_res'] , 7005 , 7006)
