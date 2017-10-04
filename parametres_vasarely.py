@@ -103,7 +103,7 @@ calibration = {
 #        'croix': np.array([11.95, 2.2, 1.36], dtype='f'), # definition de la position de la croix
         'roger': np.array([10.91, 6.24, 1.37], dtype='f'), #  fixation dot  (AKA Roger?)
                 }
-print 'DEBUG parametres , position croix: ', calibration['croix']
+print ('DEBUG parametres , position croix: ', calibration['croix'])
 # parametres du champ
 p = {'N': 32,
      # parametres perceptifs
