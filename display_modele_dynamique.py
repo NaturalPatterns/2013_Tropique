@@ -115,6 +115,9 @@ win_0.set_visible(True)
 gl.glMatrixMode(gl.GL_MODELVIEW)
 gl.glLoadIdentity()
 gl.gluPerspective(foc_VP, 1.0*win_0.width/win_0.height, VPs[i_win]['pc_min'], VPs[i_win]['pc_max'])
+# gluLookAt(camera[0], camera[1], camera[2], /* look from camera XYZ */ 
+#           0, 0, 0,  /* look at the origin */
+#           0, 1, 0); /* positive Y up vector */
 gluLookAt(VPs[i_win]['x'], VPs[i_win]['y'], VPs[i_win]['z'],
             VPs[i_win]['cx'], VPs[i_win]['cy'], VPs[i_win]['cz'],
             0., 0, 1.0)
