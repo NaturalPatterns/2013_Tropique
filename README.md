@@ -1,19 +1,3 @@
-pyTROPIQUE
-==========
-
-liste prioritaire:
-------------------
-* rotation 
-* manifold: dynamique rapide autout du sujet / rotation
-* unification des forces pour simplifier le systeme / passage à des forces elastiques type ressort plutot que gravitation
-* ecrire les forces par rapports aux VPs globalement au lieu de séquentiellement
-* structuration
-* doc
-* homeostasie de l'énergie / régler le comportement aux bords
-
-doc concept
-===========
-
 
 Tropique
 ========
@@ -26,7 +10,6 @@ Tropique est le lieu d'une recherche d'un espace révélant sa nature et ses str
 
 Tropique est une installation qui se situe dans la continuité d'une démarche plastique orientée sur la question de l'espace et de la lumière.
 Ainsi en amont et en parallèle de Tropique des séries nommées Diffraction et Réflexion ont permis de réalisées des installations où l'espace est composé par des transformations (optiques) de la  lumière par la matière. Alors que dans ces installations il était mis en relation le matériel et l'immatériel, dans Tropique il s'agissait de constitué un espace seulement constitué d'immatériel.
-
 
  * de la ligne à la brume
 
@@ -46,6 +29,7 @@ A ce stade du projet, il faut évoquer deux artistes :
 Ann Veronica Janssens et Anthony Mc Call*. Ann Veronica Janssens pour son travail sur la perception et ces environnements constitués de lumières pures. Et Anthony Mc Call pour ces " Solid light". En effet la solution retenu et l'axe de travail de Tropique posait d'en un premier temps la nécessité et la possibilité de réaliser cette pièce au regard du magnifique travail sur les "Solid light" d'Antony McCall. En effet il n'était pas question de refaire quelquechose qui avait déjà été si bien fait. Ceci à donc été un vrai questionnement qui à conduit à laisser certaines pistes et à en poursuives d'autres. En l'occurrence la piste de courbes à été mise complètement de côté puisque les espaces générée correspondaient au travail d'Antony McCall.
 
  * nétteté et cisellement
+ 
 Pour Tropique ce qui a été retenu c'est le travail sur le trait, le rayon lumineux qui associés à la brûme permettaient de constituer un espace ciselé et sous certains axe des ultra-netteté. Cette question de l'ultra netteté a permis de dégager une recherche spécifique et de poursuivre la question du point de vue dans l'espace. En effet dans les séries des Diffraction l'évolution du point de vu offrait une évolution de volumes, passant de la transparences et créant des profondeurs à la réflexion et produisant un renforcement des volumes. Ou encore avec les "Reflexion" dont l'aspect caméléon, avec des surfaces empruntant les "images" de l'environnement fragmentait le volume de l'installation.
 Avec Tropique les rayons de lumière passe du flou à une extra-netteté en fonction de la position d e l'oeil par rapport à l'angle de projection de la lumière. Et ce passage du flou à l'extra-netteté on pour conséquence de faire évoluer la perception de la profondeur. Ainsi, le flou place le rayon dans notre entourage, la lumière et l'environnement crée est proche. Alors que lorsque le rayon est extra-net, il produit un espace semblant être à l'infini. L'effet de cisèlement de l'espace est produit par ce contraste maximum entre la lumière des rayons lumineux et le noir. Ce cisèlement contribue à l'intention de produire un espace finement constituée de lamèles de lumières et où l'espace est tout autant espace (architecturé) que lumière et non pas surfaces matérielles éclairées.
 
@@ -91,3 +75,16 @@ Dicussion
 Antony Mc Call : http://www.anthonymccall.com/
 
 Ann Veronica Janssens : https://vimeo.com/user3123692
+
+pyTROPIQUE : le code de Tropique
+================================
+
+améliorations possibles:
+------------------------
+* rotation 
+* manifold: dynamique rapide autout du sujet / rotation
+* unification des forces pour simplifier le systeme / passage à des forces elastiques type ressort plutot que gravitation
+* ecrire les forces par rapports aux VPs globalement au lieu de séquentiellement
+* structuration
+* doc
+* homeostasie de l'énergie / régler le comportement aux bords
